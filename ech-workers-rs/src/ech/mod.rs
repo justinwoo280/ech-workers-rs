@@ -6,4 +6,4 @@ pub mod doh;
 pub mod config;
 
 pub use doh::query_ech_config;
-pub use config::parse_ech_config;
+pub use config::{validate_ech_config_list, has_supported_version, ECH_VERSION_DRAFT18};

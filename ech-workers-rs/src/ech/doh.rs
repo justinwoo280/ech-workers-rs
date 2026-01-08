@@ -6,22 +6,21 @@
 
 use tracing::{debug, info, warn};
 use crate::error::{Error, Result};
+use super::config;
 
 const TYPE_HTTPS: u16 = 65;  // HTTPS RR type
 const SVCPARAM_ECH: u16 = 5;  // ECH SvcParam key
 
 /// 查询 ECH 配置
 /// 
-/// 通过 DoH 查询指定域名的 HTTPS 记录，提取 ECH 配置
+/// 通过 DoH 查询指定域名的 HTTPS 记录，提取并验证 ECH 配置
 /// 
 /// # 参数
-/// 
 /// - `domain`: 要查询的域名（如 "cloudflare-ech.com"）
 /// - `doh_server`: DoH 服务器地址（如 "dns.alidns.com/dns-query"）
 /// 
 /// # 返回
-/// 
-/// ECH 配置的原始字节（base64 解码后）
+/// - 验证通过的 ECHConfigList 原始字节
 pub async fn query_ech_config(domain: &str, doh_server: &str) -> Result<Vec<u8>> {
     debug!("Querying ECH config for {} via {}", domain, doh_server);
     
@@ -50,7 +49,6 @@ pub async fn query_ech_config(domain: &str, doh_server: &str) -> Result<Vec<u8>>
     let response = client
         .get(&doh_url)
         .header("Accept", "application/dns-message")
-        .header("Content-Type", "application/dns-message")
         .send()
         .await
         .map_err(|e| Error::Dns(format!("DoH request failed: {}", e)))?;
@@ -68,7 +66,17 @@ pub async fn query_ech_config(domain: &str, doh_server: &str) -> Result<Vec<u8>>
         .map_err(|e| Error::Dns(format!("Failed to read response: {}", e)))?;
     
     // 5. 解析 DNS 响应
-    parse_dns_response(&body)
+    let ech_config = parse_dns_response(&body)?;
+    
+    // 6. 验证 ECH 配置格式
+    config::validate_ech_config_list(&ech_config)?;
+    
+    // 7. 检查是否有支持的版本
+    if !config::has_supported_version(&ech_config) {
+        warn!("ECH config has no supported version (draft-18)");
+    }
+    
+    Ok(ech_config)
 }
 
 /// 构建 DNS 查询
