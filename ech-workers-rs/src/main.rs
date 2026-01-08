@@ -4,7 +4,6 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod config;
 mod error;
-mod stream;
 mod transport;
 mod proxy;
 mod ech;
