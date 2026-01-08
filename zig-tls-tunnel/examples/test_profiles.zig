@@ -29,7 +29,6 @@ pub fn main() !void {
         .host = host,
         .port = port,
         .profile = profile,
-        .auto_ech = false, // Disable auto ECH for testing
     };
 
     // Create tunnel

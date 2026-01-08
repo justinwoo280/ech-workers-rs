@@ -51,7 +51,6 @@ pub fn main() !void {
         .host = host,
         .port = port,
         .ech_config = ech_config,
-        .auto_ech = false,
         .profile = .Firefox120,
     };
 

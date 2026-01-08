@@ -25,7 +25,6 @@ pub fn main() !void {
     const config = tls.tunnel.TunnelConfig{
         .host = host,
         .port = port,
-        .auto_ech = false, // Disable auto ECH (requires dig command)
         .profile = .Firefox120, // Use Firefox fingerprint
     };
 
