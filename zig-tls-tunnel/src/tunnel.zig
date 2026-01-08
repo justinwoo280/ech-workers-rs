@@ -220,85 +220,42 @@ fn connectTcp(
 }
 
 /// 带超时的连接
+/// 使用 SO_SNDTIMEO 设置连接超时
 fn connectWithTimeout(
     sock: std.posix.socket_t,
     addr: *const std.posix.sockaddr,
     addrlen: std.posix.socklen_t,
     timeout_ms: u32,
 ) !void {
-    // 设置非阻塞模式
-    const flags = std.posix.fcntl(sock, std.posix.F.GETFL, 0) catch return error.ConnectionFailed;
-    _ = std.posix.fcntl(sock, std.posix.F.SETFL, flags | std.posix.O.NONBLOCK) catch return error.ConnectionFailed;
+    // 设置发送超时（connect 会使用此超时）
+    const timeout_sec = timeout_ms / 1000;
+    const timeout_usec = (timeout_ms % 1000) * 1000;
     
-    // 尝试连接（非阻塞，会立即返回）
-    const connect_result = std.posix.connect(sock, addr, addrlen);
-    
-    if (connect_result) |_| {
-        // 连接立即成功（本地连接可能发生）
-        _ = std.posix.fcntl(sock, std.posix.F.SETFL, flags) catch {};
-        return;
-    } else |err| {
-        // 非阻塞连接返回 EINPROGRESS 是正常的
-        if (err != error.WouldBlock) {
-            _ = std.posix.fcntl(sock, std.posix.F.SETFL, flags) catch {};
-            return err;
-        }
-    }
-    
-    // 使用 poll 等待连接完成
-    var fds = [_]std.posix.pollfd{
-        .{
-            .fd = sock,
-            .events = std.posix.POLL.OUT,
-            .revents = 0,
-        },
+    const timeval = extern struct {
+        tv_sec: c_long,
+        tv_usec: c_long,
+    }{
+        .tv_sec = @intCast(timeout_sec),
+        .tv_usec = @intCast(timeout_usec),
     };
     
-    const timeout_i32: i32 = if (timeout_ms > std.math.maxInt(i32)) 
-        std.math.maxInt(i32) 
-    else 
-        @intCast(timeout_ms);
+    // SO_SNDTIMEO 用于 connect 超时
+    _ = std.c.setsockopt(
+        sock,
+        std.posix.SOL.SOCKET,
+        std.posix.SO.SNDTIMEO,
+        @ptrCast(&timeval),
+        @sizeOf(@TypeOf(timeval)),
+    );
     
-    const poll_result = std.posix.poll(&fds, timeout_i32);
-    
-    // 恢复阻塞模式
-    _ = std.posix.fcntl(sock, std.posix.F.SETFL, flags) catch {};
-    
-    if (poll_result == 0) {
-        // 超时
-        std.log.warn("TCP connect timeout after {}ms", .{timeout_ms});
-        return error.ConnectionTimedOut;
-    }
-    
-    if (poll_result < 0) {
-        return error.ConnectionFailed;
-    }
-    
-    // 检查连接是否成功
-    if (fds[0].revents & std.posix.POLL.ERR != 0) {
-        return error.ConnectionFailed;
-    }
-    
-    if (fds[0].revents & std.posix.POLL.OUT != 0) {
-        // 检查 socket 错误
-        var sock_err: c_int = 0;
-        var err_len: std.posix.socklen_t = @sizeOf(c_int);
-        const getsockopt_result = std.c.getsockopt(
-            sock,
-            std.posix.SOL.SOCKET,
-            std.posix.SO.ERROR,
-            @ptrCast(&sock_err),
-            &err_len,
-        );
-        
-        if (getsockopt_result != 0 or sock_err != 0) {
-            return error.ConnectionFailed;
+    // 执行连接
+    std.posix.connect(sock, addr, addrlen) catch |err| {
+        if (err == error.WouldBlock or err == error.ConnectionTimedOut) {
+            std.log.warn("TCP connect timeout after {}ms", .{timeout_ms});
+            return error.ConnectionTimedOut;
         }
-        
-        return; // 连接成功
-    }
-    
-    return error.ConnectionFailed;
+        return error.ConnectionFailed;
+    };
 }
 
 fn performHandshake(ssl_conn: *ssl.SSL, timeout_ms: u32) !void {
