@@ -1,5 +1,8 @@
 const std = @import("std");
-const tunnel = @import("tunnel.zig");
+
+// 公开导出供示例使用
+pub const tunnel = @import("tunnel.zig");
+pub const profiles = @import("profiles.zig");
 
 /// TLS 隧道配置（C ABI 兼容）
 pub const TlsTunnelConfig = extern struct {
@@ -63,7 +66,6 @@ export fn tls_tunnel_create(
     out_error.* = TlsError.Success;
 
     // 转换为 Zig 配置
-    const profiles = @import("profiles.zig");
     const zig_config = tunnel.TunnelConfig{
         .host = std.mem.span(config.host),
         .port = config.port,
