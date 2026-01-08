@@ -1,0 +1,74 @@
+# 备用配置 - 使用官方 rustls
+# 使用方法: cp Cargo.toml.fallback Cargo.toml
+
+[package]
+name = "ech-workers-rs"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.83"
+
+# 独立 workspace
+[workspace]
+
+# 方案 B: 使用官方 rustls (备用)
+# [patch.crates-io]
+# rustls = { path = "../rustls" }
+
+[dependencies]
+# 核心依赖
+tokio = { version = "1.35", features = ["rt-multi-thread", "net", "io-util", "macros", "sync"] }
+tokio-util = { version = "0.7", features = ["compat"] }
+rustls = { version = "0.23", features = ["aws-lc-rs"] }
+tokio-rustls = "0.25"
+webpki-roots = "0.26"
+
+# WebSocket
+tokio-tungstenite = { version = "0.21", features = ["rustls-tls-webpki-roots"] }
+tungstenite = "0.21"
+ws_stream_tungstenite = "0.13"
+
+# 多路复用
+yamux = "0.13"
+futures = "0.3"
+
+# SOCKS5
+fast-socks5 = "0.9"
+
+# HTTP 解析
+httparse = "1.8"
+http = "1.0"
+
+# DNS-over-HTTPS
+hickory-resolver = { version = "0.24", features = ["dns-over-https-rustls"] }
+hickory-proto = "0.24"
+
+# 错误处理
+anyhow = "1.0"
+thiserror = "1.0"
+
+# 日志
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# 序列化
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# 异步工具
+async-trait = "0.1"
+pin-project = "1.1"
+
+# 网络工具
+url = "2.5"
+base64 = "0.21"
+reqwest = { version = "0.11", default-features = false, features = ["rustls-tls"] }
+hex = "0.4"
+
+# CLI
+clap = { version = "4.4", features = ["derive"] }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true

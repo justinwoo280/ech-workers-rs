@@ -1,0 +1,25 @@
+# Zig
+zig-out/
+zig-cache/
+.zig-cache/
+
+# Build artifacts
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+
+# BoringSSL build
+vendor/boringssl/build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log

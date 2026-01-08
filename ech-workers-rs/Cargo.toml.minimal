@@ -1,0 +1,35 @@
+# 最小化配置 - 用于测试依赖解析
+# 使用方法: cp Cargo.toml.minimal Cargo.toml
+
+[package]
+name = "ech-workers-rs"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.83"
+
+# 方案 A: 使用 jarustls (推荐)
+[patch.crates-io]
+rustls = { path = "../rustls" }
+
+[dependencies]
+# 核心依赖
+tokio = { version = "1.35", features = ["rt-multi-thread", "net", "io-util", "macros"] }
+rustls = { path = "../rustls", features = ["aws-lc-rs"] }
+tokio-rustls = "0.26"
+
+# 错误处理
+anyhow = "1.0"
+thiserror = "1.0"
+
+# 日志
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# CLI
+clap = { version = "4.4", features = ["derive"] }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true

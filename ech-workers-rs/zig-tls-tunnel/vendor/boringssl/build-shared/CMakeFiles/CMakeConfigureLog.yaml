@@ -1,0 +1,1445 @@
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineSystem.cmake:233 (message)"
+      - "CMakeLists.txt:18 (project)"
+    message: |
+      The system is: Linux - 6.14.0-1018-aws - x86_64
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:36 (enable_language)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler: /usr/bin/cc 
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+      
+      The C compiler identification is GNU, found in:
+        /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/3.28.3/CompilerIdC/a.out
+      
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:36 (enable_language)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-HlumhF"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-HlumhF"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-HlumhF'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_06b39/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_06b39.dir/build.make CMakeFiles/cmTC_06b39.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-HlumhF'
+        Building C object CMakeFiles/cmTC_06b39.dir/CMakeCCompilerABI.c.o
+        /usr/bin/cc   -v -o CMakeFiles/cmTC_06b39.dir/CMakeCCompilerABI.c.o -c /usr/share/cmake-3.28/Modules/CMakeCCompilerABI.c
+        Using built-in specs.
+        COLLECT_GCC=/usr/bin/cc
+        OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+        OFFLOAD_TARGET_DEFAULT=1
+        Target: x86_64-linux-gnu
+        Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04) 
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_06b39.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_06b39.dir/'
+         /usr/libexec/gcc/x86_64-linux-gnu/13/cc1 -quiet -v -imultiarch x86_64-linux-gnu /usr/share/cmake-3.28/Modules/CMakeCCompilerABI.c -quiet -dumpdir CMakeFiles/cmTC_06b39.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mtune=generic -march=x86-64 -version -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -fcf-protection -o /tmp/ccXMYDcx.s
+        GNU C17 (Ubuntu 13.3.0-6ubuntu2~24.04) version 13.3.0 (x86_64-linux-gnu)
+        	compiled by GNU C version 13.3.0, GMP version 6.3.0, MPFR version 4.2.1, MPC version 1.3.1, isl version isl-0.26-GMP
+        
+        GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+        ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed/x86_64-linux-gnu"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/../../../../x86_64-linux-gnu/include"
+        #include "..." search starts here:
+        #include <...> search starts here:
+         /usr/lib/gcc/x86_64-linux-gnu/13/include
+         /usr/local/include
+         /usr/include/x86_64-linux-gnu
+         /usr/include
+        End of search list.
+        Compiler executable checksum: 38987c28e967c64056a6454abdef726e
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_06b39.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_06b39.dir/'
+         as -v --64 -o CMakeFiles/cmTC_06b39.dir/CMakeCCompilerABI.c.o /tmp/ccXMYDcx.s
+        GNU assembler version 2.42 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.42
+        COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/
+        LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_06b39.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_06b39.dir/CMakeCCompilerABI.c.'
+        Linking C executable cmTC_06b39
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_06b39.dir/link.txt --verbose=1
+        /usr/bin/cc  -v CMakeFiles/cmTC_06b39.dir/CMakeCCompilerABI.c.o -o cmTC_06b39 
+        Using built-in specs.
+        COLLECT_GCC=/usr/bin/cc
+        COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper
+        OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+        OFFLOAD_TARGET_DEFAULT=1
+        Target: x86_64-linux-gnu
+        Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04) 
+        COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/
+        LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_06b39' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_06b39.'
+         /usr/libexec/gcc/x86_64-linux-gnu/13/collect2 -plugin /usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/ccJgq8uC.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_06b39 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/13 -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/13/../../.. CMakeFiles/cmTC_06b39.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_06b39' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_06b39.'
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-HlumhF'
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineCompilerABI.cmake:127 (message)"
+      - "/usr/share/cmake-3.28/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:36 (enable_language)"
+    message: |
+      Parsed C implicit include dir info: rv=done
+        found start of include info
+        found start of implicit include info
+          add: [/usr/lib/gcc/x86_64-linux-gnu/13/include]
+          add: [/usr/local/include]
+          add: [/usr/include/x86_64-linux-gnu]
+          add: [/usr/include]
+        end of search list found
+        collapse include dir [/usr/lib/gcc/x86_64-linux-gnu/13/include] ==> [/usr/lib/gcc/x86_64-linux-gnu/13/include]
+        collapse include dir [/usr/local/include] ==> [/usr/local/include]
+        collapse include dir [/usr/include/x86_64-linux-gnu] ==> [/usr/include/x86_64-linux-gnu]
+        collapse include dir [/usr/include] ==> [/usr/include]
+        implicit include dirs: [/usr/lib/gcc/x86_64-linux-gnu/13/include;/usr/local/include;/usr/include/x86_64-linux-gnu;/usr/include]
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineCompilerABI.cmake:159 (message)"
+      - "/usr/share/cmake-3.28/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:36 (enable_language)"
+    message: |
+      Parsed C implicit link information:
+        link line regex: [^( *|.*[/\\])(ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        ignore line: [Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-HlumhF']
+        ignore line: []
+        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_06b39/fast]
+        ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_06b39.dir/build.make CMakeFiles/cmTC_06b39.dir/build]
+        ignore line: [gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-HlumhF']
+        ignore line: [Building C object CMakeFiles/cmTC_06b39.dir/CMakeCCompilerABI.c.o]
+        ignore line: [/usr/bin/cc   -v -o CMakeFiles/cmTC_06b39.dir/CMakeCCompilerABI.c.o -c /usr/share/cmake-3.28/Modules/CMakeCCompilerABI.c]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/usr/bin/cc]
+        ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa]
+        ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+        ignore line: [Target: x86_64-linux-gnu]
+        ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c ada c++ go d fortran objc obj-c++ m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32 m64 mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-nvptx/usr amdgcn-amdhsa=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04) ]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_06b39.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_06b39.dir/']
+        ignore line: [ /usr/libexec/gcc/x86_64-linux-gnu/13/cc1 -quiet -v -imultiarch x86_64-linux-gnu /usr/share/cmake-3.28/Modules/CMakeCCompilerABI.c -quiet -dumpdir CMakeFiles/cmTC_06b39.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mtune=generic -march=x86-64 -version -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -fcf-protection -o /tmp/ccXMYDcx.s]
+        ignore line: [GNU C17 (Ubuntu 13.3.0-6ubuntu2~24.04) version 13.3.0 (x86_64-linux-gnu)]
+        ignore line: [	compiled by GNU C version 13.3.0  GMP version 6.3.0  MPFR version 4.2.1  MPC version 1.3.1  isl version isl-0.26-GMP]
+        ignore line: []
+        ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+        ignore line: [ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed/x86_64-linux-gnu"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/../../../../x86_64-linux-gnu/include"]
+        ignore line: [#include "..." search starts here:]
+        ignore line: [#include <...> search starts here:]
+        ignore line: [ /usr/lib/gcc/x86_64-linux-gnu/13/include]
+        ignore line: [ /usr/local/include]
+        ignore line: [ /usr/include/x86_64-linux-gnu]
+        ignore line: [ /usr/include]
+        ignore line: [End of search list.]
+        ignore line: [Compiler executable checksum: 38987c28e967c64056a6454abdef726e]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_06b39.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_06b39.dir/']
+        ignore line: [ as -v --64 -o CMakeFiles/cmTC_06b39.dir/CMakeCCompilerABI.c.o /tmp/ccXMYDcx.s]
+        ignore line: [GNU assembler version 2.42 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.42]
+        ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/]
+        ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_06b39.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_06b39.dir/CMakeCCompilerABI.c.']
+        ignore line: [Linking C executable cmTC_06b39]
+        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_06b39.dir/link.txt --verbose=1]
+        ignore line: [/usr/bin/cc  -v CMakeFiles/cmTC_06b39.dir/CMakeCCompilerABI.c.o -o cmTC_06b39 ]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/usr/bin/cc]
+        ignore line: [COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper]
+        ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa]
+        ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+        ignore line: [Target: x86_64-linux-gnu]
+        ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c ada c++ go d fortran objc obj-c++ m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32 m64 mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-nvptx/usr amdgcn-amdhsa=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04) ]
+        ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/]
+        ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_06b39' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_06b39.']
+        link line: [ /usr/libexec/gcc/x86_64-linux-gnu/13/collect2 -plugin /usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/ccJgq8uC.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_06b39 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/13 -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/13/../../.. CMakeFiles/cmTC_06b39.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o]
+          arg [/usr/libexec/gcc/x86_64-linux-gnu/13/collect2] ==> ignore
+          arg [-plugin] ==> ignore
+          arg [/usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so] ==> ignore
+          arg [-plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper] ==> ignore
+          arg [-plugin-opt=-fresolution=/tmp/ccJgq8uC.res] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+          arg [-plugin-opt=-pass-through=-lc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+          arg [--build-id] ==> ignore
+          arg [--eh-frame-hdr] ==> ignore
+          arg [-m] ==> ignore
+          arg [elf_x86_64] ==> ignore
+          arg [--hash-style=gnu] ==> ignore
+          arg [--as-needed] ==> ignore
+          arg [-dynamic-linker] ==> ignore
+          arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+          arg [-pie] ==> ignore
+          arg [-znow] ==> ignore
+          arg [-zrelro] ==> ignore
+          arg [-o] ==> ignore
+          arg [cmTC_06b39] ==> ignore
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib]
+          arg [-L/lib/x86_64-linux-gnu] ==> dir [/lib/x86_64-linux-gnu]
+          arg [-L/lib/../lib] ==> dir [/lib/../lib]
+          arg [-L/usr/lib/x86_64-linux-gnu] ==> dir [/usr/lib/x86_64-linux-gnu]
+          arg [-L/usr/lib/../lib] ==> dir [/usr/lib/../lib]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13/../../..] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../..]
+          arg [CMakeFiles/cmTC_06b39.dir/CMakeCCompilerABI.c.o] ==> ignore
+          arg [-lgcc] ==> lib [gcc]
+          arg [--push-state] ==> ignore
+          arg [--as-needed] ==> ignore
+          arg [-lgcc_s] ==> lib [gcc_s]
+          arg [--pop-state] ==> ignore
+          arg [-lc] ==> lib [c]
+          arg [-lgcc] ==> lib [gcc]
+          arg [--push-state] ==> ignore
+          arg [--as-needed] ==> ignore
+          arg [-lgcc_s] ==> lib [gcc_s]
+          arg [--pop-state] ==> ignore
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o]
+        collapse obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o] ==> [/usr/lib/x86_64-linux-gnu/Scrt1.o]
+        collapse obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o] ==> [/usr/lib/x86_64-linux-gnu/crti.o]
+        collapse obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o] ==> [/usr/lib/x86_64-linux-gnu/crtn.o]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13] ==> [/usr/lib/gcc/x86_64-linux-gnu/13]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu] ==> [/usr/lib/x86_64-linux-gnu]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib] ==> [/usr/lib]
+        collapse library dir [/lib/x86_64-linux-gnu] ==> [/lib/x86_64-linux-gnu]
+        collapse library dir [/lib/../lib] ==> [/lib]
+        collapse library dir [/usr/lib/x86_64-linux-gnu] ==> [/usr/lib/x86_64-linux-gnu]
+        collapse library dir [/usr/lib/../lib] ==> [/usr/lib]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../..] ==> [/usr/lib]
+        implicit libs: [gcc;gcc_s;c;gcc;gcc_s]
+        implicit objs: [/usr/lib/x86_64-linux-gnu/Scrt1.o;/usr/lib/x86_64-linux-gnu/crti.o;/usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o;/usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o;/usr/lib/x86_64-linux-gnu/crtn.o]
+        implicit dirs: [/usr/lib/gcc/x86_64-linux-gnu/13;/usr/lib/x86_64-linux-gnu;/usr/lib;/lib/x86_64-linux-gnu;/lib]
+        implicit fwks: []
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:37 (enable_language)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler: /usr/bin/c++ 
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+      
+      The CXX compiler identification is GNU, found in:
+        /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/3.28.3/CompilerIdCXX/a.out
+      
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:37 (enable_language)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-ekH75n"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-ekH75n"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-ekH75n'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_138fd/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_138fd.dir/build.make CMakeFiles/cmTC_138fd.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-ekH75n'
+        Building CXX object CMakeFiles/cmTC_138fd.dir/CMakeCXXCompilerABI.cpp.o
+        /usr/bin/c++   -v -o CMakeFiles/cmTC_138fd.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-3.28/Modules/CMakeCXXCompilerABI.cpp
+        Using built-in specs.
+        COLLECT_GCC=/usr/bin/c++
+        OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+        OFFLOAD_TARGET_DEFAULT=1
+        Target: x86_64-linux-gnu
+        Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04) 
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_138fd.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_138fd.dir/'
+         /usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus -quiet -v -imultiarch x86_64-linux-gnu -D_GNU_SOURCE /usr/share/cmake-3.28/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpdir CMakeFiles/cmTC_138fd.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mtune=generic -march=x86-64 -version -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -fcf-protection -o /tmp/ccPugNPv.s
+        GNU C++17 (Ubuntu 13.3.0-6ubuntu2~24.04) version 13.3.0 (x86_64-linux-gnu)
+        	compiled by GNU C version 13.3.0, GMP version 6.3.0, MPFR version 4.2.1, MPC version 1.3.1, isl version isl-0.26-GMP
+        
+        GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+        ignoring duplicate directory "/usr/include/x86_64-linux-gnu/c++/13"
+        ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed/x86_64-linux-gnu"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/../../../../x86_64-linux-gnu/include"
+        #include "..." search starts here:
+        #include <...> search starts here:
+         /usr/include/c++/13
+         /usr/include/x86_64-linux-gnu/c++/13
+         /usr/include/c++/13/backward
+         /usr/lib/gcc/x86_64-linux-gnu/13/include
+         /usr/local/include
+         /usr/include/x86_64-linux-gnu
+         /usr/include
+        End of search list.
+        Compiler executable checksum: c81c05345ce537099dafd5580045814a
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_138fd.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_138fd.dir/'
+         as -v --64 -o CMakeFiles/cmTC_138fd.dir/CMakeCXXCompilerABI.cpp.o /tmp/ccPugNPv.s
+        GNU assembler version 2.42 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.42
+        COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/
+        LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_138fd.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_138fd.dir/CMakeCXXCompilerABI.cpp.'
+        Linking CXX executable cmTC_138fd
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_138fd.dir/link.txt --verbose=1
+        /usr/bin/c++  -v CMakeFiles/cmTC_138fd.dir/CMakeCXXCompilerABI.cpp.o -o cmTC_138fd 
+        Using built-in specs.
+        COLLECT_GCC=/usr/bin/c++
+        COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper
+        OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+        OFFLOAD_TARGET_DEFAULT=1
+        Target: x86_64-linux-gnu
+        Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04) 
+        COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/
+        LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_138fd' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_138fd.'
+         /usr/libexec/gcc/x86_64-linux-gnu/13/collect2 -plugin /usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/ccrfU6Pz.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_138fd /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/13 -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/13/../../.. CMakeFiles/cmTC_138fd.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_138fd' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_138fd.'
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-ekH75n'
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineCompilerABI.cmake:127 (message)"
+      - "/usr/share/cmake-3.28/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:37 (enable_language)"
+    message: |
+      Parsed CXX implicit include dir info: rv=done
+        found start of include info
+        found start of implicit include info
+          add: [/usr/include/c++/13]
+          add: [/usr/include/x86_64-linux-gnu/c++/13]
+          add: [/usr/include/c++/13/backward]
+          add: [/usr/lib/gcc/x86_64-linux-gnu/13/include]
+          add: [/usr/local/include]
+          add: [/usr/include/x86_64-linux-gnu]
+          add: [/usr/include]
+        end of search list found
+        collapse include dir [/usr/include/c++/13] ==> [/usr/include/c++/13]
+        collapse include dir [/usr/include/x86_64-linux-gnu/c++/13] ==> [/usr/include/x86_64-linux-gnu/c++/13]
+        collapse include dir [/usr/include/c++/13/backward] ==> [/usr/include/c++/13/backward]
+        collapse include dir [/usr/lib/gcc/x86_64-linux-gnu/13/include] ==> [/usr/lib/gcc/x86_64-linux-gnu/13/include]
+        collapse include dir [/usr/local/include] ==> [/usr/local/include]
+        collapse include dir [/usr/include/x86_64-linux-gnu] ==> [/usr/include/x86_64-linux-gnu]
+        collapse include dir [/usr/include] ==> [/usr/include]
+        implicit include dirs: [/usr/include/c++/13;/usr/include/x86_64-linux-gnu/c++/13;/usr/include/c++/13/backward;/usr/lib/gcc/x86_64-linux-gnu/13/include;/usr/local/include;/usr/include/x86_64-linux-gnu;/usr/include]
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineCompilerABI.cmake:159 (message)"
+      - "/usr/share/cmake-3.28/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:37 (enable_language)"
+    message: |
+      Parsed CXX implicit link information:
+        link line regex: [^( *|.*[/\\])(ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        ignore line: [Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-ekH75n']
+        ignore line: []
+        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_138fd/fast]
+        ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_138fd.dir/build.make CMakeFiles/cmTC_138fd.dir/build]
+        ignore line: [gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-ekH75n']
+        ignore line: [Building CXX object CMakeFiles/cmTC_138fd.dir/CMakeCXXCompilerABI.cpp.o]
+        ignore line: [/usr/bin/c++   -v -o CMakeFiles/cmTC_138fd.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-3.28/Modules/CMakeCXXCompilerABI.cpp]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/usr/bin/c++]
+        ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa]
+        ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+        ignore line: [Target: x86_64-linux-gnu]
+        ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c ada c++ go d fortran objc obj-c++ m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32 m64 mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-nvptx/usr amdgcn-amdhsa=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04) ]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_138fd.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_138fd.dir/']
+        ignore line: [ /usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus -quiet -v -imultiarch x86_64-linux-gnu -D_GNU_SOURCE /usr/share/cmake-3.28/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpdir CMakeFiles/cmTC_138fd.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mtune=generic -march=x86-64 -version -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -fcf-protection -o /tmp/ccPugNPv.s]
+        ignore line: [GNU C++17 (Ubuntu 13.3.0-6ubuntu2~24.04) version 13.3.0 (x86_64-linux-gnu)]
+        ignore line: [	compiled by GNU C version 13.3.0  GMP version 6.3.0  MPFR version 4.2.1  MPC version 1.3.1  isl version isl-0.26-GMP]
+        ignore line: []
+        ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+        ignore line: [ignoring duplicate directory "/usr/include/x86_64-linux-gnu/c++/13"]
+        ignore line: [ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed/x86_64-linux-gnu"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/../../../../x86_64-linux-gnu/include"]
+        ignore line: [#include "..." search starts here:]
+        ignore line: [#include <...> search starts here:]
+        ignore line: [ /usr/include/c++/13]
+        ignore line: [ /usr/include/x86_64-linux-gnu/c++/13]
+        ignore line: [ /usr/include/c++/13/backward]
+        ignore line: [ /usr/lib/gcc/x86_64-linux-gnu/13/include]
+        ignore line: [ /usr/local/include]
+        ignore line: [ /usr/include/x86_64-linux-gnu]
+        ignore line: [ /usr/include]
+        ignore line: [End of search list.]
+        ignore line: [Compiler executable checksum: c81c05345ce537099dafd5580045814a]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_138fd.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_138fd.dir/']
+        ignore line: [ as -v --64 -o CMakeFiles/cmTC_138fd.dir/CMakeCXXCompilerABI.cpp.o /tmp/ccPugNPv.s]
+        ignore line: [GNU assembler version 2.42 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.42]
+        ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/]
+        ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_138fd.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_138fd.dir/CMakeCXXCompilerABI.cpp.']
+        ignore line: [Linking CXX executable cmTC_138fd]
+        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_138fd.dir/link.txt --verbose=1]
+        ignore line: [/usr/bin/c++  -v CMakeFiles/cmTC_138fd.dir/CMakeCXXCompilerABI.cpp.o -o cmTC_138fd ]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/usr/bin/c++]
+        ignore line: [COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper]
+        ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa]
+        ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+        ignore line: [Target: x86_64-linux-gnu]
+        ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c ada c++ go d fortran objc obj-c++ m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32 m64 mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-nvptx/usr amdgcn-amdhsa=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04) ]
+        ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/]
+        ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_138fd' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_138fd.']
+        link line: [ /usr/libexec/gcc/x86_64-linux-gnu/13/collect2 -plugin /usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/ccrfU6Pz.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_138fd /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/13 -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/13/../../.. CMakeFiles/cmTC_138fd.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o]
+          arg [/usr/libexec/gcc/x86_64-linux-gnu/13/collect2] ==> ignore
+          arg [-plugin] ==> ignore
+          arg [/usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so] ==> ignore
+          arg [-plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper] ==> ignore
+          arg [-plugin-opt=-fresolution=/tmp/ccrfU6Pz.res] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+          arg [--build-id] ==> ignore
+          arg [--eh-frame-hdr] ==> ignore
+          arg [-m] ==> ignore
+          arg [elf_x86_64] ==> ignore
+          arg [--hash-style=gnu] ==> ignore
+          arg [--as-needed] ==> ignore
+          arg [-dynamic-linker] ==> ignore
+          arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+          arg [-pie] ==> ignore
+          arg [-znow] ==> ignore
+          arg [-zrelro] ==> ignore
+          arg [-o] ==> ignore
+          arg [cmTC_138fd] ==> ignore
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib]
+          arg [-L/lib/x86_64-linux-gnu] ==> dir [/lib/x86_64-linux-gnu]
+          arg [-L/lib/../lib] ==> dir [/lib/../lib]
+          arg [-L/usr/lib/x86_64-linux-gnu] ==> dir [/usr/lib/x86_64-linux-gnu]
+          arg [-L/usr/lib/../lib] ==> dir [/usr/lib/../lib]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13/../../..] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../..]
+          arg [CMakeFiles/cmTC_138fd.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+          arg [-lstdc++] ==> lib [stdc++]
+          arg [-lm] ==> lib [m]
+          arg [-lgcc_s] ==> lib [gcc_s]
+          arg [-lgcc] ==> lib [gcc]
+          arg [-lc] ==> lib [c]
+          arg [-lgcc_s] ==> lib [gcc_s]
+          arg [-lgcc] ==> lib [gcc]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o]
+        collapse obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o] ==> [/usr/lib/x86_64-linux-gnu/Scrt1.o]
+        collapse obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o] ==> [/usr/lib/x86_64-linux-gnu/crti.o]
+        collapse obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o] ==> [/usr/lib/x86_64-linux-gnu/crtn.o]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13] ==> [/usr/lib/gcc/x86_64-linux-gnu/13]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu] ==> [/usr/lib/x86_64-linux-gnu]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib] ==> [/usr/lib]
+        collapse library dir [/lib/x86_64-linux-gnu] ==> [/lib/x86_64-linux-gnu]
+        collapse library dir [/lib/../lib] ==> [/lib]
+        collapse library dir [/usr/lib/x86_64-linux-gnu] ==> [/usr/lib/x86_64-linux-gnu]
+        collapse library dir [/usr/lib/../lib] ==> [/usr/lib]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../..] ==> [/usr/lib]
+        implicit libs: [stdc++;m;gcc_s;gcc;c;gcc_s;gcc]
+        implicit objs: [/usr/lib/x86_64-linux-gnu/Scrt1.o;/usr/lib/x86_64-linux-gnu/crti.o;/usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o;/usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o;/usr/lib/x86_64-linux-gnu/crtn.o]
+        implicit dirs: [/usr/lib/gcc/x86_64-linux-gnu/13;/usr/lib/x86_64-linux-gnu;/usr/lib;/lib/x86_64-linux-gnu;/lib]
+        implicit fwks: []
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineCompilerId.cmake:1131 (message)"
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineASMCompiler.cmake:131 (CMAKE_DETERMINE_COMPILER_ID_VENDOR)"
+      - "CMakeLists.txt:301 (enable_language)"
+    message: |
+      Checking whether the ASM compiler is GNU using "--version" matched "(GNU assembler)|(GCC)|(Free Software Foundation)":
+      cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0
+      Copyright (C) 2023 Free Software Foundation, Inc.
+      This is free software; see the source for copying conditions.  There is NO
+      warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+      
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/CheckLibraryExists.cmake:69 (try_compile)"
+      - "third_party/benchmark/CMakeLists.txt:135 (check_library_exists)"
+    checks:
+      - "Looking for shm_open in rt"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-l21f6p"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-l21f6p"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -D_XOPEN_SOURCE=700"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "HAVE_LIB_RT"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-l21f6p'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_214fd/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_214fd.dir/build.make CMakeFiles/cmTC_214fd.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-l21f6p'
+        Building C object CMakeFiles/cmTC_214fd.dir/CheckFunctionExists.c.o
+        /usr/bin/cc   -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -D_XOPEN_SOURCE=700 -DCHECK_FUNCTION_EXISTS=shm_open -std=gnu11 -fPIE -o CMakeFiles/cmTC_214fd.dir/CheckFunctionExists.c.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-l21f6p/CheckFunctionExists.c
+        Linking C executable cmTC_214fd
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_214fd.dir/link.txt --verbose=1
+        /usr/bin/cc  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -D_XOPEN_SOURCE=700 -DCHECK_FUNCTION_EXISTS=shm_open CMakeFiles/cmTC_214fd.dir/CheckFunctionExists.c.o -o cmTC_214fd  -lrt 
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-l21f6p'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCXXCompilerFlag.cmake:34 (cmake_check_compiler_flag)"
+      - "third_party/benchmark/cmake/AddCXXCompilerFlag.cmake:34 (check_cxx_compiler_flag)"
+      - "third_party/benchmark/CMakeLists.txt:193 (add_cxx_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_CXX_FLAG_WALL"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-igJHjH"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-igJHjH"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "HAVE_CXX_FLAG_WALL"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-igJHjH'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_3500b/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_3500b.dir/build.make CMakeFiles/cmTC_3500b.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-igJHjH'
+        Building CXX object CMakeFiles/cmTC_3500b.dir/src.cxx.o
+        /usr/bin/c++ -DHAVE_CXX_FLAG_WALL  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall -std=c++17 -fPIE   -Wall -o CMakeFiles/cmTC_3500b.dir/src.cxx.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-igJHjH/src.cxx
+        Linking CXX executable cmTC_3500b
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3500b.dir/link.txt --verbose=1
+        /usr/bin/c++  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall CMakeFiles/cmTC_3500b.dir/src.cxx.o -o cmTC_3500b 
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-igJHjH'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCXXCompilerFlag.cmake:34 (cmake_check_compiler_flag)"
+      - "third_party/benchmark/cmake/AddCXXCompilerFlag.cmake:34 (check_cxx_compiler_flag)"
+      - "third_party/benchmark/CMakeLists.txt:194 (add_cxx_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_CXX_FLAG_WEXTRA"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-zK8hPA"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-zK8hPA"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "HAVE_CXX_FLAG_WEXTRA"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-zK8hPA'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_cc21f/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_cc21f.dir/build.make CMakeFiles/cmTC_cc21f.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-zK8hPA'
+        Building CXX object CMakeFiles/cmTC_cc21f.dir/src.cxx.o
+        /usr/bin/c++ -DHAVE_CXX_FLAG_WEXTRA  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra -std=c++17 -fPIE   -Wextra -o CMakeFiles/cmTC_cc21f.dir/src.cxx.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-zK8hPA/src.cxx
+        Linking CXX executable cmTC_cc21f
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_cc21f.dir/link.txt --verbose=1
+        /usr/bin/c++  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra CMakeFiles/cmTC_cc21f.dir/src.cxx.o -o cmTC_cc21f 
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-zK8hPA'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCXXCompilerFlag.cmake:34 (cmake_check_compiler_flag)"
+      - "third_party/benchmark/cmake/AddCXXCompilerFlag.cmake:34 (check_cxx_compiler_flag)"
+      - "third_party/benchmark/CMakeLists.txt:195 (add_cxx_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_CXX_FLAG_WSHADOW"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-Z93mNe"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-Z93mNe"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "HAVE_CXX_FLAG_WSHADOW"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-Z93mNe'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_f3aba/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_f3aba.dir/build.make CMakeFiles/cmTC_f3aba.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-Z93mNe'
+        Building CXX object CMakeFiles/cmTC_f3aba.dir/src.cxx.o
+        /usr/bin/c++ -DHAVE_CXX_FLAG_WSHADOW  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow -std=c++17 -fPIE   -Wshadow -o CMakeFiles/cmTC_f3aba.dir/src.cxx.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-Z93mNe/src.cxx
+        Linking CXX executable cmTC_f3aba
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f3aba.dir/link.txt --verbose=1
+        /usr/bin/c++  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow CMakeFiles/cmTC_f3aba.dir/src.cxx.o -o cmTC_f3aba 
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-Z93mNe'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCXXCompilerFlag.cmake:34 (cmake_check_compiler_flag)"
+      - "third_party/benchmark/cmake/AddCXXCompilerFlag.cmake:34 (check_cxx_compiler_flag)"
+      - "third_party/benchmark/CMakeLists.txt:196 (add_cxx_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_CXX_FLAG_WFLOAT_EQUAL"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-sc6eZA"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-sc6eZA"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "HAVE_CXX_FLAG_WFLOAT_EQUAL"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-sc6eZA'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_08d01/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_08d01.dir/build.make CMakeFiles/cmTC_08d01.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-sc6eZA'
+        Building CXX object CMakeFiles/cmTC_08d01.dir/src.cxx.o
+        /usr/bin/c++ -DHAVE_CXX_FLAG_WFLOAT_EQUAL  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal -std=c++17 -fPIE   -Wfloat-equal -o CMakeFiles/cmTC_08d01.dir/src.cxx.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-sc6eZA/src.cxx
+        Linking CXX executable cmTC_08d01
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_08d01.dir/link.txt --verbose=1
+        /usr/bin/c++  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal CMakeFiles/cmTC_08d01.dir/src.cxx.o -o cmTC_08d01 
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-sc6eZA'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCXXCompilerFlag.cmake:34 (cmake_check_compiler_flag)"
+      - "third_party/benchmark/cmake/AddCXXCompilerFlag.cmake:34 (check_cxx_compiler_flag)"
+      - "third_party/benchmark/CMakeLists.txt:197 (add_cxx_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_CXX_FLAG_WOLD_STYLE_CAST"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-CUbwFd"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-CUbwFd"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "HAVE_CXX_FLAG_WOLD_STYLE_CAST"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-CUbwFd'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_32e3b/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_32e3b.dir/build.make CMakeFiles/cmTC_32e3b.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-CUbwFd'
+        Building CXX object CMakeFiles/cmTC_32e3b.dir/src.cxx.o
+        /usr/bin/c++ -DHAVE_CXX_FLAG_WOLD_STYLE_CAST  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast -std=c++17 -fPIE   -Wold-style-cast -o CMakeFiles/cmTC_32e3b.dir/src.cxx.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-CUbwFd/src.cxx
+        Linking CXX executable cmTC_32e3b
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_32e3b.dir/link.txt --verbose=1
+        /usr/bin/c++  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast CMakeFiles/cmTC_32e3b.dir/src.cxx.o -o cmTC_32e3b 
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-CUbwFd'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCXXCompilerFlag.cmake:34 (cmake_check_compiler_flag)"
+      - "third_party/benchmark/cmake/AddCXXCompilerFlag.cmake:34 (check_cxx_compiler_flag)"
+      - "third_party/benchmark/CMakeLists.txt:198 (add_cxx_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_CXX_FLAG_WCONVERSION"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-3eAPLC"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-3eAPLC"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "HAVE_CXX_FLAG_WCONVERSION"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-3eAPLC'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_fde88/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_fde88.dir/build.make CMakeFiles/cmTC_fde88.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-3eAPLC'
+        Building CXX object CMakeFiles/cmTC_fde88.dir/src.cxx.o
+        /usr/bin/c++ -DHAVE_CXX_FLAG_WCONVERSION  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion -std=c++17 -fPIE   -Wconversion -o CMakeFiles/cmTC_fde88.dir/src.cxx.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-3eAPLC/src.cxx
+        Linking CXX executable cmTC_fde88
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_fde88.dir/link.txt --verbose=1
+        /usr/bin/c++  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion CMakeFiles/cmTC_fde88.dir/src.cxx.o -o cmTC_fde88 
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-3eAPLC'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCXXCompilerFlag.cmake:34 (cmake_check_compiler_flag)"
+      - "third_party/benchmark/cmake/AddCXXCompilerFlag.cmake:34 (check_cxx_compiler_flag)"
+      - "third_party/benchmark/CMakeLists.txt:200 (add_cxx_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_CXX_FLAG_WERROR"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-azDOmg"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-azDOmg"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "HAVE_CXX_FLAG_WERROR"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-azDOmg'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_249bc/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_249bc.dir/build.make CMakeFiles/cmTC_249bc.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-azDOmg'
+        Building CXX object CMakeFiles/cmTC_249bc.dir/src.cxx.o
+        /usr/bin/c++ -DHAVE_CXX_FLAG_WERROR  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror -std=c++17 -fPIE   -Werror -o CMakeFiles/cmTC_249bc.dir/src.cxx.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-azDOmg/src.cxx
+        Linking CXX executable cmTC_249bc
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_249bc.dir/link.txt --verbose=1
+        /usr/bin/c++  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror CMakeFiles/cmTC_249bc.dir/src.cxx.o -o cmTC_249bc 
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-azDOmg'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCXXCompilerFlag.cmake:34 (cmake_check_compiler_flag)"
+      - "third_party/benchmark/cmake/AddCXXCompilerFlag.cmake:34 (check_cxx_compiler_flag)"
+      - "third_party/benchmark/CMakeLists.txt:204 (add_cxx_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_CXX_FLAG_WSUGGEST_OVERRIDE"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-JL0V92"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-JL0V92"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "HAVE_CXX_FLAG_WSUGGEST_OVERRIDE"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-JL0V92'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_2b15a/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_2b15a.dir/build.make CMakeFiles/cmTC_2b15a.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-JL0V92'
+        Building CXX object CMakeFiles/cmTC_2b15a.dir/src.cxx.o
+        /usr/bin/c++ -DHAVE_CXX_FLAG_WSUGGEST_OVERRIDE  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override -std=c++17 -fPIE   -Wsuggest-override -o CMakeFiles/cmTC_2b15a.dir/src.cxx.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-JL0V92/src.cxx
+        Linking CXX executable cmTC_2b15a
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2b15a.dir/link.txt --verbose=1
+        /usr/bin/c++  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override CMakeFiles/cmTC_2b15a.dir/src.cxx.o -o cmTC_2b15a 
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-JL0V92'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCXXCompilerFlag.cmake:34 (cmake_check_compiler_flag)"
+      - "third_party/benchmark/cmake/AddCXXCompilerFlag.cmake:34 (check_cxx_compiler_flag)"
+      - "third_party/benchmark/CMakeLists.txt:206 (add_cxx_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_CXX_FLAG_PEDANTIC"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-hFFOhS"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-hFFOhS"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "HAVE_CXX_FLAG_PEDANTIC"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-hFFOhS'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_e8c32/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_e8c32.dir/build.make CMakeFiles/cmTC_e8c32.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-hFFOhS'
+        Building CXX object CMakeFiles/cmTC_e8c32.dir/src.cxx.o
+        /usr/bin/c++ -DHAVE_CXX_FLAG_PEDANTIC  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic -std=c++17 -fPIE   -pedantic -o CMakeFiles/cmTC_e8c32.dir/src.cxx.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-hFFOhS/src.cxx
+        Linking CXX executable cmTC_e8c32
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e8c32.dir/link.txt --verbose=1
+        /usr/bin/c++  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic CMakeFiles/cmTC_e8c32.dir/src.cxx.o -o cmTC_e8c32 
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-hFFOhS'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCXXCompilerFlag.cmake:34 (cmake_check_compiler_flag)"
+      - "third_party/benchmark/cmake/AddCXXCompilerFlag.cmake:34 (check_cxx_compiler_flag)"
+      - "third_party/benchmark/CMakeLists.txt:207 (add_cxx_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_CXX_FLAG_PEDANTIC_ERRORS"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-8acaTH"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-8acaTH"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "HAVE_CXX_FLAG_PEDANTIC_ERRORS"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-8acaTH'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_e7585/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_e7585.dir/build.make CMakeFiles/cmTC_e7585.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-8acaTH'
+        Building CXX object CMakeFiles/cmTC_e7585.dir/src.cxx.o
+        /usr/bin/c++ -DHAVE_CXX_FLAG_PEDANTIC_ERRORS  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors -std=c++17 -fPIE   -pedantic-errors -o CMakeFiles/cmTC_e7585.dir/src.cxx.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-8acaTH/src.cxx
+        Linking CXX executable cmTC_e7585
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e7585.dir/link.txt --verbose=1
+        /usr/bin/c++  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors CMakeFiles/cmTC_e7585.dir/src.cxx.o -o cmTC_e7585 
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-8acaTH'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCXXCompilerFlag.cmake:34 (cmake_check_compiler_flag)"
+      - "third_party/benchmark/cmake/AddCXXCompilerFlag.cmake:34 (check_cxx_compiler_flag)"
+      - "third_party/benchmark/CMakeLists.txt:208 (add_cxx_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_CXX_FLAG_WSHORTEN_64_TO_32"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-tZeJ4v"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-tZeJ4v"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "HAVE_CXX_FLAG_WSHORTEN_64_TO_32"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-tZeJ4v'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_05560/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_05560.dir/build.make CMakeFiles/cmTC_05560.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-tZeJ4v'
+        Building CXX object CMakeFiles/cmTC_05560.dir/src.cxx.o
+        /usr/bin/c++ -DHAVE_CXX_FLAG_WSHORTEN_64_TO_32  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -Wshorten-64-to-32 -std=c++17 -fPIE   -Wshorten-64-to-32 -o CMakeFiles/cmTC_05560.dir/src.cxx.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-tZeJ4v/src.cxx
+        c++: error: unrecognized command-line option '-Wshorten-64-to-32'
+        c++: error: unrecognized command-line option '-Wshorten-64-to-32'
+        gmake[1]: *** [CMakeFiles/cmTC_05560.dir/build.make:78: CMakeFiles/cmTC_05560.dir/src.cxx.o] Error 1
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-tZeJ4v'
+        gmake: *** [Makefile:127: cmTC_05560/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCXXCompilerFlag.cmake:34 (cmake_check_compiler_flag)"
+      - "third_party/benchmark/cmake/AddCXXCompilerFlag.cmake:34 (check_cxx_compiler_flag)"
+      - "third_party/benchmark/CMakeLists.txt:209 (add_cxx_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_CXX_FLAG_FSTRICT_ALIASING"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-uM0FnE"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-uM0FnE"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "HAVE_CXX_FLAG_FSTRICT_ALIASING"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-uM0FnE'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_4c19a/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_4c19a.dir/build.make CMakeFiles/cmTC_4c19a.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-uM0FnE'
+        Building CXX object CMakeFiles/cmTC_4c19a.dir/src.cxx.o
+        /usr/bin/c++ -DHAVE_CXX_FLAG_FSTRICT_ALIASING  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing -std=c++17 -fPIE   -fstrict-aliasing -o CMakeFiles/cmTC_4c19a.dir/src.cxx.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-uM0FnE/src.cxx
+        Linking CXX executable cmTC_4c19a
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_4c19a.dir/link.txt --verbose=1
+        /usr/bin/c++  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing CMakeFiles/cmTC_4c19a.dir/src.cxx.o -o cmTC_4c19a 
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-uM0FnE'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCXXCompilerFlag.cmake:34 (cmake_check_compiler_flag)"
+      - "third_party/benchmark/cmake/AddCXXCompilerFlag.cmake:34 (check_cxx_compiler_flag)"
+      - "third_party/benchmark/CMakeLists.txt:212 (add_cxx_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_CXX_FLAG_WNO_DEPRECATED_DECLARATIONS"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-kMWCeB"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-kMWCeB"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "HAVE_CXX_FLAG_WNO_DEPRECATED_DECLARATIONS"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-kMWCeB'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_adcf0/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_adcf0.dir/build.make CMakeFiles/cmTC_adcf0.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-kMWCeB'
+        Building CXX object CMakeFiles/cmTC_adcf0.dir/src.cxx.o
+        /usr/bin/c++ -DHAVE_CXX_FLAG_WNO_DEPRECATED_DECLARATIONS  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations -std=c++17 -fPIE   -Wno-deprecated-declarations -o CMakeFiles/cmTC_adcf0.dir/src.cxx.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-kMWCeB/src.cxx
+        Linking CXX executable cmTC_adcf0
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_adcf0.dir/link.txt --verbose=1
+        /usr/bin/c++  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations CMakeFiles/cmTC_adcf0.dir/src.cxx.o -o cmTC_adcf0 
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-kMWCeB'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCXXCompilerFlag.cmake:34 (cmake_check_compiler_flag)"
+      - "third_party/benchmark/cmake/AddCXXCompilerFlag.cmake:34 (check_cxx_compiler_flag)"
+      - "third_party/benchmark/CMakeLists.txt:222 (add_cxx_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_CXX_FLAG_WNO_DEPRECATED"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-hGBQSS"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-hGBQSS"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "HAVE_CXX_FLAG_WNO_DEPRECATED"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-hGBQSS'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_88478/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_88478.dir/build.make CMakeFiles/cmTC_88478.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-hGBQSS'
+        Building CXX object CMakeFiles/cmTC_88478.dir/src.cxx.o
+        /usr/bin/c++ -DHAVE_CXX_FLAG_WNO_DEPRECATED  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated -std=c++17 -fPIE   -Wno-deprecated -o CMakeFiles/cmTC_88478.dir/src.cxx.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-hGBQSS/src.cxx
+        Linking CXX executable cmTC_88478
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_88478.dir/link.txt --verbose=1
+        /usr/bin/c++  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated CMakeFiles/cmTC_88478.dir/src.cxx.o -o cmTC_88478 
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-hGBQSS'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCXXCompilerFlag.cmake:34 (cmake_check_compiler_flag)"
+      - "third_party/benchmark/cmake/AddCXXCompilerFlag.cmake:34 (check_cxx_compiler_flag)"
+      - "third_party/benchmark/CMakeLists.txt:230 (add_cxx_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_CXX_FLAG_WSTRICT_ALIASING"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-jConSs"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-jConSs"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "HAVE_CXX_FLAG_WSTRICT_ALIASING"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-jConSs'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_662d5/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_662d5.dir/build.make CMakeFiles/cmTC_662d5.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-jConSs'
+        Building CXX object CMakeFiles/cmTC_662d5.dir/src.cxx.o
+        /usr/bin/c++ -DHAVE_CXX_FLAG_WSTRICT_ALIASING  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing -std=c++17 -fPIE   -Wstrict-aliasing -o CMakeFiles/cmTC_662d5.dir/src.cxx.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-jConSs/src.cxx
+        Linking CXX executable cmTC_662d5
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_662d5.dir/link.txt --verbose=1
+        /usr/bin/c++  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing CMakeFiles/cmTC_662d5.dir/src.cxx.o -o cmTC_662d5 
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-jConSs'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCXXCompilerFlag.cmake:34 (cmake_check_compiler_flag)"
+      - "third_party/benchmark/cmake/AddCXXCompilerFlag.cmake:34 (check_cxx_compiler_flag)"
+      - "third_party/benchmark/CMakeLists.txt:235 (add_cxx_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_CXX_FLAG_WD654"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-RVSgbU"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-RVSgbU"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "HAVE_CXX_FLAG_WD654"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-RVSgbU'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_cbd08/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_cbd08.dir/build.make CMakeFiles/cmTC_cbd08.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-RVSgbU'
+        Building CXX object CMakeFiles/cmTC_cbd08.dir/src.cxx.o
+        /usr/bin/c++ -DHAVE_CXX_FLAG_WD654  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing  -wd654 -std=c++17 -fPIE   -wd654 -o CMakeFiles/cmTC_cbd08.dir/src.cxx.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-RVSgbU/src.cxx
+        c++: error: unrecognized command-line option '-wd654'
+        c++: error: unrecognized command-line option '-wd654'
+        gmake[1]: *** [CMakeFiles/cmTC_cbd08.dir/build.make:78: CMakeFiles/cmTC_cbd08.dir/src.cxx.o] Error 1
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-RVSgbU'
+        gmake: *** [Makefile:127: cmTC_cbd08/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCXXCompilerFlag.cmake:34 (cmake_check_compiler_flag)"
+      - "third_party/benchmark/cmake/AddCXXCompilerFlag.cmake:34 (check_cxx_compiler_flag)"
+      - "third_party/benchmark/CMakeLists.txt:236 (add_cxx_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_CXX_FLAG_WTHREAD_SAFETY"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-GFsQ1y"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-GFsQ1y"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "HAVE_CXX_FLAG_WTHREAD_SAFETY"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-GFsQ1y'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_d7fd1/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_d7fd1.dir/build.make CMakeFiles/cmTC_d7fd1.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-GFsQ1y'
+        Building CXX object CMakeFiles/cmTC_d7fd1.dir/src.cxx.o
+        /usr/bin/c++ -DHAVE_CXX_FLAG_WTHREAD_SAFETY  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing  -Wthread-safety -std=c++17 -fPIE   -Wthread-safety -o CMakeFiles/cmTC_d7fd1.dir/src.cxx.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-GFsQ1y/src.cxx
+        c++: error: unrecognized command-line option '-Wthread-safety'
+        c++: error: unrecognized command-line option '-Wthread-safety'
+        gmake[1]: *** [CMakeFiles/cmTC_d7fd1.dir/build.make:78: CMakeFiles/cmTC_d7fd1.dir/src.cxx.o] Error 1
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-GFsQ1y'
+        gmake: *** [Makefile:127: cmTC_d7fd1/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCXXCompilerFlag.cmake:34 (cmake_check_compiler_flag)"
+      - "third_party/benchmark/cmake/AddCXXCompilerFlag.cmake:34 (check_cxx_compiler_flag)"
+      - "third_party/benchmark/CMakeLists.txt:287 (add_cxx_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_CXX_FLAG_COVERAGE"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-4nlk2p"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-4nlk2p"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "HAVE_CXX_FLAG_COVERAGE"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-4nlk2p'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_eab3b/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_eab3b.dir/build.make CMakeFiles/cmTC_eab3b.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-4nlk2p'
+        Building CXX object CMakeFiles/cmTC_eab3b.dir/src.cxx.o
+        /usr/bin/c++ -DHAVE_CXX_FLAG_COVERAGE  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing  --coverage -std=c++17 -fPIE   --coverage -o CMakeFiles/cmTC_eab3b.dir/src.cxx.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-4nlk2p/src.cxx
+        Linking CXX executable cmTC_eab3b
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_eab3b.dir/link.txt --verbose=1
+        /usr/bin/c++  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing  --coverage CMakeFiles/cmTC_eab3b.dir/src.cxx.o -o cmTC_eab3b 
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-4nlk2p'
+        
+      exitCode: 0
+  -
+    kind: "try_run-v1"
+    backtrace:
+      - "third_party/benchmark/cmake/CXXFeatureCheck.cmake:57 (try_run)"
+      - "third_party/benchmark/CMakeLists.txt:311 (cxx_feature_check)"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "COMPILE_HAVE_STD_REGEX"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_82afe/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_82afe.dir/build.make CMakeFiles/cmTC_82afe.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp'
+        Building CXX object CMakeFiles/cmTC_82afe.dir/std_regex.cpp.o
+        /usr/bin/c++   -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing  -std=c++17 -fPIE -o CMakeFiles/cmTC_82afe.dir/std_regex.cpp.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/std_regex.cpp
+        Linking CXX executable cmTC_82afe
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_82afe.dir/link.txt --verbose=1
+        /usr/bin/c++  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing  CMakeFiles/cmTC_82afe.dir/std_regex.cpp.o -o cmTC_82afe 
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp'
+        
+      exitCode: 0
+    runResult:
+      variable: "RUN_HAVE_STD_REGEX"
+      cached: true
+      stdout: |
+      exitCode: 0
+  -
+    kind: "try_run-v1"
+    backtrace:
+      - "third_party/benchmark/cmake/CXXFeatureCheck.cmake:57 (try_run)"
+      - "third_party/benchmark/CMakeLists.txt:312 (cxx_feature_check)"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "COMPILE_HAVE_GNU_POSIX_REGEX"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_7b32a/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_7b32a.dir/build.make CMakeFiles/cmTC_7b32a.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp'
+        Building CXX object CMakeFiles/cmTC_7b32a.dir/gnu_posix_regex.cpp.o
+        /usr/bin/c++   -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing  -std=c++17 -fPIE -o CMakeFiles/cmTC_7b32a.dir/gnu_posix_regex.cpp.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/gnu_posix_regex.cpp
+        /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/gnu_posix_regex.cpp:1:10: fatal error: gnuregex.h: No such file or directory
+            1 | #include <gnuregex.h>
+              |          ^~~~~~~~~~~~
+        compilation terminated.
+        gmake[1]: *** [CMakeFiles/cmTC_7b32a.dir/build.make:78: CMakeFiles/cmTC_7b32a.dir/gnu_posix_regex.cpp.o] Error 1
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp'
+        gmake: *** [Makefile:127: cmTC_7b32a/fast] Error 2
+        
+      exitCode: 2
+    runResult:
+      variable: "RUN_HAVE_GNU_POSIX_REGEX"
+      cached: true
+  -
+    kind: "try_run-v1"
+    backtrace:
+      - "third_party/benchmark/cmake/CXXFeatureCheck.cmake:57 (try_run)"
+      - "third_party/benchmark/CMakeLists.txt:313 (cxx_feature_check)"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "COMPILE_HAVE_POSIX_REGEX"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_a4e0c/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_a4e0c.dir/build.make CMakeFiles/cmTC_a4e0c.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp'
+        Building CXX object CMakeFiles/cmTC_a4e0c.dir/posix_regex.cpp.o
+        /usr/bin/c++   -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing  -std=c++17 -fPIE -o CMakeFiles/cmTC_a4e0c.dir/posix_regex.cpp.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/posix_regex.cpp
+        Linking CXX executable cmTC_a4e0c
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a4e0c.dir/link.txt --verbose=1
+        /usr/bin/c++  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing  CMakeFiles/cmTC_a4e0c.dir/posix_regex.cpp.o -o cmTC_a4e0c 
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp'
+        
+      exitCode: 0
+    runResult:
+      variable: "RUN_HAVE_POSIX_REGEX"
+      cached: true
+      stdout: |
+      exitCode: 0
+  -
+    kind: "try_run-v1"
+    backtrace:
+      - "third_party/benchmark/cmake/CXXFeatureCheck.cmake:57 (try_run)"
+      - "third_party/benchmark/CMakeLists.txt:322 (cxx_feature_check)"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "COMPILE_HAVE_STEADY_CLOCK"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_f7347/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_f7347.dir/build.make CMakeFiles/cmTC_f7347.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp'
+        Building CXX object CMakeFiles/cmTC_f7347.dir/steady_clock.cpp.o
+        /usr/bin/c++   -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing  -std=c++17 -fPIE -o CMakeFiles/cmTC_f7347.dir/steady_clock.cpp.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/steady_clock.cpp
+        Linking CXX executable cmTC_f7347
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f7347.dir/link.txt --verbose=1
+        /usr/bin/c++  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing  CMakeFiles/cmTC_f7347.dir/steady_clock.cpp.o -o cmTC_f7347 
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp'
+        
+      exitCode: 0
+    runResult:
+      variable: "RUN_HAVE_STEADY_CLOCK"
+      cached: true
+      stdout: |
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/CheckCSourceCompiles.cmake:52 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/FindThreads.cmake:97 (CHECK_C_SOURCE_COMPILES)"
+      - "/usr/share/cmake-3.28/Modules/FindThreads.cmake:163 (_threads_check_libc)"
+      - "third_party/benchmark/CMakeLists.txt:325 (find_package)"
+    checks:
+      - "Performing Test CMAKE_HAVE_LIBC_PTHREAD"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-s47olN"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-s47olN"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -D_XOPEN_SOURCE=700"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "CMAKE_HAVE_LIBC_PTHREAD"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-s47olN'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_9aae3/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_9aae3.dir/build.make CMakeFiles/cmTC_9aae3.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-s47olN'
+        Building C object CMakeFiles/cmTC_9aae3.dir/src.c.o
+        /usr/bin/cc -DCMAKE_HAVE_LIBC_PTHREAD  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -D_XOPEN_SOURCE=700  -std=gnu11 -fPIE -o CMakeFiles/cmTC_9aae3.dir/src.c.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-s47olN/src.c
+        Linking C executable cmTC_9aae3
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_9aae3.dir/link.txt --verbose=1
+        /usr/bin/cc  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -D_XOPEN_SOURCE=700  CMakeFiles/cmTC_9aae3.dir/src.c.o -o cmTC_9aae3 
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeScratch/TryCompile-s47olN'
+        
+      exitCode: 0
+  -
+    kind: "try_run-v1"
+    backtrace:
+      - "third_party/benchmark/cmake/CXXFeatureCheck.cmake:57 (try_run)"
+      - "third_party/benchmark/CMakeLists.txt:326 (cxx_feature_check)"
+    directories:
+      source: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp"
+      binary: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/Modules;/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+    buildResult:
+      variable: "COMPILE_HAVE_PTHREAD_AFFINITY"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_5188b/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_5188b.dir/build.make CMakeFiles/cmTC_5188b.dir/build
+        gmake[1]: Entering directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp'
+        Building CXX object CMakeFiles/cmTC_5188b.dir/pthread_affinity.cpp.o
+        /usr/bin/c++   -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing  -std=c++17 -fPIE -o CMakeFiles/cmTC_5188b.dir/pthread_affinity.cpp.o -c /workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/third_party/benchmark/cmake/pthread_affinity.cpp
+        Linking CXX executable cmTC_5188b
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5188b.dir/link.txt --verbose=1
+        /usr/bin/c++  -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden -fno-strict-aliasing -ggdb -fno-common -fvisibility=hidden  -Wall  -Wextra  -Wshadow  -Wfloat-equal  -Wold-style-cast  -Wconversion  -Werror  -Wsuggest-override  -pedantic  -pedantic-errors  -fstrict-aliasing  -Wno-deprecated-declarations  -Wno-deprecated  -Wstrict-aliasing  CMakeFiles/cmTC_5188b.dir/pthread_affinity.cpp.o -o cmTC_5188b 
+        gmake[1]: Leaving directory '/workspaces/jarustls/zig-tls-tunnel/vendor/boringssl/build-shared/CMakeFiles/CMakeTmp'
+        
+      exitCode: 0
+    runResult:
+      variable: "RUN_HAVE_PTHREAD_AFFINITY"
+      cached: true
+      stdout: |
+      exitCode: 0
+...

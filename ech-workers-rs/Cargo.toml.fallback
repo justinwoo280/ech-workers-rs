@@ -1,0 +1,35 @@
+# 备用配置 - 使用官方 rustls
+# 使用方法: cp Cargo.toml.fallback Cargo.toml
+
+[package]
+name = "ech-workers-rs"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.83"
+
+# 方案 B: 使用官方 rustls (备用)
+# [patch.crates-io]
+# rustls = { path = "../rustls" }
+
+[dependencies]
+# 核心依赖
+tokio = { version = "1.35", features = ["rt-multi-thread", "net", "io-util", "macros"] }
+rustls = { version = "0.23", features = ["aws-lc-rs"] }
+tokio-rustls = "0.25"
+
+# 错误处理
+anyhow = "1.0"
+thiserror = "1.0"
+
+# 日志
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# CLI
+clap = { version = "4.4", features = ["derive"] }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
