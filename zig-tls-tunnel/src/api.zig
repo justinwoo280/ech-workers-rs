@@ -8,13 +8,13 @@ pub const TlsTunnelConfig = extern struct {
     port: u16,
     _padding1: [6]u8 = undefined,
 
-    // ECH 配置（可选）
+    // ECH 配置（可选，Rust 侧通过 DoH 获取）
     ech_config: ?[*]const u8,
     ech_config_len: usize,
     
     // ECH 选项
-    auto_ech: bool,        // 自动从 DNS 获取 ECH config
     enforce_ech: bool,     // 强制验证 ECH（防止降级攻击）
+    _padding_ech: bool = false,  // 保持 ABI 兼容
     
     // 指纹配置
     use_firefox_profile: bool,  // 使用 Firefox 120 指纹
@@ -71,7 +71,6 @@ export fn tls_tunnel_create(
             ptr[0..config.ech_config_len]
         else
             null,
-        .auto_ech = config.auto_ech,
         .enforce_ech = config.enforce_ech,
         .profile = if (config.use_firefox_profile) profiles.Profile.Firefox120 else null,
         .connect_timeout_ms = config.connect_timeout_ms,

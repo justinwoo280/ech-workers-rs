@@ -16,8 +16,8 @@ pub struct TlsTunnelConfig {
     pub ech_config: *const u8,
     pub ech_config_len: usize,
     
-    pub auto_ech: bool,
     pub enforce_ech: bool,
+    pub _padding_ech: bool,  // ABI 兼容
     pub use_firefox_profile: bool,
     pub _padding2: [u8; 5],
     

@@ -14,7 +14,6 @@ pub struct TunnelConfig {
     pub host: String,
     pub port: u16,
     pub ech_config: Option<Vec<u8>>,
-    pub auto_ech: bool,
     pub enforce_ech: bool,
     pub use_firefox_profile: bool,
     pub connect_timeout_ms: u32,
@@ -27,7 +26,6 @@ impl Default for TunnelConfig {
             host: String::new(),
             port: 443,
             ech_config: None,
-            auto_ech: false,  // Rust handles DNS
             enforce_ech: true,
             use_firefox_profile: true,
             connect_timeout_ms: 10000,
@@ -78,8 +76,8 @@ impl TlsTunnel {
             ech_config_len: config.ech_config.as_ref()
                 .map(|v| v.len())
                 .unwrap_or(0),
-            auto_ech: config.auto_ech,
             enforce_ech: config.enforce_ech,
+            _padding_ech: false,
             use_firefox_profile: config.use_firefox_profile,
             _padding2: [0; 5],
             connect_timeout_ms: config.connect_timeout_ms,

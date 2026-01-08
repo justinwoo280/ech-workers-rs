@@ -1,18 +1,15 @@
 const std = @import("std");
 const ssl = @import("ssl.zig");
 const ech = @import("ech.zig");
-const dns = @import("dns.zig");
 const profiles = @import("profiles.zig");
 
 pub const TunnelConfig = struct {
     host: []const u8,
     port: u16,
     ech_config: ?[]const u8 = null,
-    auto_ech: bool = false,  // Rust 侧通过 DoH 处理 ECH 查询
     
     // ECH enforcement: fail if ECH config provided but not accepted
     // This prevents downgrade attacks where DPI strips ECH
-    // CRITICAL: No fallback to GREASE ECH - either real ECH or nothing
     enforce_ech: bool = true,
     
     // Browser fingerprint profile (Firefox 120)
@@ -83,43 +80,19 @@ pub const Tunnel = struct {
         // 设置 SNI
         try ssl.setHostname(self.ssl_conn, self.host_z.ptr);
         
-        // Check if we have real ECH config
-        var has_real_ech = false;
-        var ech_record: ?dns.HttpsRecord = null;
-        defer if (ech_record) |*rec| rec.deinit(allocator);
-        
-        if (config.ech_config) |_| {
-            has_real_ech = true;
-        } else if (config.auto_ech) {
-            // Try to get ECH config from DNS
-            ech_record = try dns.queryHttpsRecord(allocator, config.host);
-            if (ech_record) |rec| {
-                if (rec.ech_config) |_| {
-                    has_real_ech = true;
-                }
-            }
-        }
+        // Check if we have real ECH config (Rust 侧通过 DoH 传入)
+        const has_real_ech = config.ech_config != null;
         
         // Apply browser fingerprint profile (Firefox 120)
         if (config.profile) |prof| {
             try prof.apply(self.ssl_ctx, self.ssl_conn, has_real_ech);
         }
 
-        // Configure real ECH if available
+        // Configure ECH if provided
         var ech_configured = false;
         if (config.ech_config) |ech_cfg| {
             try ech.configure(self.ssl_conn, ech_cfg);
             ech_configured = true;
-        } else if (ech_record) |rec| {
-            if (rec.ech_config) |ech_cfg| {
-                std.log.info("Found ECH config via DNS HTTPS RR for {s}", .{config.host});
-                try ech.configure(self.ssl_conn, ech_cfg);
-                ech_configured = true;
-            } else {
-                std.log.info("HTTPS RR found but no ECH config for {s}", .{config.host});
-            }
-        } else if (config.auto_ech) {
-            std.log.info("No HTTPS RR found for {s}, ECH not available", .{config.host});
         }
 
         // 执行 TLS 握手
