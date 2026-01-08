@@ -8,9 +8,6 @@ pub enum Error {
     Io(#[from] std::io::Error),
 
     #[error("TLS error: {0}")]
-    TlsError(String),
-    
-    #[error("TLS error: {0}")]
     Tls(String),
     
     #[error("TLS handshake failed")]
@@ -58,7 +55,7 @@ pub enum Error {
 
 impl From<rustls::Error> for Error {
     fn from(e: rustls::Error) -> Self {
-        Error::TlsError(e.to_string())
+        Error::Tls(e.to_string())
     }
 }
 

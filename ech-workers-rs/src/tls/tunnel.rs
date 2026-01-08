@@ -96,7 +96,7 @@ impl TlsTunnel {
                 TlsError::HandshakeFailed => Error::TlsHandshakeFailed,
                 TlsError::EchNotAccepted => Error::EchNotAccepted,
                 TlsError::OutOfMemory => Error::OutOfMemory,
-                _ => Error::TlsError(format!("{:?}", error)),
+                _ => Error::Tls(format!("{:?}", error)),
             });
         }
         
@@ -123,7 +123,7 @@ impl TlsTunnel {
         };
         
         if error != TlsError::Success {
-            return Err(Error::TlsError(format!("Failed to get info: {:?}", error)));
+            return Err(Error::Tls(format!("Failed to get info: {:?}", error)));
         }
         
         Ok(ConnectionInfo {
