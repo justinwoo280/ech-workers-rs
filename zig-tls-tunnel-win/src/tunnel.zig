@@ -186,18 +186,18 @@ fn connectTcp(
     const host_z = try allocator.dupeZ(u8, host);
     defer allocator.free(host_z);
 
-    // 创建地址信息
-    var hints: ws2_32.addrinfo = std.mem.zeroes(ws2_32.addrinfo);
-    hints.ai_family = ws2_32.AF.UNSPEC;
-    hints.ai_socktype = ws2_32.SOCK.STREAM;
-    hints.ai_protocol = ws2_32.IPPROTO.TCP;
+    // 创建地址信息 (使用 Zig 标准库的字段名)
+    var hints: ws2_32.addrinfoa = std.mem.zeroes(ws2_32.addrinfoa);
+    hints.family = ws2_32.AF.UNSPEC;
+    hints.socktype = ws2_32.SOCK.STREAM;
+    hints.protocol = ws2_32.IPPROTO.TCP;
 
     // 端口字符串
     var port_buf: [6]u8 = undefined;
     const port_str = try std.fmt.bufPrintZ(&port_buf, "{d}", .{port});
 
     // 获取地址信息
-    var result: ?*ws2_32.addrinfo = null;
+    var result: ?*ws2_32.addrinfoa = null;
     if (ws2_32.getaddrinfo(host_z.ptr, port_str.ptr, &hints, &result) != 0) {
         return error.ConnectionFailed;
     }
@@ -205,18 +205,18 @@ fn connectTcp(
     defer ws2_32.freeaddrinfo(addr_list);
 
     // 尝试连接每个地址
-    var current: ?*ws2_32.addrinfo = addr_list;
+    var current: ?*ws2_32.addrinfoa = addr_list;
     while (current) |addr_info| : (current = addr_info.next) {
         const sock = ws2_32.socket(
-            addr_info.ai_family,
-            addr_info.ai_socktype,
-            @intCast(addr_info.ai_protocol),
+            addr_info.family,
+            addr_info.socktype,
+            @intCast(addr_info.protocol),
         );
         if (sock == INVALID_SOCKET) continue;
         errdefer _ = ws2_32.closesocket(sock);
 
         // 尝试带超时连接
-        if (connectWithTimeout(sock, addr_info.ai_addr.?, @intCast(addr_info.ai_addrlen), timeout_ms)) {
+        if (connectWithTimeout(sock, addr_info.addr.?, @intCast(addr_info.addrlen), timeout_ms)) {
             return sock;
         } else |_| {
             _ = ws2_32.closesocket(sock);
