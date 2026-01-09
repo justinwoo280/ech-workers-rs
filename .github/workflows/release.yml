@@ -139,7 +139,7 @@ jobs:
       - name: Build Zig TLS Tunnel (Windows ARM64)
         if: matrix.target == 'aarch64-windows'
         working-directory: ${{ matrix.zig_dir }}
-        run: zig build -Doptimize=ReleaseFast -Dtarget=aarch64-windows-gnu
+        run: zig build -Doptimize=ReleaseFast -Dtarget=aarch64-windows-msvc
 
       - name: Upload Zig artifacts
         uses: actions/upload-artifact@v4
