@@ -200,6 +200,8 @@ jobs:
       - name: Build Rust (native)
         if: matrix.cross != true
         working-directory: ech-workers-rs
+        env:
+          RUSTFLAGS: "-C target-cpu=native"
         run: cargo build --release --target ${{ matrix.target }}
 
       - name: Build Rust (cross)
@@ -210,6 +212,11 @@ jobs:
           CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
           CXX_aarch64_unknown_linux_gnu: aarch64-linux-gnu-g++
         run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Strip binary (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          strip ech-workers-rs/target/${{ matrix.target }}/release/${{ matrix.binary_name }} || true
 
       - name: Prepare artifact
         shell: bash
