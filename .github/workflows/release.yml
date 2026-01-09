@@ -25,21 +25,25 @@ jobs:
             target: x86_64-linux
             rust_target: x86_64-unknown-linux-gnu
             artifact_name: zig-tls-tunnel-linux-x86_64
+            zig_dir: zig-tls-tunnel
           # Linux ARM64
           - os: ubuntu-latest
             target: aarch64-linux
             rust_target: aarch64-unknown-linux-gnu
             artifact_name: zig-tls-tunnel-linux-arm64
+            zig_dir: zig-tls-tunnel
           # Windows x86_64
           - os: windows-latest
             target: x86_64-windows
             rust_target: x86_64-pc-windows-msvc
             artifact_name: zig-tls-tunnel-windows-x86_64
+            zig_dir: zig-tls-tunnel-win
           # Windows ARM64
           - os: windows-latest
             target: aarch64-windows
             rust_target: aarch64-pc-windows-msvc
             artifact_name: zig-tls-tunnel-windows-arm64
+            zig_dir: zig-tls-tunnel-win
 
     steps:
       - name: Checkout
@@ -54,8 +58,8 @@ jobs:
         id: cache-boringssl
         uses: actions/cache@v4
         with:
-          path: zig-tls-tunnel/vendor/boringssl/build
-          key: boringssl-${{ matrix.target }}-${{ hashFiles('zig-tls-tunnel/vendor/boringssl/**') }}
+          path: ${{ matrix.zig_dir }}/vendor/boringssl/build
+          key: boringssl-${{ matrix.target }}-${{ hashFiles(format('{0}/vendor/boringssl/**', matrix.zig_dir)) }}
 
       - name: Install dependencies (Linux)
         if: runner.os == 'Linux'
@@ -70,7 +74,7 @@ jobs:
 
       - name: Build BoringSSL (Linux x86_64)
         if: steps.cache-boringssl.outputs.cache-hit != 'true' && matrix.target == 'x86_64-linux'
-        working-directory: zig-tls-tunnel/vendor/boringssl
+        working-directory: ${{ matrix.zig_dir }}/vendor/boringssl
         run: |
           mkdir -p build && cd build
           cmake -GNinja -DCMAKE_BUILD_TYPE=Release ..
@@ -78,7 +82,7 @@ jobs:
 
       - name: Build BoringSSL (Linux ARM64 cross)
         if: steps.cache-boringssl.outputs.cache-hit != 'true' && matrix.target == 'aarch64-linux'
-        working-directory: zig-tls-tunnel/vendor/boringssl
+        working-directory: ${{ matrix.zig_dir }}/vendor/boringssl
         run: |
           sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
           mkdir -p build && cd build
@@ -98,7 +102,7 @@ jobs:
 
       - name: Build BoringSSL (Windows x86_64)
         if: steps.cache-boringssl.outputs.cache-hit != 'true' && matrix.target == 'x86_64-windows'
-        working-directory: zig-tls-tunnel/vendor/boringssl
+        working-directory: ${{ matrix.zig_dir }}/vendor/boringssl
         shell: pwsh
         run: |
           mkdir -Force build
@@ -108,7 +112,7 @@ jobs:
 
       - name: Build BoringSSL (Windows ARM64)
         if: steps.cache-boringssl.outputs.cache-hit != 'true' && matrix.target == 'aarch64-windows'
-        working-directory: zig-tls-tunnel/vendor/boringssl
+        working-directory: ${{ matrix.zig_dir }}/vendor/boringssl
         shell: pwsh
         run: |
           mkdir -Force build
@@ -117,26 +121,36 @@ jobs:
           cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl -DOPENSSL_NO_ASM=1 -DCMAKE_SYSTEM_PROCESSOR=ARM64 ..
           ninja
 
-      - name: Build Zig TLS Tunnel (native)
-        if: matrix.target == 'x86_64-linux' || matrix.target == 'x86_64-windows'
-        working-directory: zig-tls-tunnel
+      - name: Build Zig TLS Tunnel (Linux native)
+        if: matrix.target == 'x86_64-linux'
+        working-directory: ${{ matrix.zig_dir }}
         run: zig build -Doptimize=ReleaseFast
 
-      - name: Build Zig TLS Tunnel (cross ARM64)
-        if: matrix.target == 'aarch64-linux' || matrix.target == 'aarch64-windows'
-        working-directory: zig-tls-tunnel
-        run: zig build -Doptimize=ReleaseFast -Dtarget=${{ matrix.target == 'aarch64-linux' && 'aarch64-linux-gnu' || 'aarch64-windows-gnu' }}
+      - name: Build Zig TLS Tunnel (Linux ARM64 cross)
+        if: matrix.target == 'aarch64-linux'
+        working-directory: ${{ matrix.zig_dir }}
+        run: zig build -Doptimize=ReleaseFast -Dtarget=aarch64-linux-gnu
+
+      - name: Build Zig TLS Tunnel (Windows native)
+        if: matrix.target == 'x86_64-windows'
+        working-directory: ${{ matrix.zig_dir }}
+        run: zig build -Doptimize=ReleaseFast
+
+      - name: Build Zig TLS Tunnel (Windows ARM64)
+        if: matrix.target == 'aarch64-windows'
+        working-directory: ${{ matrix.zig_dir }}
+        run: zig build -Doptimize=ReleaseFast -Dtarget=aarch64-windows-gnu
 
       - name: Upload Zig artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
           path: |
-            zig-tls-tunnel/zig-out/lib/
-            zig-tls-tunnel/vendor/boringssl/build/libssl.a
-            zig-tls-tunnel/vendor/boringssl/build/libcrypto.a
-            zig-tls-tunnel/vendor/boringssl/build/ssl.lib
-            zig-tls-tunnel/vendor/boringssl/build/crypto.lib
+            ${{ matrix.zig_dir }}/zig-out/lib/
+            ${{ matrix.zig_dir }}/vendor/boringssl/build/libssl.a
+            ${{ matrix.zig_dir }}/vendor/boringssl/build/libcrypto.a
+            ${{ matrix.zig_dir }}/vendor/boringssl/build/ssl.lib
+            ${{ matrix.zig_dir }}/vendor/boringssl/build/crypto.lib
 
   build-rust:
     name: Build Rust (${{ matrix.target }})
@@ -150,12 +164,14 @@ jobs:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             zig_artifact: zig-tls-tunnel-linux-x86_64
+            zig_dir: zig-tls-tunnel
             binary_name: ech-workers-rs
             asset_name: ech-workers-rs-linux-x86_64
           # Linux ARM64
           - os: ubuntu-latest
             target: aarch64-unknown-linux-gnu
             zig_artifact: zig-tls-tunnel-linux-arm64
+            zig_dir: zig-tls-tunnel
             binary_name: ech-workers-rs
             asset_name: ech-workers-rs-linux-arm64
             cross: true
@@ -163,12 +179,14 @@ jobs:
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             zig_artifact: zig-tls-tunnel-windows-x86_64
+            zig_dir: zig-tls-tunnel-win
             binary_name: ech-workers-rs.exe
             asset_name: ech-workers-rs-windows-x86_64.exe
           # Windows ARM64
           - os: windows-latest
             target: aarch64-pc-windows-msvc
             zig_artifact: zig-tls-tunnel-windows-arm64
+            zig_dir: zig-tls-tunnel-win
             binary_name: ech-workers-rs.exe
             asset_name: ech-workers-rs-windows-arm64.exe
 
@@ -180,7 +198,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ matrix.zig_artifact }}
-          path: zig-tls-tunnel/
+          path: ${{ matrix.zig_dir }}/
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
