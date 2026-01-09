@@ -1,0 +1,235 @@
+name: Build Release
+
+on:
+  push:
+    branches: [master, main]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-zig-tls-tunnel:
+    name: Build Zig TLS Tunnel (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux x86_64
+          - os: ubuntu-latest
+            target: x86_64-linux
+            rust_target: x86_64-unknown-linux-gnu
+            artifact_name: zig-tls-tunnel-linux-x86_64
+          # Linux ARM64
+          - os: ubuntu-latest
+            target: aarch64-linux
+            rust_target: aarch64-unknown-linux-gnu
+            artifact_name: zig-tls-tunnel-linux-arm64
+          # Windows x86_64
+          - os: windows-latest
+            target: x86_64-windows
+            rust_target: x86_64-pc-windows-msvc
+            artifact_name: zig-tls-tunnel-windows-x86_64
+          # Windows ARM64
+          - os: windows-latest
+            target: aarch64-windows
+            rust_target: aarch64-pc-windows-msvc
+            artifact_name: zig-tls-tunnel-windows-arm64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Zig
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: 0.13.0
+
+      - name: Cache BoringSSL
+        id: cache-boringssl
+        uses: actions/cache@v4
+        with:
+          path: zig-tls-tunnel/vendor/boringssl/build
+          key: boringssl-${{ matrix.target }}-${{ hashFiles('zig-tls-tunnel/vendor/boringssl/**') }}
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build golang-go
+
+      - name: Install dependencies (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          choco install cmake ninja golang -y
+
+      - name: Build BoringSSL (Linux x86_64)
+        if: steps.cache-boringssl.outputs.cache-hit != 'true' && matrix.target == 'x86_64-linux'
+        working-directory: zig-tls-tunnel/vendor/boringssl
+        run: |
+          mkdir -p build && cd build
+          cmake -GNinja -DCMAKE_BUILD_TYPE=Release ..
+          ninja
+
+      - name: Build BoringSSL (Linux ARM64 cross)
+        if: steps.cache-boringssl.outputs.cache-hit != 'true' && matrix.target == 'aarch64-linux'
+        working-directory: zig-tls-tunnel/vendor/boringssl
+        run: |
+          sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+          mkdir -p build && cd build
+          cmake -GNinja -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
+            -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ \
+            -DCMAKE_SYSTEM_NAME=Linux \
+            -DCMAKE_SYSTEM_PROCESSOR=aarch64 \
+            ..
+          ninja
+
+      - name: Build BoringSSL (Windows)
+        if: steps.cache-boringssl.outputs.cache-hit != 'true' && runner.os == 'Windows'
+        working-directory: zig-tls-tunnel/vendor/boringssl
+        shell: pwsh
+        run: |
+          mkdir -Force build
+          cd build
+          cmake -GNinja -DCMAKE_BUILD_TYPE=Release ..
+          ninja
+
+      - name: Build Zig TLS Tunnel (native)
+        if: matrix.target == 'x86_64-linux' || matrix.target == 'x86_64-windows'
+        working-directory: zig-tls-tunnel
+        run: zig build -Doptimize=ReleaseFast
+
+      - name: Build Zig TLS Tunnel (cross ARM64)
+        if: matrix.target == 'aarch64-linux' || matrix.target == 'aarch64-windows'
+        working-directory: zig-tls-tunnel
+        run: zig build -Doptimize=ReleaseFast -Dtarget=${{ matrix.target == 'aarch64-linux' && 'aarch64-linux-gnu' || 'aarch64-windows-gnu' }}
+
+      - name: Upload Zig artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: |
+            zig-tls-tunnel/zig-out/lib/
+            zig-tls-tunnel/vendor/boringssl/build/libssl.a
+            zig-tls-tunnel/vendor/boringssl/build/libcrypto.a
+            zig-tls-tunnel/vendor/boringssl/build/ssl.lib
+            zig-tls-tunnel/vendor/boringssl/build/crypto.lib
+
+  build-rust:
+    name: Build Rust (${{ matrix.target }})
+    needs: build-zig-tls-tunnel
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux x86_64
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            zig_artifact: zig-tls-tunnel-linux-x86_64
+            binary_name: ech-workers-rs
+            asset_name: ech-workers-rs-linux-x86_64
+          # Linux ARM64
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            zig_artifact: zig-tls-tunnel-linux-arm64
+            binary_name: ech-workers-rs
+            asset_name: ech-workers-rs-linux-arm64
+            cross: true
+          # Windows x86_64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            zig_artifact: zig-tls-tunnel-windows-x86_64
+            binary_name: ech-workers-rs.exe
+            asset_name: ech-workers-rs-windows-x86_64.exe
+          # Windows ARM64
+          - os: windows-latest
+            target: aarch64-pc-windows-msvc
+            zig_artifact: zig-tls-tunnel-windows-arm64
+            binary_name: ech-workers-rs.exe
+            asset_name: ech-workers-rs-windows-arm64.exe
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Zig artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.zig_artifact }}
+          path: zig-tls-tunnel/
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install cross-compilation tools (Linux ARM64)
+        if: matrix.cross == true
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+
+      - name: Install NASM (Windows)
+        if: runner.os == 'Windows'
+        uses: ilammy/setup-nasm@v1
+
+      - name: Build Rust (native)
+        if: matrix.cross != true
+        working-directory: ech-workers-rs
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Build Rust (cross)
+        if: matrix.cross == true
+        working-directory: ech-workers-rs
+        env:
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
+          CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
+          CXX_aarch64_unknown_linux_gnu: aarch64-linux-gnu-g++
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Prepare artifact
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp ech-workers-rs/target/${{ matrix.target }}/release/${{ matrix.binary_name }} dist/${{ matrix.asset_name }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset_name }}
+          path: dist/${{ matrix.asset_name }}
+
+  release:
+    name: Create Release
+    needs: build-rust
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List artifacts
+        run: find artifacts -type f
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/ech-workers-rs-linux-x86_64/ech-workers-rs-linux-x86_64
+            artifacts/ech-workers-rs-linux-arm64/ech-workers-rs-linux-arm64
+            artifacts/ech-workers-rs-windows-x86_64.exe/ech-workers-rs-windows-x86_64.exe
+            artifacts/ech-workers-rs-windows-arm64.exe/ech-workers-rs-windows-arm64.exe
+          draft: false
+          prerelease: false
+          generate_release_notes: true
