@@ -96,14 +96,25 @@ jobs:
         with:
           arch: ${{ matrix.target == 'aarch64-windows' && 'amd64_arm64' || 'amd64' }}
 
-      - name: Build BoringSSL (Windows)
-        if: steps.cache-boringssl.outputs.cache-hit != 'true' && runner.os == 'Windows'
+      - name: Build BoringSSL (Windows x86_64)
+        if: steps.cache-boringssl.outputs.cache-hit != 'true' && matrix.target == 'x86_64-windows'
         working-directory: zig-tls-tunnel/vendor/boringssl
         shell: pwsh
         run: |
           mkdir -Force build
           cd build
           cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl ..
+          ninja
+
+      - name: Build BoringSSL (Windows ARM64)
+        if: steps.cache-boringssl.outputs.cache-hit != 'true' && matrix.target == 'aarch64-windows'
+        working-directory: zig-tls-tunnel/vendor/boringssl
+        shell: pwsh
+        run: |
+          mkdir -Force build
+          cd build
+          # ARM64 需要禁用 x86 汇编优化，使用纯 C 实现
+          cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl -DOPENSSL_NO_ASM=1 -DCMAKE_SYSTEM_PROCESSOR=ARM64 ..
           ninja
 
       - name: Build Zig TLS Tunnel (native)
