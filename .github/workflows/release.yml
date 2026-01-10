@@ -134,12 +134,12 @@ jobs:
       - name: Build Zig TLS Tunnel (Windows native)
         if: matrix.target == 'x86_64-windows'
         working-directory: ${{ matrix.zig_dir }}
-        run: zig build -Doptimize=ReleaseFast -Dtarget=x86_64-windows-msvc
+        run: zig build -Doptimize=ReleaseFast -Dtarget=x86_64-windows-msvc -Dlib-only=true
 
       - name: Build Zig TLS Tunnel (Windows ARM64)
         if: matrix.target == 'aarch64-windows'
         working-directory: ${{ matrix.zig_dir }}
-        run: zig build -Doptimize=ReleaseFast -Dtarget=aarch64-windows-msvc
+        run: zig build -Doptimize=ReleaseFast -Dtarget=aarch64-windows-msvc -Dlib-only=true
 
       - name: Upload Zig artifacts
         uses: actions/upload-artifact@v4

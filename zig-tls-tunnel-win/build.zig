@@ -4,6 +4,9 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
     
+    // 是否只构建库（用于 CI 交叉编译）
+    const lib_only = b.option(bool, "lib-only", "Only build the static library, skip executables") orelse false;
+    
     // Windows 版本：使用 .lib 文件
     const ssl_lib = "vendor/boringssl/build/ssl.lib";
     const crypto_lib = "vendor/boringssl/build/crypto.lib";
@@ -43,6 +46,9 @@ pub fn build(b: *std.Build) void {
     // Zig 0.13: export symbols are handled by 'export' keyword in source
 
     b.installArtifact(lib);
+
+    // 如果只构建库，跳过测试可执行文件
+    if (lib_only) return;
 
     // ========== 测试可执行文件 ==========
     
