@@ -15,77 +15,110 @@ use error::Result;
 
 #[derive(Parser, Debug)]
 #[command(name = "ech-workers-rs")]
-#[command(about = "Rust implementation of ech-workers with ECH + TLS1.3 + Yamux", long_about = None)]
+#[command(version)]
+#[command(author = "ech-workers-rs contributors")]
+#[command(about = "支持 ECH (Encrypted Client Hello) 的高性能代理客户端")]
+#[command(long_about = r#"
+ech-workers-rs - 支持 ECH 的安全代理客户端
+
+功能特性:
+  • TLS 1.3 + Encrypted Client Hello (ECH) 加密
+  • 模拟 Firefox 浏览器 TLS 指纹
+  • 支持 SOCKS5 和 HTTP CONNECT 代理协议
+  • Yamux 多路复用提升性能
+  • DoH (DNS over HTTPS) 获取 ECH 配置
+
+快速开始:
+  启动本地代理服务器:
+    ech-workers-rs proxy -f 服务器地址:443 -t 认证密钥
+
+  然后配置浏览器/系统代理为:
+    SOCKS5 代理: 127.0.0.1:1080
+    HTTP 代理:   127.0.0.1:1080
+
+使用示例:
+  # 使用默认设置启动代理
+  ech-workers-rs proxy -f myserver.com:443 -t secret123
+
+  # 自定义端口并启用详细日志
+  ech-workers-rs proxy -l 0.0.0.0:8080 -f myserver.com:443 -t secret123 -v
+
+  # 测试 ECH 配置获取
+  ech-workers-rs test-doh cloudflare.com
+
+  # 测试 ECH 连接
+  ech-workers-rs connect cloudflare.com
+"#)]
 struct Args {
     #[command(subcommand)]
-    command: Commands,
+    command: Option<Commands>,
 
-    /// Enable verbose logging
+    /// 启用详细日志输出
     #[arg(short, long, global = true)]
     verbose: bool,
 }
 
 #[derive(Subcommand, Debug)]
 enum Commands {
-    /// Test DoH query for ECH config
+    /// 测试 DoH 查询获取 ECH 配置
     TestDoh {
-        /// Domain to query
+        /// 要查询的域名
         domain: String,
         
-        /// DoH server URL
+        /// DoH 服务器地址
         #[arg(short, long, default_value = "https://cloudflare-dns.com/dns-query")]
         doh_server: String,
     },
     
-    /// Connect to a host with ECH
+    /// 测试 ECH 连接到指定主机
     Connect {
-        /// Target host
+        /// 目标主机
         host: String,
 
-        /// Target port
+        /// 目标端口
         #[arg(short, long, default_value_t = 443)]
         port: u16,
         
-        /// DoH server for ECH config
+        /// DoH 服务器地址
         #[arg(short, long, default_value = "https://cloudflare-dns.com/dns-query")]
         doh_server: String,
     },
     
-    /// Run proxy server
+    /// 启动本地代理服务器 (支持 SOCKS5 和 HTTP CONNECT)
     Proxy {
-        /// Local proxy listen address (SOCKS5 + HTTP)
+        /// 本地监听地址 (同时支持 SOCKS5 和 HTTP)
         #[arg(short = 'l', long, default_value = "127.0.0.1:1080")]
         listen: String,
 
-        /// Server address (e.g., example.com:443)
+        /// 远程服务器地址 (例如: example.com:443)
         #[arg(short = 'f', long)]
         server: String,
 
-        /// Server IP (optional, bypass DNS)
+        /// 服务器 IP (可选，用于绕过 DNS 解析)
         #[arg(long)]
         server_ip: Option<String>,
 
-        /// Authentication token
+        /// 认证密钥/Token
         #[arg(short = 't', long)]
         token: String,
 
-        /// Enable ECH (Encrypted Client Hello)
+        /// 启用 ECH (Encrypted Client Hello)
         #[arg(long, default_value = "true")]
         ech: bool,
 
-        /// ECH domain for DoH query
+        /// ECH 查询域名
         #[arg(long, default_value = "cloudflare-ech.com")]
         ech_domain: String,
 
-        /// DoH server for ECH config lookup
+        /// DoH 服务器地址 (用于获取 ECH 配置)
         #[arg(long, default_value = "dns.alidns.com/dns-query")]
         doh_server: String,
 
-        /// Enable Yamux multiplexing
+        /// 启用 Yamux 多路复用
         #[arg(long, default_value = "true")]
         yamux: bool,
 
-        /// Enable fingerprint randomization
+        /// 启用 TLS 指纹随机化
         #[arg(long, default_value = "true")]
         randomize_fingerprint: bool,
     },
@@ -110,7 +143,52 @@ async fn main() -> Result<()> {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    match args.command {
+    let command = match args.command {
+        Some(cmd) => cmd,
+        None => {
+            // 无子命令时显示帮助信息
+            println!();
+            println!("ech-workers-rs - 支持 ECH 的安全代理客户端");
+            println!();
+            println!("用法: ech-workers-rs <命令> [选项]");
+            println!();
+            println!("命令:");
+            println!("  proxy      启动本地代理服务器 (支持 SOCKS5 和 HTTP CONNECT)");
+            println!("  connect    测试 ECH 连接到指定主机");
+            println!("  test-doh   测试 DoH 查询获取 ECH 配置");
+            println!("  help       显示帮助信息");
+            println!();
+            println!("快速开始:");
+            println!("  ech-workers-rs proxy -f 服务器地址:443 -t 认证密钥");
+            println!();
+            println!("示例:");
+            println!("  # 启动代理 (默认监听 127.0.0.1:1080)");
+            println!("  ech-workers-rs proxy -f myserver.com:443 -t secret123");
+            println!();
+            println!("  # 自定义监听地址并启用详细日志");
+            println!("  ech-workers-rs proxy -l 0.0.0.0:8080 -f myserver.com:443 -t secret123 -v");
+            println!();
+            println!("  # 测试 ECH 配置获取");
+            println!("  ech-workers-rs test-doh cloudflare.com");
+            println!();
+            println!("  # 测试 ECH 连接");
+            println!("  ech-workers-rs connect cloudflare.com");
+            println!();
+            println!("代理参数说明:");
+            println!("  -l, --listen <地址>     本地监听地址 [默认: 127.0.0.1:1080]");
+            println!("  -f, --server <地址>     远程服务器地址 (必填)");
+            println!("  -t, --token <密钥>      认证密钥 (必填)");
+            println!("      --server-ip <IP>    服务器 IP (可选，绕过 DNS)");
+            println!("      --ech <bool>        启用 ECH [默认: true]");
+            println!("      --yamux <bool>      启用 Yamux 多路复用 [默认: true]");
+            println!("  -v, --verbose           启用详细日志");
+            println!();
+            println!("更多信息请运行: ech-workers-rs --help");
+            return Ok(());
+        }
+    };
+
+    match command {
         Commands::TestDoh { domain, doh_server } => {
             info!("Testing DoH query for {}", domain);
             
