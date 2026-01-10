@@ -2,8 +2,11 @@
 
 use std::ffi::CString;
 use std::io::{self, Read, Write};
+#[cfg(unix)]
 use std::os::unix::io::{AsRawFd, RawFd};
-use tracing::{debug, info, warn};
+#[cfg(windows)]
+use std::os::windows::io::{AsRawSocket, RawSocket};
+use tracing::{debug, info};
 
 use super::ffi::{self, TlsError, TlsInfo, TlsTunnel as RawTlsTunnel};
 use crate::error::{Error, Result};
@@ -184,9 +187,17 @@ impl Write for TlsTunnel {
     }
 }
 
+#[cfg(unix)]
 impl AsRawFd for TlsTunnel {
     fn as_raw_fd(&self) -> RawFd {
-        unsafe { ffi::tls_tunnel_get_fd(self.inner) }
+        unsafe { ffi::tls_tunnel_get_fd(self.inner) as RawFd }
+    }
+}
+
+#[cfg(windows)]
+impl AsRawSocket for TlsTunnel {
+    fn as_raw_socket(&self) -> RawSocket {
+        unsafe { ffi::tls_tunnel_get_fd(self.inner) as RawSocket }
     }
 }
 
