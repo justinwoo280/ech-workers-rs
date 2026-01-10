@@ -134,7 +134,7 @@ jobs:
       - name: Build Zig TLS Tunnel (Windows native)
         if: matrix.target == 'x86_64-windows'
         working-directory: ${{ matrix.zig_dir }}
-        run: zig build -Doptimize=ReleaseFast
+        run: zig build -Doptimize=ReleaseFast -Dtarget=x86_64-windows-msvc
 
       - name: Build Zig TLS Tunnel (Windows ARM64)
         if: matrix.target == 'aarch64-windows'

@@ -22,9 +22,9 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    // 链接 C/C++ 标准库 (BoringSSL 需要)
+    // 链接 C 标准库
     lib.linkLibC();
-    lib.linkLibCpp();
+    // 注意：不链接 libc++，因为 BoringSSL 已经编译好了，Zig 代码不需要 C++
     
     // 添加 BoringSSL 头文件路径
     lib.addIncludePath(b.path("vendor/boringssl/include"));
@@ -54,7 +54,6 @@ pub fn build(b: *std.Build) void {
     });
     
     exe.linkLibC();
-    exe.linkLibCpp();
     
     // 链接 BoringSSL
     exe.addIncludePath(b.path("vendor/boringssl/include"));
@@ -80,7 +79,6 @@ pub fn build(b: *std.Build) void {
     });
     
     ech_exe.linkLibC();
-    ech_exe.linkLibCpp();
     ech_exe.addIncludePath(b.path("vendor/boringssl/include"));
     ech_exe.addObjectFile(b.path(ssl_lib));
     ech_exe.addObjectFile(b.path(crypto_lib));
@@ -102,7 +100,6 @@ pub fn build(b: *std.Build) void {
     });
     
     profile_exe.linkLibC();
-    profile_exe.linkLibCpp();
     profile_exe.addIncludePath(b.path("vendor/boringssl/include"));
     profile_exe.addObjectFile(b.path(ssl_lib));
     profile_exe.addObjectFile(b.path(crypto_lib));
@@ -135,7 +132,6 @@ pub fn build(b: *std.Build) void {
     });
     
     lib_unit_tests.linkLibC();
-    lib_unit_tests.linkLibCpp();
     lib_unit_tests.addIncludePath(b.path("vendor/boringssl/include"));
     lib_unit_tests.addObjectFile(b.path(ssl_lib));
     lib_unit_tests.addObjectFile(b.path(crypto_lib));
