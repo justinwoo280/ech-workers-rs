@@ -217,14 +217,14 @@ fn connectTcp(
 }
 
 /// 带超时的连接
-/// 使用 SO_SNDTIMEO 设置连接超时
+/// 使用 SO_SNDTIMEO 和 SO_RCVTIMEO 设置连接和读取超时
 fn connectWithTimeout(
     sock: std.posix.socket_t,
     addr: *const std.posix.sockaddr,
     addrlen: std.posix.socklen_t,
     timeout_ms: u32,
 ) !void {
-    // 设置发送超时（connect 会使用此超时）
+    // 设置超时时间
     const timeout_sec = timeout_ms / 1000;
     const timeout_usec = (timeout_ms % 1000) * 1000;
     
@@ -241,6 +241,17 @@ fn connectWithTimeout(
         sock,
         std.posix.SOL.SOCKET,
         std.posix.SO.SNDTIMEO,
+        @ptrCast(&timeval),
+        @sizeOf(@TypeOf(timeval)),
+    );
+    
+    // SO_RCVTIMEO 用于 SSL 握手读取超时
+    // SSL_connect 需要接收 ServerHello，如果服务器挂起连接不发数据，
+    // 没有这个超时会导致 SSL_connect 卡死
+    _ = std.c.setsockopt(
+        sock,
+        std.posix.SOL.SOCKET,
+        std.posix.SO.RCVTIMEO,
         @ptrCast(&timeval),
         @sizeOf(@TypeOf(timeval)),
     );

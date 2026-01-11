@@ -225,7 +225,7 @@ fn connectTcp(
 }
 
 /// 带超时的连接
-/// 使用 SO_SNDTIMEO 设置连接超时
+/// 使用 SO_SNDTIMEO 和 SO_RCVTIMEO 设置连接和读取超时
 fn connectWithTimeout(
     sock: socket_t,
     addr: *const ws2_32.sockaddr,
@@ -240,6 +240,17 @@ fn connectWithTimeout(
         sock,
         ws2_32.SOL.SOCKET,
         ws2_32.SO.SNDTIMEO,
+        @ptrCast(&timeout),
+        @sizeOf(u32),
+    );
+    
+    // SO_RCVTIMEO 用于 SSL 握手读取超时
+    // SSL_connect 需要接收 ServerHello，如果服务器挂起连接不发数据，
+    // 没有这个超时会导致 SSL_connect 卡死
+    _ = ws2_32.setsockopt(
+        sock,
+        ws2_32.SOL.SOCKET,
+        ws2_32.SO.RCVTIMEO,
         @ptrCast(&timeout),
         @sizeOf(u32),
     );
