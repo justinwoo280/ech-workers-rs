@@ -85,12 +85,9 @@ pub const Tunnel = struct {
         // 设置 SNI
         try ssl.setHostname(self.ssl_conn, self.host_z.ptr);
         
-        // Check if we have real ECH config (Rust 侧通过 DoH 传入)
-        const has_real_ech = config.ech_config != null;
-        
-        // Apply browser fingerprint profile (Firefox 120)
+        // Apply fingerprint profile (BoringSSL default with GREASE)
         if (config.profile) |prof| {
-            try prof.apply(self.ssl_ctx, self.ssl_conn, has_real_ech);
+            prof.apply(self.ssl_ctx);
         }
 
         // Configure ECH if provided

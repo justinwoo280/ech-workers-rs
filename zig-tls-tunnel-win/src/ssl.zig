@@ -76,6 +76,11 @@ extern "c" fn ERR_error_string_n(err: c_ulong, buf: [*]u8, len: usize) void;
 // Reason: GREASE ECH exposes intent without protection
 // Strategy: Either use real ECH or nothing at all
 
+// GREASE (Generate Random Extensions And Sustain Extensibility)
+// This is regular GREASE for cipher suites, extensions, etc. (NOT ECH GREASE)
+extern "c" fn SSL_CTX_set_grease_enabled(ctx: *SSL_CTX, enabled: c_int) void;
+extern "c" fn SSL_CTX_set_permute_extensions(ctx: *SSL_CTX, enabled: c_int) void;
+
 // Supported Groups (curves)
 extern "c" fn SSL_set1_groups(ssl: *SSL, groups: [*]const c_int, groups_len: usize) c_int;
 extern "c" fn SSL_CTX_set1_groups(ctx: *SSL_CTX, groups: [*]const c_int, groups_len: usize) c_int;
@@ -227,8 +232,18 @@ pub fn getCipherSuite(ssl: *SSL) !u16 {
 
 // ========== Fingerprint Customization Functions ==========
 
-// Note: ECH GREASE functions removed
-// We only support Firefox profile which never uses ECH GREASE
+/// Enable GREASE (Generate Random Extensions And Sustain Extensibility)
+/// This adds random values to cipher suites, extensions, etc. to prevent ossification
+/// Note: This is NOT ECH GREASE - we never use ECH GREASE
+pub fn setGreaseEnabled(ctx: *SSL_CTX, enabled: bool) void {
+    SSL_CTX_set_grease_enabled(ctx, if (enabled) 1 else 0);
+}
+
+/// Enable extension permutation (randomize extension order)
+/// This helps avoid fingerprinting based on extension order
+pub fn setPermuteExtensions(ctx: *SSL_CTX, enabled: bool) void {
+    SSL_CTX_set_permute_extensions(ctx, if (enabled) 1 else 0);
+}
 
 /// Set supported groups (curves) for key exchange
 pub fn setGroups(ssl: *SSL, groups: []const c_int) !void {
