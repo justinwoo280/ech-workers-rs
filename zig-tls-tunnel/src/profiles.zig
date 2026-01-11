@@ -13,9 +13,15 @@ pub const Profile = enum {
     /// Blends in with Chrome, Android, gRPC, Cloudflare, etc.
     BoringSSLDefault,
     
+    /// Firefox 120 fingerprint (placeholder for future WolfSSL/NSS implementation)
+    /// Currently falls back to BoringSSLDefault
+    Firefox120,
+    
     pub fn apply(self: Profile, ctx: *ssl.SSL_CTX) void {
         switch (self) {
             .BoringSSLDefault => applyBoringSSLDefault(ctx),
+            // TODO: 使用 WolfSSL/NSS 实现真正的 Firefox 指纹
+            .Firefox120 => applyBoringSSLDefault(ctx), // 暂时回退到 BoringSSL 默认
         }
     }
 };

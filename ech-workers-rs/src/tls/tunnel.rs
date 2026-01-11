@@ -30,7 +30,7 @@ impl Default for TunnelConfig {
             port: 443,
             ech_config: None,
             enforce_ech: true,
-            use_firefox_profile: true,
+            use_firefox_profile: false, // 使用 BoringSSL 默认指纹 + GREASE
             connect_timeout_ms: 10000,
             handshake_timeout_ms: 10000,
         }
@@ -62,7 +62,26 @@ pub struct TlsTunnel {
 }
 
 impl TlsTunnel {
-    /// Create a new TLS tunnel connection
+    /// Quick connect with minimal config
+    /// 
+    /// # Example
+    /// ```
+    /// let tunnel = TlsTunnel::new("example.com", 443, Some(&ech_config))?;
+    /// ```
+    pub fn new(host: &str, port: u16, ech_config: Option<&[u8]>) -> Result<Self> {
+        let config = TunnelConfig {
+            host: host.to_string(),
+            port,
+            ech_config: ech_config.map(|c| c.to_vec()),
+            enforce_ech: ech_config.is_some(),
+            use_firefox_profile: false, // 使用 BoringSSL 默认指纹
+            connect_timeout_ms: 5000,
+            handshake_timeout_ms: 5000,
+        };
+        Self::connect(config)
+    }
+    
+    /// Create a new TLS tunnel connection with full config
     pub fn connect(config: TunnelConfig) -> Result<Self> {
         debug!("Connecting to {}:{}", config.host, config.port);
         
@@ -134,6 +153,18 @@ impl TlsTunnel {
             cipher_suite: info.cipher_suite,
             used_ech: info.used_ech,
         })
+    }
+    
+    /// Check if ECH was accepted by the server
+    #[inline]
+    pub fn ech_accepted(&self) -> bool {
+        self.info().map(|i| i.used_ech).unwrap_or(false)
+    }
+    
+    /// Get the raw file descriptor (for poll/select)
+    #[inline]
+    pub fn raw_fd(&self) -> i32 {
+        unsafe { ffi::tls_tunnel_get_fd(self.inner) }
     }
 }
 

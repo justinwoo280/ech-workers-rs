@@ -74,7 +74,11 @@ export fn tls_tunnel_create(
         else
             null,
         .enforce_ech = config.enforce_ech,
-        .profile = if (config.use_firefox_profile) profiles.Profile.Firefox120 else null,
+        // 默认使用 BoringSSL 指纹 + GREASE，Firefox 指纹暂时也回退到 BoringSSL
+        .profile = if (config.use_firefox_profile) 
+            profiles.Profile.Firefox120 
+        else 
+            profiles.Profile.BoringSSLDefault,
         .connect_timeout_ms = config.connect_timeout_ms,
         .handshake_timeout_ms = config.handshake_timeout_ms,
     };
