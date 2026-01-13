@@ -61,6 +61,11 @@ pub const Tunnel = struct {
         // 设置默认证书验证路径
         try ssl.setDefaultVerifyPaths(self.ssl_ctx);
 
+        // Apply fingerprint profile to context (MUST be before createSsl)
+        if (config.profile) |prof| {
+            prof.applyCtx(self.ssl_ctx);
+        }
+
         // 建立 TCP 连接
         self.socket = try connectTcp(
             allocator,
@@ -80,11 +85,8 @@ pub const Tunnel = struct {
         // 设置 SNI
         try ssl.setHostname(self.ssl_conn, self.host_z.ptr);
         
-        // Apply fingerprint profile
+        // Apply fingerprint profile to SSL connection (per-connection settings like ALPS)
         if (config.profile) |prof| {
-            // Apply context-level settings (cipher list, OCSP, SCT, etc.)
-            prof.applyCtx(self.ssl_ctx);
-            // Apply connection-level settings (ALPS, etc.)
             prof.applySsl(self.ssl_conn);
         }
 
