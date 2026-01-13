@@ -8,18 +8,20 @@ Rust implementation of ECH (Encrypted Client Hello) proxy with TLS 1.3, Yamux mu
 
 - ✅ DoH (DNS-over-HTTPS) for ECH config retrieval
 - ✅ Zig TLS Tunnel with BoringSSL
-- ✅ ECH handshake with Firefox 120 fingerprint
+- ✅ Chrome 120+ TLS fingerprint with ML-KEM
 - ✅ End-to-end testing verified
-- ⚠️ Yamux integration (in progress)
+- ✅ Yamux multiplexing
 
 ## Features
 
 - 🔐 **ECH (Encrypted Client Hello)** - Privacy-preserving TLS extension
 - 🚀 **TLS 1.3** - Via BoringSSL with ECH support
-- 🦊 **Firefox Fingerprint** - Mimics Firefox 120 TLS behavior
+- 🌐 **Chrome Fingerprint** - Mimics Chrome 120+ TLS behavior
+  - ML-KEM (X25519MLKEM768) post-quantum support
+  - Full cipher suite list, ALPN, OCSP, SCT, ALPS
 - 📡 **DoH Support** - Automatic ECH config retrieval
-- 🔀 **Yamux Multiplexing** - Multiple streams over single connection (WIP)
-- 🌐 **SOCKS5 + HTTP Proxy** - Dual protocol support (WIP)
+- 🔀 **Yamux Multiplexing** - Multiple streams over single connection
+- 🌐 **SOCKS5 + HTTP Proxy** - Dual protocol support
 
 ## Quick Start
 
@@ -66,8 +68,7 @@ BoringSSL (ECH + TLS 1.3)
 ## Documentation
 
 - [ECH Integration Guide](./ECH_INTEGRATION.md) - Complete integration documentation
-- [Zig TLS Tunnel](./zig-tls-tunnel/README.md) - Zig module documentation
-- [Success Report](../SUCCESS_REPORT.md) - Test results and verification
+- [ECH Security Policy](./ECH_SECURITY_POLICY.md) - Security design and policies
 
 ## Building
 
@@ -160,18 +161,16 @@ examples/
 - [x] Zig TLS Tunnel integration
 - [x] FFI bindings
 - [x] ECH handshake
-- [x] End-to-end testing
-
-### In Progress ⚠️
-- [ ] Yamux multiplexing (trait bounds issue)
-- [ ] WebSocket transport
-- [ ] Full proxy functionality
+- [x] Chrome 120+ TLS fingerprint
+- [x] ML-KEM post-quantum support
+- [x] Yamux multiplexing
+- [x] WebSocket transport
+- [x] SOCKS5 proxy
+- [x] HTTP CONNECT proxy
 
 ### Planned 📋
-- [ ] SOCKS5 proxy
-- [ ] HTTP CONNECT proxy
-- [ ] Server mode
-- [ ] Performance optimization
+- [ ] Firefox fingerprint (WolfSSL)
+- [ ] Brotli certificate compression
 - [ ] Connection pooling
 
 ## Testing

@@ -182,12 +182,13 @@ pub struct TunnelConfig {
 - 如果 ECH 配置了但未被服务器接受，连接失败
 - 防止中间人攻击剥离 ECH
 
-### Firefox 指纹
+### Chrome 指纹
 
-使用 Firefox 120 的 TLS 指纹：
-- 不使用 GREASE ECH（更安全）
-- 特定的密码套件顺序
-- 特定的扩展顺序
+使用 Chrome 120+ 的 TLS 指纹：
+- ML-KEM (X25519MLKEM768) 抗量子密钥交换
+- 完整 cipher suite 列表（TLS 1.3 + TLS 1.2）
+- ALPN, OCSP, SCT, ALPS 扩展
+- GREASE 和扩展随机排列
 
 ## 故障排除
 

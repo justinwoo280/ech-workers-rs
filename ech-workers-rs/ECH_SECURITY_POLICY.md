@@ -220,19 +220,11 @@ Config {
 ⚠️ 可能被 DPI 识别
 ```
 
-### Firefox
-
-```
-✅ 不使用 GREASE ECH
-✅ 只在有真实配置时发送
-✅ 更安全的策略
-```
-
 ### 本实现
 
 ```
-✅ 遵循 Firefox 策略
-✅ 不使用 GREASE ECH
+✅ Chrome 120+ 指纹（ML-KEM 抗量子）
+✅ 不使用 ECH GREASE（只用普通 GREASE）
 ✅ 强制验证 ECH
 ✅ 无自动回退
 ✅ 降级攻击检测
@@ -320,10 +312,10 @@ dig HTTPS crypto.cloudflare.com
 
 **这是一个纯粹的 ECH 客户端**：
 
-1. ✅ 不使用 GREASE ECH
-2. ✅ 不会自动回退到普通 TLS
-3. ✅ 强制验证 ECH 状态
-4. ✅ 检测降级攻击
-5. ✅ 遵循 Firefox 安全策略
+1. ✅ Chrome 120+ 指纹（ML-KEM 抗量子）
+2. ✅ 不使用 ECH GREASE（只用普通 GREASE）
+3. ✅ 不会自动回退到普通 TLS
+4. ✅ 强制验证 ECH 状态
+5. ✅ 检测降级攻击
 
 **如果 ECH 失败，连接就失败。没有妥协。**

@@ -5,6 +5,11 @@ Rust implementation of ECH (Encrypted Client Hello) proxy client with Zig TLS Tu
 ## Features
 
 - ✅ **ECH Support**: Full Encrypted Client Hello implementation
+- ✅ **Chrome Fingerprint**: Mimics Chrome 120+ TLS fingerprint
+  - ML-KEM (X25519MLKEM768) post-quantum key exchange
+  - Full cipher suite list (TLS 1.3 + TLS 1.2)
+  - ALPN, OCSP, SCT, ALPS extensions
+  - GREASE and extension permutation
 - ✅ **DoH Integration**: DNS-over-HTTPS for ECH config queries
 - ✅ **Zig TLS Tunnel**: BoringSSL-based TLS with ECH support via FFI
 - ✅ **Yamux Multiplexing**: Efficient connection reuse
@@ -127,10 +132,8 @@ Check logs for:
 
 ## Documentation
 
-- [E2E Testing Guide](ech-workers-rs/E2E_TEST.md)
 - [ECH Integration](ech-workers-rs/ECH_INTEGRATION.md)
 - [Security Policy](ech-workers-rs/ECH_SECURITY_POLICY.md)
-- [Implementation Status](ech-workers-rs/IMPLEMENTATION_COMPLETE.md)
 
 ## Compatibility
 
