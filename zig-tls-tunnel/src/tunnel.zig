@@ -80,9 +80,12 @@ pub const Tunnel = struct {
         // 设置 SNI
         try ssl.setHostname(self.ssl_conn, self.host_z.ptr);
         
-        // Apply fingerprint profile (BoringSSL default with GREASE)
+        // Apply fingerprint profile
         if (config.profile) |prof| {
-            prof.apply(self.ssl_ctx);
+            // Apply context-level settings (cipher list, OCSP, SCT, etc.)
+            prof.applyCtx(self.ssl_ctx);
+            // Apply connection-level settings (ALPS, etc.)
+            prof.applySsl(self.ssl_conn);
         }
 
         // Configure ECH if provided

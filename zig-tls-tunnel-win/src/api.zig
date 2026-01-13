@@ -74,11 +74,12 @@ export fn tls_tunnel_create(
         else
             null,
         .enforce_ech = config.enforce_ech,
-        // 默认使用 BoringSSL 指纹 + GREASE，Firefox 指纹暂时也回退到 BoringSSL
+        // 默认使用 Chrome 指纹（完整 TLS 1.2 cipher list + ALPS + OCSP + SCT）
+        // use_firefox_profile 暂时映射到 BoringSSLDefault（未来用 WolfSSL 实现）
         .profile = if (config.use_firefox_profile) 
             profiles.Profile.Firefox120 
         else 
-            profiles.Profile.BoringSSLDefault,
+            profiles.Profile.Chrome,
         .connect_timeout_ms = config.connect_timeout_ms,
         .handshake_timeout_ms = config.handshake_timeout_ms,
     };

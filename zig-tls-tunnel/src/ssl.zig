@@ -91,6 +91,27 @@ extern "c" fn SSL_CTX_set1_groups_list(ctx: *SSL_CTX, groups: [*:0]const u8) c_i
 extern "c" fn SSL_set_alpn_protos(ssl: *SSL, protos: [*]const u8, protos_len: c_uint) c_int;
 extern "c" fn SSL_CTX_set_alpn_protos(ctx: *SSL_CTX, protos: [*]const u8, protos_len: c_uint) c_int;
 
+// Cipher List (for Chrome fingerprint - declare TLS 1.2 ciphers even though we only use TLS 1.3)
+extern "c" fn SSL_CTX_set_cipher_list(ctx: *SSL_CTX, str: [*:0]const u8) c_int;
+extern "c" fn SSL_set_cipher_list(ssl: *SSL, str: [*:0]const u8) c_int;
+
+// OCSP Stapling (status_request extension)
+extern "c" fn SSL_CTX_enable_ocsp_stapling(ctx: *SSL_CTX) void;
+extern "c" fn SSL_enable_ocsp_stapling(ssl: *SSL) void;
+
+// Signed Certificate Timestamps (SCT)
+extern "c" fn SSL_CTX_enable_signed_cert_timestamps(ctx: *SSL_CTX) void;
+extern "c" fn SSL_enable_signed_cert_timestamps(ssl: *SSL) void;
+
+// ALPS (Application-Layer Protocol Settings) - Google extension
+extern "c" fn SSL_add_application_settings(
+    ssl: *SSL,
+    proto: [*]const u8,
+    proto_len: usize,
+    settings: [*]const u8,
+    settings_len: usize,
+) c_int;
+
 // ========== ECH (Encrypted Client Hello) API ==========
 
 /// SSL_set1_ech_config_list 配置客户端使用 ECH
@@ -283,6 +304,51 @@ pub fn setAlpnProtos(ssl: *SSL, protos: []const u8) !void {
 pub fn setAlpnProtosCtx(ctx: *SSL_CTX, protos: []const u8) !void {
     if (SSL_CTX_set_alpn_protos(ctx, protos.ptr, @intCast(protos.len)) != 0) {
         return error.SetAlpnFailed;
+    }
+}
+
+// ========== Chrome Fingerprint Functions ==========
+
+/// Set cipher list string (e.g., "TLS_AES_128_GCM_SHA256:ECDHE-RSA-AES128-GCM-SHA256:...")
+/// This declares TLS 1.2 ciphers for fingerprint, even though we only use TLS 1.3
+pub fn setCipherListCtx(ctx: *SSL_CTX, cipher_str: [*:0]const u8) !void {
+    if (SSL_CTX_set_cipher_list(ctx, cipher_str) != 1) {
+        return error.SetCipherListFailed;
+    }
+}
+
+/// Enable OCSP stapling request (status_request extension)
+pub fn enableOcspStaplingCtx(ctx: *SSL_CTX) void {
+    SSL_CTX_enable_ocsp_stapling(ctx);
+}
+
+/// Enable OCSP stapling request on SSL connection
+pub fn enableOcspStapling(ssl: *SSL) void {
+    SSL_enable_ocsp_stapling(ssl);
+}
+
+/// Enable Signed Certificate Timestamps request (SCT extension)
+pub fn enableSignedCertTimestampsCtx(ctx: *SSL_CTX) void {
+    SSL_CTX_enable_signed_cert_timestamps(ctx);
+}
+
+/// Enable SCT on SSL connection
+pub fn enableSignedCertTimestamps(ssl: *SSL) void {
+    SSL_enable_signed_cert_timestamps(ssl);
+}
+
+/// Add ALPS (Application-Layer Protocol Settings) - Google extension
+/// proto: ALPN protocol name (e.g., "h2")
+/// settings: application settings data (can be empty)
+pub fn addApplicationSettings(ssl: *SSL, proto: []const u8, settings: []const u8) !void {
+    if (SSL_add_application_settings(
+        ssl,
+        proto.ptr,
+        proto.len,
+        settings.ptr,
+        settings.len,
+    ) != 1) {
+        return error.SetAlpsFailed;
     }
 }
 
