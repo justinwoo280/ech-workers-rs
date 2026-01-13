@@ -91,12 +91,6 @@ extern "c" fn SSL_CTX_set1_groups_list(ctx: *SSL_CTX, groups: [*:0]const u8) c_i
 extern "c" fn SSL_CTX_set1_group_ids(ctx: *SSL_CTX, group_ids: [*]const u16, num_group_ids: usize) c_int;
 extern "c" fn SSL_set1_group_ids(ssl: *SSL, group_ids: [*]const u16, num_group_ids: usize) c_int;
 
-// Group ID constants
-pub const SSL_GROUP_SECP256R1: u16 = 23;
-pub const SSL_GROUP_SECP384R1: u16 = 24;
-pub const SSL_GROUP_X25519: u16 = 29;
-pub const SSL_GROUP_X25519_MLKEM768: u16 = 0x11ec; // Post-Quantum hybrid
-
 // Certificate Compression (for brotli)
 const CBB = opaque {};
 const ssl_cert_compression_func_t = ?*const fn (*SSL, *CBB, [*]const u8, usize) callconv(.C) c_int;
@@ -117,8 +111,7 @@ pub const TLSEXT_cert_compression_zstd: u16 = 3;
 extern "c" fn SSL_set_alpn_protos(ssl: *SSL, protos: [*]const u8, protos_len: c_uint) c_int;
 extern "c" fn SSL_CTX_set_alpn_protos(ctx: *SSL_CTX, protos: [*]const u8, protos_len: c_uint) c_int;
 
-// Cipher List (for Chrome fingerprint - declare TLS 1.2 ciphers even though we only use TLS 1.3)
-extern "c" fn SSL_CTX_set_cipher_list(ctx: *SSL_CTX, str: [*:0]const u8) c_int;
+// Cipher List (SSL connection level)
 extern "c" fn SSL_set_cipher_list(ssl: *SSL, str: [*:0]const u8) c_int;
 
 // OCSP Stapling (status_request extension)
