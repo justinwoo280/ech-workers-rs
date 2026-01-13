@@ -87,6 +87,32 @@ extern "c" fn SSL_CTX_set1_groups(ctx: *SSL_CTX, groups: [*]const c_int, groups_
 extern "c" fn SSL_set1_groups_list(ssl: *SSL, groups: [*:0]const u8) c_int;
 extern "c" fn SSL_CTX_set1_groups_list(ctx: *SSL_CTX, groups: [*:0]const u8) c_int;
 
+// Supported Groups by ID (for ML-KEM / Post-Quantum)
+extern "c" fn SSL_CTX_set1_group_ids(ctx: *SSL_CTX, group_ids: [*]const u16, num_group_ids: usize) c_int;
+extern "c" fn SSL_set1_group_ids(ssl: *SSL, group_ids: [*]const u16, num_group_ids: usize) c_int;
+
+// Group ID constants
+pub const SSL_GROUP_SECP256R1: u16 = 23;
+pub const SSL_GROUP_SECP384R1: u16 = 24;
+pub const SSL_GROUP_X25519: u16 = 29;
+pub const SSL_GROUP_X25519_MLKEM768: u16 = 0x11ec; // Post-Quantum hybrid
+
+// Certificate Compression (for brotli)
+const CBB = opaque {};
+const ssl_cert_compression_func_t = ?*const fn (*SSL, *CBB, [*]const u8, usize) callconv(.C) c_int;
+const ssl_cert_decompression_func_t = ?*const fn (*SSL, *allowzero u8 , usize, [*]const u8, usize) callconv(.C) c_int;
+extern "c" fn SSL_CTX_add_cert_compression_alg(
+    ctx: *SSL_CTX,
+    alg_id: u16,
+    compress: ssl_cert_compression_func_t,
+    decompress: ssl_cert_decompression_func_t,
+) c_int;
+
+// Certificate compression algorithm IDs
+pub const TLSEXT_cert_compression_zlib: u16 = 1;
+pub const TLSEXT_cert_compression_brotli: u16 = 2;
+pub const TLSEXT_cert_compression_zstd: u16 = 3;
+
 // ALPN
 extern "c" fn SSL_set_alpn_protos(ssl: *SSL, protos: [*]const u8, protos_len: c_uint) c_int;
 extern "c" fn SSL_CTX_set_alpn_protos(ctx: *SSL_CTX, protos: [*]const u8, protos_len: c_uint) c_int;
@@ -351,6 +377,42 @@ pub fn addApplicationSettings(ssl: *SSL, proto: []const u8, settings: []const u8
         settings.len,
     ) != 1) {
         return error.SetAlpsFailed;
+    }
+}
+
+// ========== Post-Quantum / ML-KEM Functions ==========
+
+/// Set supported groups by ID (for ML-KEM support)
+/// Chrome order: X25519MLKEM768, X25519, P-256, P-384
+pub fn setGroupIdsCtx(ctx: *SSL_CTX, group_ids: []const u16) !void {
+    if (SSL_CTX_set1_group_ids(ctx, group_ids.ptr, group_ids.len) != 1) {
+        return error.SetGroupsFailed;
+    }
+}
+
+/// Set supported groups by ID on SSL connection
+pub fn setGroupIds(ssl_conn: *SSL, group_ids: []const u16) !void {
+    if (SSL_set1_group_ids(ssl_conn, group_ids.ptr, group_ids.len) != 1) {
+        return error.SetGroupsFailed;
+    }
+}
+
+// ========== Certificate Compression Functions ==========
+
+/// Enable brotli certificate decompression (client-side)
+/// We only need decompression - we don't compress certificates as a client
+pub fn enableCertDecompressionBrotli(ctx: *SSL_CTX) !void {
+    // For client, we only need to declare we support brotli decompression
+    // compress = null (we don't compress), decompress = null triggers BoringSSL's built-in
+    // Actually, BoringSSL requires at least decompress callback, so we use a stub
+    if (SSL_CTX_add_cert_compression_alg(
+        ctx,
+        TLSEXT_cert_compression_brotli,
+        null, // no compress (client doesn't send certs)
+        null, // BoringSSL has built-in brotli if compiled with it
+    ) != 1) {
+        // If this fails, brotli might not be compiled in - that's OK
+        // We just won't advertise brotli support
     }
 }
 

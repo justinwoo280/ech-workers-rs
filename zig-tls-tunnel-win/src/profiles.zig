@@ -70,6 +70,15 @@ const CHROME_CIPHER_LIST: [*:0]const u8 =
 /// Chrome ALPN: h2, http/1.1
 const CHROME_ALPN = "\x02h2\x08http/1.1";
 
+/// Chrome supported groups (with ML-KEM for Post-Quantum)
+/// Order: X25519MLKEM768, X25519, P-256, P-384
+const CHROME_GROUPS = [_]u16{
+    ssl.SSL_GROUP_X25519_MLKEM768, // Post-Quantum hybrid (makes ClientHello ~1KB larger)
+    ssl.SSL_GROUP_X25519,
+    ssl.SSL_GROUP_SECP256R1,
+    ssl.SSL_GROUP_SECP384R1,
+};
+
 /// Apply Chrome fingerprint to context (one-time setup)
 fn applyChromeCtx(ctx: *ssl.SSL_CTX) void {
     // Enable GREASE
@@ -81,11 +90,17 @@ fn applyChromeCtx(ctx: *ssl.SSL_CTX) void {
     // Set Chrome cipher list (declares TLS 1.2 ciphers for fingerprint)
     ssl.setCipherListCtx(ctx, CHROME_CIPHER_LIST) catch {};
     
+    // Set Chrome groups with ML-KEM (Post-Quantum)
+    ssl.setGroupIdsCtx(ctx, &CHROME_GROUPS) catch {};
+    
     // Enable OCSP stapling (status_request extension)
     ssl.enableOcspStaplingCtx(ctx);
     
     // Enable Signed Certificate Timestamps
     ssl.enableSignedCertTimestampsCtx(ctx);
+    
+    // Enable brotli certificate compression
+    ssl.enableCertDecompressionBrotli(ctx) catch {};
     
     // Set ALPN: h2, http/1.1
     ssl.setAlpnProtosCtx(ctx, CHROME_ALPN) catch {};
