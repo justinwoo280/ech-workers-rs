@@ -16,7 +16,6 @@ mod stack;
 pub use device::TunDevice;
 pub use router::TunRouter;
 pub use nat::NatTable;
-pub use stack::TunStack;
 
 use crate::config::Config;
 use crate::error::Result;

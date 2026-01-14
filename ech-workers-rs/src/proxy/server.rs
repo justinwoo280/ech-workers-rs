@@ -48,7 +48,7 @@ pub async fn run_server(config: Config) -> Result<()> {
 }
 
 /// 处理单个连接
-async fn handle_connection(mut stream: TcpStream, config: Arc<Config>) -> Result<()> {
+async fn handle_connection(stream: TcpStream, config: Arc<Config>) -> Result<()> {
     // 检测协议类型（peek 第一个字节）
     let mut buf = [0u8; 1];
     stream.peek(&mut buf).await?;

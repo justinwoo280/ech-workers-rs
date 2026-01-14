@@ -130,11 +130,12 @@ impl TunRouter {
             .map_err(|e| Error::Protocol(format!("Invalid IP packet: {:?}", e)))?;
         
         // 获取 IP 头信息
-        let (src_ip, dst_ip, protocol) = match &parsed.ip {
-            Some(etherparse::InternetSlice::Ipv4(ipv4, _)) => {
-                let src = Ipv4Addr::from(ipv4.source());
-                let dst = Ipv4Addr::from(ipv4.destination());
-                let proto = ipv4.protocol().0;
+        let (src_ip, dst_ip, protocol) = match &parsed.net {
+            Some(etherparse::NetSlice::Ipv4(ipv4)) => {
+                let header = ipv4.header();
+                let src = Ipv4Addr::from(header.source());
+                let dst = Ipv4Addr::from(header.destination());
+                let proto = header.protocol().0;
                 (src, dst, proto)
             }
             _ => {
@@ -243,8 +244,9 @@ impl TunRouter {
             });
         }
         
-        // 获取 payload
-        if let Some(payload) = parsed.payload {
+        // 获取 TCP payload
+        if let Some(etherparse::TransportSlice::Tcp(tcp_slice)) = &parsed.transport {
+            let payload = tcp_slice.payload();
             if !payload.is_empty() {
                 // 查找对应的代理连接并发送数据
                 let conns = tcp_conns.read().await;
@@ -352,7 +354,11 @@ impl TunRouter {
         let src = SocketAddr::V4(SocketAddrV4::new(src_ip, src_port));
         let dst = SocketAddr::V4(SocketAddrV4::new(dst_ip, dst_port));
         
-        let payload_len = parsed.payload.map(|p: &[u8]| p.len()).unwrap_or(0);
+        let payload_len = if let Some(etherparse::TransportSlice::Udp(udp_slice)) = &parsed.transport {
+            udp_slice.payload().len()
+        } else {
+            0
+        };
         tracing::debug!("UDP {} -> {} ({} bytes)", src, dst, payload_len);
         
         // DNS 查询特殊处理 (端口 53)

@@ -2,9 +2,8 @@
 /// 
 /// 在 TLS 连接之上建立 WebSocket 连接
 
-use tokio::net::TcpStream;
-use tokio_tungstenite::{WebSocketStream, MaybeTlsStream, connect_async};
-use tungstenite::protocol::{WebSocketConfig, Message};
+use tokio_tungstenite::WebSocketStream;
+use tungstenite::protocol::Message;
 use tracing::{debug, info};
 use tokio::io::{AsyncRead, AsyncWrite};
 use std::pin::Pin;
