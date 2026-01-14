@@ -12,10 +12,13 @@ mod device;
 mod router;
 mod nat;
 mod stack;
+mod packet;
+mod route;
 
 pub use device::TunDevice;
 pub use router::TunRouter;
 pub use nat::NatTable;
+pub use route::RouteConfig;
 
 use crate::config::Config;
 use crate::error::Result;
@@ -54,7 +57,7 @@ impl Default for TunConfig {
 }
 
 /// 启动 TUN 模式
-pub async fn run_tun(config: TunConfig) -> Result<()> {
+pub async fn run_tun(config: TunConfig, server_ip: Option<std::net::Ipv4Addr>) -> Result<()> {
     tracing::info!("🚀 Starting TUN mode...");
     tracing::info!("   Device: {}", config.name);
     tracing::info!("   Address: {}/{}", config.address, config.netmask);
@@ -64,9 +67,22 @@ pub async fn run_tun(config: TunConfig) -> Result<()> {
     let device = TunDevice::create(&config)?;
     tracing::info!("✅ TUN device created");
     
+    // 配置路由表
+    let mut route_config = RouteConfig::new(&config.name, config.address, config.gateway);
+    if let Some(ip) = server_ip {
+        route_config = route_config.with_server_ip(ip);
+    }
+    route_config.setup()?;
+    tracing::info!("✅ Routes configured");
+    
     // 创建路由器
     let mut router = TunRouter::new(device, config.clone());
     
-    // 运行路由器
-    router.run().await
+    // 运行路由器（路由表会在 route_config drop 时自动清理）
+    let result = router.run().await;
+    
+    // 手动清理路由（确保清理）
+    let _ = route_config.cleanup();
+    
+    result
 }

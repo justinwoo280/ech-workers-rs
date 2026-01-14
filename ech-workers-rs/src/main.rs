@@ -367,8 +367,16 @@ async fn main() -> Result<()> {
                 proxy_config,
             };
             
+            // 解析服务器 IP（用于排除路由）
+            let server_ip: Option<std::net::Ipv4Addr> = {
+                // 尝试从服务器地址解析 IP
+                let server_host = tun_config.proxy_config.server_addr
+                    .split(':').next().unwrap_or("");
+                server_host.parse().ok()
+            };
+            
             // 启动 TUN 模式
-            if let Err(e) = tun::run_tun(tun_config).await {
+            if let Err(e) = tun::run_tun(tun_config, server_ip).await {
                 error!("❌ TUN error: {}", e);
                 return Err(e);
             }

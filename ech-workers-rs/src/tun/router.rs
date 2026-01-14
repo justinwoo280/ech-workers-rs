@@ -4,6 +4,7 @@
 
 use super::{TunConfig, TunDevice, NatTable};
 use super::nat::ConnectionState;
+use super::packet::{build_tcp_packet, TcpFlags};
 use crate::error::{Error, Result};
 use crate::transport::YamuxTransport;
 use crate::config::Config;
@@ -39,6 +40,7 @@ pub struct TunRouter {
 struct TcpProxyConnection {
     src: SocketAddr,
     dst: SocketAddr,
+    /// 发送数据到远程
     tx: mpsc::Sender<Vec<u8>>,
 }
 
@@ -47,6 +49,23 @@ struct UdpProxyConnection {
     src: SocketAddr,
     dst: SocketAddr,
     tx: mpsc::Sender<Vec<u8>>,
+}
+
+/// TUN 写入器（用于将响应包写回 TUN 设备）
+#[derive(Clone)]
+pub struct TunWriter {
+    tx: mpsc::Sender<Vec<u8>>,
+}
+
+impl TunWriter {
+    /// 写入 IP 包到 TUN 设备
+    pub async fn write_packet(&self, packet: Vec<u8>) -> Result<()> {
+        self.tx.send(packet).await
+            .map_err(|_| Error::Io(std::io::Error::new(
+                std::io::ErrorKind::BrokenPipe,
+                "TUN writer channel closed"
+            )))
+    }
 }
 
 impl TunRouter {
@@ -65,6 +84,10 @@ impl TunRouter {
     pub async fn run(&mut self) -> Result<()> {
         tracing::info!("TUN router starting...");
         
+        // 创建 TUN 写入通道
+        let (tun_writer_tx, mut tun_writer_rx) = mpsc::channel::<Vec<u8>>(4096);
+        let tun_writer = TunWriter { tx: tun_writer_tx };
+        
         // 启动 NAT 清理任务
         let nat_table = self.nat_table.clone();
         tokio::spawn(async move {
@@ -74,41 +97,55 @@ impl TunRouter {
             }
         });
         
-        // 主循环：读取 TUN 设备上的 IP 包
+        // 主循环：读取 TUN 设备上的 IP 包，同时处理写入请求
         let mut buf = vec![0u8; 65535];
         
         loop {
-            match self.device.read_packet(&mut buf).await {
-                Ok(0) => {
-                    tracing::warn!("TUN device closed");
-                    break;
-                }
-                Ok(n) => {
-                    let packet = buf[..n].to_vec();
-                    
-                    // 在新任务中处理包
-                    let config = self.config.clone();
-                    let nat_table = self.nat_table.clone();
-                    let tcp_conns = self.tcp_connections.clone();
-                    let udp_conns = self.udp_connections.clone();
-                    let next_port = self.next_local_port.clone();
-                    
-                    tokio::spawn(async move {
-                        if let Err(e) = Self::handle_packet(
-                            packet,
-                            config,
-                            nat_table,
-                            tcp_conns,
-                            udp_conns,
-                            next_port,
-                        ).await {
-                            tracing::debug!("Packet handling error: {}", e);
+            tokio::select! {
+                // 从 TUN 设备读取包
+                result = self.device.read_packet(&mut buf) => {
+                    match result {
+                        Ok(0) => {
+                            tracing::warn!("TUN device closed");
+                            break;
                         }
-                    });
+                        Ok(n) => {
+                            let packet = buf[..n].to_vec();
+                            
+                            // 在新任务中处理包
+                            let config = self.config.clone();
+                            let nat_table = self.nat_table.clone();
+                            let tcp_conns = self.tcp_connections.clone();
+                            let udp_conns = self.udp_connections.clone();
+                            let next_port = self.next_local_port.clone();
+                            let writer = tun_writer.clone();
+                            
+                            tokio::spawn(async move {
+                                if let Err(e) = Self::handle_packet(
+                                    packet,
+                                    config,
+                                    nat_table,
+                                    tcp_conns,
+                                    udp_conns,
+                                    next_port,
+                                    writer,
+                                ).await {
+                                    tracing::debug!("Packet handling error: {}", e);
+                                }
+                            });
+                        }
+                        Err(e) => {
+                            tracing::error!("TUN read error: {}", e);
+                            tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+                        }
+                    }
                 }
-                Err(e) => {
-                    tracing::error!("TUN read error: {}", e);
-                    tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+                
+                // 写入包到 TUN 设备
+                Some(packet) = tun_writer_rx.recv() => {
+                    if let Err(e) = self.device.write_packet(&packet).await {
+                        tracing::debug!("TUN write error: {}", e);
+                    }
                 }
             }
         }
@@ -124,6 +161,7 @@ impl TunRouter {
         tcp_conns: Arc<RwLock<HashMap<u16, TcpProxyConnection>>>,
         udp_conns: Arc<RwLock<HashMap<u16, UdpProxyConnection>>>,
         next_port: Arc<std::sync::atomic::AtomicU16>,
+        tun_writer: TunWriter,
     ) -> Result<()> {
         // 解析 IP 包
         let parsed = SlicedPacket::from_ip(&packet)
@@ -156,6 +194,7 @@ impl TunRouter {
                     nat_table,
                     tcp_conns,
                     next_port,
+                    tun_writer,
                 ).await?;
             }
             PROTO_UDP => {
@@ -168,6 +207,7 @@ impl TunRouter {
                     nat_table,
                     udp_conns,
                     next_port,
+                    tun_writer,
                 ).await?;
             }
             _ => {
@@ -188,6 +228,7 @@ impl TunRouter {
         nat_table: Arc<NatTable>,
         tcp_conns: Arc<RwLock<HashMap<u16, TcpProxyConnection>>>,
         next_port: Arc<std::sync::atomic::AtomicU16>,
+        tun_writer: TunWriter,
     ) -> Result<()> {
         // 解析 TCP 头
         let tcp = match &parsed.transport {
@@ -230,6 +271,7 @@ impl TunRouter {
             // 启动代理任务
             let proxy_config = config.proxy_config.clone();
             let nat = nat_table.clone();
+            let writer = tun_writer.clone();
             
             tokio::spawn(async move {
                 if let Err(e) = Self::run_tcp_proxy(
@@ -238,6 +280,7 @@ impl TunRouter {
                     proxy_config,
                     nat,
                     rx,
+                    writer,
                 ).await {
                     tracing::error!("TCP proxy error for {} -> {}: {}", src, dst, e);
                 }
@@ -269,8 +312,19 @@ impl TunRouter {
         config: Config,
         nat_table: Arc<NatTable>,
         mut rx: mpsc::Receiver<Vec<u8>>,
+        tun_writer: TunWriter,
     ) -> Result<()> {
         tracing::debug!("Starting TCP proxy: {} -> {}", src, dst);
+        
+        // 提取 IP 和端口
+        let (src_ip, src_port) = match src {
+            SocketAddr::V4(v4) => (*v4.ip(), v4.port()),
+            _ => return Err(Error::Protocol("IPv6 not supported".into())),
+        };
+        let (dst_ip, dst_port) = match dst {
+            SocketAddr::V4(v4) => (*v4.ip(), v4.port()),
+            _ => return Err(Error::Protocol("IPv6 not supported".into())),
+        };
         
         // 建立到远程服务器的连接
         let config_arc = Arc::new(config);
@@ -279,19 +333,16 @@ impl TunRouter {
         let mut stream = transport.dial().await?;
         
         // 发送目标地址
-        let target = format!("{}:{}\n", 
-            match dst {
-                SocketAddr::V4(v4) => v4.ip().to_string(),
-                SocketAddr::V6(v6) => v6.ip().to_string(),
-            },
-            dst.port()
-        );
+        let target = format!("{}:{}\n", dst_ip, dst_port);
         stream.write_all(target.as_bytes()).await?;
         
         // 更新 NAT 状态
         nat_table.update_state(src, dst, PROTO_TCP, ConnectionState::Established).await;
         
         tracing::info!("TCP proxy established: {} -> {}", src, dst);
+        
+        // TCP 序列号追踪（简化版本）
+        let mut recv_seq: u32 = 1;
         
         // 双向转发
         let mut buf = vec![0u8; 32768];
@@ -306,7 +357,7 @@ impl TunRouter {
                     }
                 }
                 
-                // 从远程收到数据，需要写回 TUN
+                // 从远程收到数据，构造 IP 包写回 TUN
                 result = stream.read(&mut buf) => {
                     match result {
                         Ok(0) => {
@@ -314,8 +365,27 @@ impl TunRouter {
                             break;
                         }
                         Ok(n) => {
-                            // TODO: 构造 IP 包写回 TUN
-                            tracing::trace!("Received {} bytes from remote", n);
+                            // 构造响应 IP 包（源和目标交换）
+                            let response_packet = build_tcp_packet(
+                                dst_ip,      // 源变成原来的目标
+                                src_ip,      // 目标变成原来的源
+                                dst_port,
+                                src_port,
+                                recv_seq,
+                                0,           // ack (简化)
+                                TcpFlags::psh_ack(),
+                                65535,
+                                &buf[..n],
+                            );
+                            
+                            recv_seq = recv_seq.wrapping_add(n as u32);
+                            
+                            // 写回 TUN 设备
+                            if let Err(e) = tun_writer.write_packet(response_packet).await {
+                                tracing::debug!("TUN write failed: {}", e);
+                            } else {
+                                tracing::trace!("Wrote {} bytes response to TUN", n);
+                            }
                         }
                         Err(e) => {
                             tracing::debug!("Read from remote failed: {}", e);
@@ -342,6 +412,7 @@ impl TunRouter {
         nat_table: Arc<NatTable>,
         _udp_conns: Arc<RwLock<HashMap<u16, UdpProxyConnection>>>,
         _next_port: Arc<std::sync::atomic::AtomicU16>,
+        _tun_writer: TunWriter,
     ) -> Result<()> {
         // 解析 UDP 头
         let udp = match &parsed.transport {
