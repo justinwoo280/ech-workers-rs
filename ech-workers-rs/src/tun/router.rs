@@ -12,7 +12,7 @@ use std::collections::HashMap;
 use std::net::{SocketAddr, SocketAddrV4, Ipv4Addr};
 use std::sync::Arc;
 use tokio::sync::{mpsc, RwLock};
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use futures::{AsyncReadExt, AsyncWriteExt};
 use etherparse::SlicedPacket;
 
 /// 协议号
@@ -179,8 +179,8 @@ impl TunRouter {
     
     /// 处理 TCP 包
     async fn handle_tcp_packet(
-        packet: &[u8],
-        parsed: &SlicedPacket,
+        _packet: &[u8],
+        parsed: &SlicedPacket<'_>,
         src_ip: Ipv4Addr,
         dst_ip: Ipv4Addr,
         config: TunConfig,
@@ -332,14 +332,14 @@ impl TunRouter {
     
     /// 处理 UDP 包
     async fn handle_udp_packet(
-        packet: &[u8],
-        parsed: &SlicedPacket,
+        _packet: &[u8],
+        parsed: &SlicedPacket<'_>,
         src_ip: Ipv4Addr,
         dst_ip: Ipv4Addr,
-        config: TunConfig,
+        _config: TunConfig,
         nat_table: Arc<NatTable>,
-        udp_conns: Arc<RwLock<HashMap<u16, UdpProxyConnection>>>,
-        next_port: Arc<std::sync::atomic::AtomicU16>,
+        _udp_conns: Arc<RwLock<HashMap<u16, UdpProxyConnection>>>,
+        _next_port: Arc<std::sync::atomic::AtomicU16>,
     ) -> Result<()> {
         // 解析 UDP 头
         let udp = match &parsed.transport {
@@ -352,8 +352,8 @@ impl TunRouter {
         let src = SocketAddr::V4(SocketAddrV4::new(src_ip, src_port));
         let dst = SocketAddr::V4(SocketAddrV4::new(dst_ip, dst_port));
         
-        tracing::debug!("UDP {} -> {} ({} bytes)", src, dst, 
-            parsed.payload.map(|p| p.len()).unwrap_or(0));
+        let payload_len = parsed.payload.map(|p: &[u8]| p.len()).unwrap_or(0);
+        tracing::debug!("UDP {} -> {} ({} bytes)", src, dst, payload_len);
         
         // DNS 查询特殊处理 (端口 53)
         if dst_port == 53 {

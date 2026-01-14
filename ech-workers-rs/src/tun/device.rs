@@ -23,7 +23,7 @@ impl TunDevice {
             .address(config.address)
             .netmask(config.netmask)
             .destination(config.gateway)
-            .mtu(config.mtu as i32)
+            .mtu(config.mtu)
             .up();
         
         // Linux 特定配置
@@ -33,8 +33,9 @@ impl TunDevice {
         });
         
         // 设置设备名称
+        #[allow(deprecated)]
         if !config.name.is_empty() {
-            tun_config.name(&config.name);
+            tun_config.tun_name(&config.name);
         }
         
         let device = tun::create_as_async(&tun_config)
