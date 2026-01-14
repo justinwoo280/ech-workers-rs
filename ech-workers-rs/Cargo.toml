@@ -67,6 +67,16 @@ hex = "0.4"
 # CLI
 clap = { version = "4.4", features = ["derive"] }
 
+# TUN 模式
+tun = { version = "0.7", features = ["async"] }
+etherparse = "0.16"
+ipnet = "2.9"
+socket2 = "0.5"
+rand = "0.8"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["winsock2", "ws2def", "ws2ipdef", "iphlpapi"] }
+
 [profile.release]
 opt-level = 3
 lto = true

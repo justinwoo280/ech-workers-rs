@@ -9,6 +9,7 @@ mod proxy;
 mod ech;
 mod utils;
 mod tls;
+mod tun;
 
 use config::Config;
 use error::Result;
@@ -121,6 +122,49 @@ enum Commands {
         /// 启用 TLS 指纹随机化
         #[arg(long, default_value = "true")]
         randomize_fingerprint: bool,
+    },
+    
+    /// 启动 TUN 模式 (透明代理，需要管理员权限)
+    Tun {
+        /// TUN 设备名称
+        #[arg(long, default_value = "tun0")]
+        name: String,
+        
+        /// TUN 设备 IP 地址
+        #[arg(long, default_value = "10.0.0.1")]
+        address: String,
+        
+        /// 子网掩码
+        #[arg(long, default_value = "255.255.255.0")]
+        netmask: String,
+        
+        /// 远程服务器地址 (例如: example.com:443)
+        #[arg(short = 'f', long)]
+        server: String,
+        
+        /// 认证密钥/Token
+        #[arg(short = 't', long)]
+        token: String,
+        
+        /// 启用 ECH (Encrypted Client Hello)
+        #[arg(long, default_value = "true")]
+        ech: bool,
+        
+        /// ECH 查询域名
+        #[arg(long, default_value = "cloudflare-ech.com")]
+        ech_domain: String,
+        
+        /// DoH 服务器地址
+        #[arg(long, default_value = "dns.alidns.com/dns-query")]
+        doh_server: String,
+        
+        /// DNS 服务器
+        #[arg(long, default_value = "8.8.8.8")]
+        dns: String,
+        
+        /// MTU 大小
+        #[arg(long, default_value = "1500")]
+        mtu: u16,
     },
 }
 
@@ -269,6 +313,63 @@ async fn main() -> Result<()> {
             // 启动代理服务器
             if let Err(e) = proxy::run_server(config).await {
                 error!("❌ Server error: {}", e);
+                return Err(e);
+            }
+        }
+        
+        Commands::Tun {
+            name,
+            address,
+            netmask,
+            server,
+            token,
+            ech,
+            ech_domain,
+            doh_server,
+            dns,
+            mtu,
+        } => {
+            info!("🚀 ech-workers-rs TUN mode starting...");
+            info!("   Device: {}", name);
+            info!("   Address: {}/{}", address, netmask);
+            info!("   Server: {}", server);
+            info!("   ECH: {}", ech);
+            
+            // 解析 IP 地址
+            let address: std::net::Ipv4Addr = address.parse()
+                .map_err(|_| error::Error::Protocol("Invalid TUN address".into()))?;
+            let netmask: std::net::Ipv4Addr = netmask.parse()
+                .map_err(|_| error::Error::Protocol("Invalid TUN netmask".into()))?;
+            let dns_addr: std::net::Ipv4Addr = dns.parse()
+                .map_err(|_| error::Error::Protocol("Invalid DNS address".into()))?;
+            
+            // 构建代理配置
+            let proxy_config = Config {
+                listen_addr: "0.0.0.0:0".to_string(), // TUN 模式不需要监听
+                server_addr: server,
+                server_ip: None,
+                token,
+                use_ech: ech,
+                ech_domain,
+                doh_server,
+                use_yamux: true,
+                randomize_fingerprint: true,
+            };
+            
+            // 构建 TUN 配置
+            let tun_config = tun::TunConfig {
+                name,
+                address,
+                netmask,
+                gateway: address,
+                mtu,
+                dns: vec![dns_addr],
+                proxy_config,
+            };
+            
+            // 启动 TUN 模式
+            if let Err(e) = tun::run_tun(tun_config).await {
+                error!("❌ TUN error: {}", e);
                 return Err(e);
             }
         }
