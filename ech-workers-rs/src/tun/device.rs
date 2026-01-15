@@ -28,9 +28,11 @@ impl TunDevice {
         
         // Linux 特定配置
         #[cfg(target_os = "linux")]
-        tun_config.platform_config(|p| {
-            p.ensure_root_privileges(true);
-        });
+        {
+            tun_config.platform_config(|p| {
+                p.ensure_root_privileges(true);
+            });
+        }
         
         // 设置设备名称
         #[allow(deprecated)]
@@ -82,17 +84,49 @@ impl TunDevice {
             tracing::warn!("netsh set address: {}", String::from_utf8_lossy(&output.stderr));
         }
         
-        // 配置 DNS
-        if !config.dns.is_empty() {
-            let dns_str = format!("{}", config.dns[0]);
-            let _ = Command::new("netsh")
-                .args([
-                    "interface", "ip", "set", "dns",
-                    &format!("name={}", config.name),
-                    "static", &dns_str
-                ])
-                .output();
-        }
+        // 配置 DNS - 使用 Cloudflare DoH
+        // Cloudflare DoH: 1.1.1.1 (https://cloudflare-dns.com/dns-query)
+        let cloudflare_dns = "1.1.1.1";
+        
+        // 设置 DNS 服务器
+        let _ = Command::new("netsh")
+            .args([
+                "interface", "ip", "set", "dns",
+                &format!("name={}", config.name),
+                "static", cloudflare_dns
+            ])
+            .output();
+        
+        // 尝试配置 DoH (Windows 11+)
+        // 先添加 DoH 服务器配置
+        let _ = Command::new("netsh")
+            .args([
+                "dns", "add", "encryption",
+                "server=1.1.1.1",
+                "dohtemplate=https://cloudflare-dns.com/dns-query",
+                "autoupgrade=yes"
+            ])
+            .output();
+        
+        // 添加备用 DoH (1.0.0.1)
+        let _ = Command::new("netsh")
+            .args([
+                "interface", "ip", "add", "dns",
+                &format!("name={}", config.name),
+                "1.0.0.1", "index=2"
+            ])
+            .output();
+        
+        let _ = Command::new("netsh")
+            .args([
+                "dns", "add", "encryption",
+                "server=1.0.0.1",
+                "dohtemplate=https://cloudflare-dns.com/dns-query",
+                "autoupgrade=yes"
+            ])
+            .output();
+        
+        tracing::info!("DNS configured: Cloudflare DoH (1.1.1.1, 1.0.0.1)");
         
         Ok(())
     }
