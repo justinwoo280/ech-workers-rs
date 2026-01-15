@@ -112,7 +112,7 @@ impl UdpSessionManager {
     ) -> Result<()> {
         // 解析目标地址（支持 FakeDNS）
         let target_host = if FakeDnsPool::is_fake_ip(key.remote_ip) {
-            if let Some(domain) = self.fake_dns.lookup(key.remote_ip).await {
+            if let Some(domain) = self.fake_dns.lookup(key.remote_ip) {
                 tracing::debug!("UDP FakeDNS resolved: {} -> {}", key.remote_ip, domain);
                 domain
             } else {

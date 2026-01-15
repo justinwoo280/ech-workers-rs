@@ -323,7 +323,7 @@ impl TunRouter {
             TcpAction::ConnectionEstablished(key) => {
                 // 检查目标 IP 是否是 FakeDNS 的假 IP，如果是则查找真实域名
                 let target_host = if FakeDnsPool::is_fake_ip(dst_ip) {
-                    if let Some(domain) = fake_dns.lookup(dst_ip).await {
+                    if let Some(domain) = fake_dns.lookup(dst_ip) {
                         tracing::info!("FakeDNS resolved: {} -> {}", dst_ip, domain);
                         domain
                     } else {
@@ -578,7 +578,7 @@ impl TunRouter {
             if fake_dns.is_enabled() {
                 tracing::debug!("FakeDNS handling: {}", query.name);
                 
-                if let Some(response_data) = fake_dns.handle_query(&query).await {
+                if let Some(response_data) = fake_dns.handle_query(&query) {
                     // 构造 UDP 响应包
                     let response_packet = build_udp_packet(
                         dst_ip, src_ip, dst_port, src_port,
