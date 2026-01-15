@@ -5,12 +5,11 @@
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tokio::task::JoinHandle;
-use tracing::{info, error};
+use tracing::info;
 
 use crate::config::Config;
 use crate::error::Result;
-use crate::proxy::server::ProxyServer;
-use crate::tun::TunRouter;
+use crate::proxy::run_server;
 use super::state::{SharedAppState, ProxyStatus, LogLevel};
 use super::config::GuiConfig;
 
@@ -130,19 +129,15 @@ impl ProxyService {
     }
     
     /// 运行 SOCKS5/HTTP 代理模式
-    async fn run_proxy_mode(config: Config, state: SharedAppState) -> Result<()> {
+    async fn run_proxy_mode(config: Config, _state: SharedAppState) -> Result<()> {
         info!("Starting proxy server on {}", config.listen_addr);
         
-        let server = ProxyServer::new(Arc::new(config));
-        
-        // 启动服务器
-        server.run().await?;
-        
-        Ok(())
+        // 启动代理服务器
+        run_server(config).await
     }
     
     /// 运行 TUN 模式
-    async fn run_tun_mode(config: Config, state: SharedAppState) -> Result<()> {
+    async fn run_tun_mode(_config: Config, state: SharedAppState) -> Result<()> {
         info!("Starting TUN mode");
         
         // TODO: 实现 TUN 模式启动

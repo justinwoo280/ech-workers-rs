@@ -1,7 +1,7 @@
 //! 状态面板
 
 use egui::{RichText, Color32};
-use crate::gui::state::{AppState, ProxyStatus, Statistics};
+use crate::gui::state::{AppState, Statistics};
 
 pub struct DashboardPanel;
 

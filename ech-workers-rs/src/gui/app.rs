@@ -4,7 +4,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use eframe::egui;
 
-use super::state::{AppState, SharedAppState, ProxyStatus, LogLevel};
+use super::state::{AppState, SharedAppState, LogLevel};
 use super::config::GuiConfig;
 use super::panels::{DashboardPanel, SettingsPanel, LogsPanel};
 use super::service::ProxyService;
@@ -71,7 +71,7 @@ impl EchWorkersApp {
         let proxy_service = Arc::new(ProxyService::new(state.clone()));
         
         // 创建托盘管理器
-        let mut tray_manager = TrayManager::new(state.clone());
+        let mut tray_manager = TrayManager::new();
         if let Err(e) = tray_manager.init() {
             let mut state_guard = state.blocking_write();
             state_guard.add_log(LogLevel::Warn, format!("托盘初始化失败: {}", e));
@@ -90,7 +90,7 @@ impl EchWorkersApp {
     }
     
     fn configure_fonts(ctx: &egui::Context) {
-        let mut fonts = egui::FontDefinitions::default();
+        let fonts = egui::FontDefinitions::default();
         
         // 添加中文字体支持（如果需要）
         // 这里使用系统默认字体
@@ -214,17 +214,18 @@ impl EchWorkersApp {
 }
 
 impl eframe::App for EchWorkersApp {
-    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // 处理托盘事件
         if let Some(event) = self.tray_manager.handle_events() {
             use super::tray::TrayEvent;
             match event {
                 TrayEvent::IconClick | TrayEvent::Show => {
-                    frame.set_visible(true);
-                    frame.focus();
+                    // eframe 0.28: 使用 ViewportCommand 控制窗口
+                    ctx.send_viewport_cmd(egui::ViewportCommand::Visible(true));
+                    ctx.send_viewport_cmd(egui::ViewportCommand::Focus);
                 }
                 TrayEvent::Quit => {
-                    frame.close();
+                    ctx.send_viewport_cmd(egui::ViewportCommand::Close);
                 }
                 _ => {}
             }

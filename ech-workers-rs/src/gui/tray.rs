@@ -2,32 +2,25 @@
 //! 
 //! 支持 Windows/Linux/macOS 系统托盘图标和菜单
 
-use std::sync::Arc;
-use tokio::sync::RwLock;
-
 #[cfg(target_os = "windows")]
 use tray_icon::{
     TrayIconBuilder, TrayIconEvent, 
-    menu::{Menu, MenuItem, PredefinedMenuItem, MenuEvent},
+    menu::{Menu, MenuItem, PredefinedMenuItem},
 };
 
-use super::state::SharedAppState;
 
 /// 托盘图标管理器
 pub struct TrayManager {
     #[cfg(target_os = "windows")]
     _tray_icon: Option<tray_icon::TrayIcon>,
-    
-    state: SharedAppState,
 }
 
 impl TrayManager {
     /// 创建托盘管理器
-    pub fn new(state: SharedAppState) -> Self {
+    pub fn new() -> Self {
         Self {
             #[cfg(target_os = "windows")]
             _tray_icon: None,
-            state,
         }
     }
     
@@ -74,7 +67,7 @@ impl TrayManager {
         use tray_icon::menu::MenuEvent;
         
         if let Ok(event) = MenuEvent::receiver().try_recv() {
-            let id = event.id.0;
+            let _id = event.id.0;
             
             // 根据菜单项 ID 判断事件
             // 这里需要保存菜单项的 ID 引用
