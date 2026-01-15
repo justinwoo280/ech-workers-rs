@@ -137,7 +137,7 @@ async fn handle_socks5_udp_associate(
     let udp_socket_clone = udp_socket.clone();
     
     // UDP 数据转发任务
-    let config_clone = config.clone();
+    let _config_clone = config.clone();
     let relay_task = tokio::spawn(async move {
         let mut buf = vec![0u8; 65535];
         let mut client_addr: Option<std::net::SocketAddr> = None;

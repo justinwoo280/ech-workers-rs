@@ -117,14 +117,7 @@ impl TunRouter {
             }
         });
         
-        // 启动 FakeDNS 清理任务
-        let fake_dns = self.fake_dns.clone();
-        tokio::spawn(async move {
-            loop {
-                tokio::time::sleep(tokio::time::Duration::from_secs(60)).await;
-                fake_dns.cleanup_expired().await;
-            }
-        });
+        // FakeDNS 使用 LRU 自动回收，无需手动清理
         
         // 启动 UDP 会话清理任务
         let udp_sessions = self.udp_sessions.clone();

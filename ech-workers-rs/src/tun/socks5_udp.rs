@@ -16,7 +16,6 @@
 //! +----+------+------+----------+----------+----------+
 
 use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
-use std::sync::Arc;
 use tokio::net::UdpSocket;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
