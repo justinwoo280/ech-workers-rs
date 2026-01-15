@@ -46,17 +46,23 @@ enum Tab {
 
 impl EchWorkersApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        println!("[DEBUG] EchWorkersApp::new() called");
+        
         // 设置字体
         Self::configure_fonts(&cc.egui_ctx);
+        println!("[DEBUG] Fonts configured");
         
         // 设置主题
         cc.egui_ctx.set_visuals(egui::Visuals::dark());
+        println!("[DEBUG] Theme set");
         
         // 加载配置
         let config = GuiConfig::load().unwrap_or_default();
+        println!("[DEBUG] Config loaded");
         
         // 创建应用状态
         let state = Arc::new(RwLock::new(AppState::new()));
+        println!("[DEBUG] State created");
         
         // 添加初始日志
         {
@@ -66,16 +72,21 @@ impl EchWorkersApp {
         
         // 创建 Tokio 运行时
         let runtime = tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime");
+        println!("[DEBUG] Tokio runtime created");
         
         // 创建代理服务管理器
         let proxy_service = Arc::new(ProxyService::new(state.clone()));
+        println!("[DEBUG] ProxyService created");
         
-        // 创建托盘管理器
-        let mut tray_manager = TrayManager::new();
-        if let Err(e) = tray_manager.init() {
-            let mut state_guard = state.blocking_write();
-            state_guard.add_log(LogLevel::Warn, format!("托盘初始化失败: {}", e));
-        }
+        // 创建托盘管理器 (暂时禁用)
+        let tray_manager = TrayManager::new();
+        // if let Err(e) = tray_manager.init() {
+        //     let mut state_guard = state.blocking_write();
+        //     state_guard.add_log(LogLevel::Warn, format!("托盘初始化失败: {}", e));
+        // }
+        println!("[DEBUG] TrayManager created (init disabled)");
+        
+        println!("[DEBUG] EchWorkersApp::new() completed");
         
         Self {
             state,

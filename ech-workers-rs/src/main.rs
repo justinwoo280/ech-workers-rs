@@ -247,6 +247,7 @@ async fn main() -> Result<()> {
     match command {
         Commands::Gui => {
             info!("Starting GUI...");
+            println!("[DEBUG] Before eframe::run_native");
             
             let options = eframe::NativeOptions {
                 viewport: egui::ViewportBuilder::default()
@@ -256,14 +257,26 @@ async fn main() -> Result<()> {
                 ..Default::default()
             };
             
-            if let Err(e) = eframe::run_native(
+            println!("[DEBUG] NativeOptions created");
+            
+            let result = eframe::run_native(
                 "ECH Workers RS",
                 options,
-                Box::new(|cc| Ok(Box::new(gui::EchWorkersApp::new(cc)))),
-            ) {
+                Box::new(|cc| {
+                    println!("[DEBUG] Creating EchWorkersApp...");
+                    Ok(Box::new(gui::EchWorkersApp::new(cc)))
+                }),
+            );
+            
+            println!("[DEBUG] eframe::run_native returned");
+            
+            if let Err(e) = result {
                 error!("GUI error: {}", e);
+                println!("[ERROR] GUI error: {}", e);
                 return Err(error::Error::Io(std::io::Error::new(std::io::ErrorKind::Other, e.to_string())));
             }
+            
+            println!("[DEBUG] GUI exited normally");
             return Ok(());
         }
         
