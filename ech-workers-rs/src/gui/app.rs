@@ -7,6 +7,8 @@ use eframe::egui;
 use super::state::{AppState, SharedAppState, ProxyStatus, LogLevel};
 use super::config::GuiConfig;
 use super::panels::{DashboardPanel, SettingsPanel, LogsPanel};
+use super::service::ProxyService;
+use super::tray::TrayManager;
 
 /// 主应用
 pub struct EchWorkersApp {
@@ -24,6 +26,15 @@ pub struct EchWorkersApp {
     
     /// 配置是否已修改
     config_dirty: bool,
+    
+    /// 代理服务管理器
+    proxy_service: Arc<ProxyService>,
+    
+    /// 系统托盘管理器
+    tray_manager: TrayManager,
+    
+    /// Tokio 运行时
+    runtime: tokio::runtime::Runtime,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -53,12 +64,28 @@ impl EchWorkersApp {
             state_guard.add_log(LogLevel::Info, "ECH Workers RS 已启动".to_string());
         }
         
+        // 创建 Tokio 运行时
+        let runtime = tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime");
+        
+        // 创建代理服务管理器
+        let proxy_service = Arc::new(ProxyService::new(state.clone()));
+        
+        // 创建托盘管理器
+        let mut tray_manager = TrayManager::new(state.clone());
+        if let Err(e) = tray_manager.init() {
+            let mut state_guard = state.blocking_write();
+            state_guard.add_log(LogLevel::Warn, format!("托盘初始化失败: {}", e));
+        }
+        
         Self {
             state,
             config,
             active_tab: Tab::Dashboard,
             logs_panel: LogsPanel::default(),
             config_dirty: false,
+            proxy_service,
+            tray_manager,
+            runtime,
         }
     }
     
@@ -165,33 +192,48 @@ impl EchWorkersApp {
     }
     
     fn start_proxy(&mut self) {
-        let mut state = self.state.blocking_write();
-        state.set_status(ProxyStatus::Starting);
-        state.add_log(LogLevel::Info, "正在启动代理...".to_string());
+        let proxy_service = self.proxy_service.clone();
+        let config = self.config.clone();
         
-        // TODO: 实际启动代理服务
-        // 这里需要与后端服务集成
-        
-        // 模拟启动
-        state.set_status(ProxyStatus::Running);
-        state.add_log(LogLevel::Info, "代理已启动".to_string());
+        self.runtime.spawn(async move {
+            if let Err(e) = proxy_service.start(&config).await {
+                tracing::error!("Failed to start proxy: {}", e);
+            }
+        });
     }
     
     fn stop_proxy(&mut self) {
-        let mut state = self.state.blocking_write();
-        state.set_status(ProxyStatus::Stopping);
-        state.add_log(LogLevel::Info, "正在停止代理...".to_string());
+        let proxy_service = self.proxy_service.clone();
         
-        // TODO: 实际停止代理服务
-        
-        // 模拟停止
-        state.set_status(ProxyStatus::Stopped);
-        state.add_log(LogLevel::Info, "代理已停止".to_string());
+        self.runtime.spawn(async move {
+            if let Err(e) = proxy_service.stop().await {
+                tracing::error!("Failed to stop proxy: {}", e);
+            }
+        });
     }
 }
 
 impl eframe::App for EchWorkersApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+        // 处理托盘事件
+        if let Some(event) = self.tray_manager.handle_events() {
+            use super::tray::TrayEvent;
+            match event {
+                TrayEvent::IconClick | TrayEvent::Show => {
+                    frame.set_visible(true);
+                    frame.focus();
+                }
+                TrayEvent::Quit => {
+                    frame.close();
+                }
+                _ => {}
+            }
+        }
+        
+        // 更新托盘状态
+        let is_running = self.state.blocking_read().status.is_running();
+        self.tray_manager.update_status(is_running);
+        
         self.show_top_panel(ctx);
         self.show_bottom_panel(ctx);
         self.show_central_panel(ctx);
@@ -201,6 +243,12 @@ impl eframe::App for EchWorkersApp {
     }
     
     fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
+        // 停止代理服务
+        let proxy_service = self.proxy_service.clone();
+        self.runtime.block_on(async move {
+            let _ = proxy_service.stop().await;
+        });
+        
         // 保存配置
         if self.config_dirty {
             let _ = self.config.save();
