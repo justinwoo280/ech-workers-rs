@@ -168,6 +168,8 @@ pub struct Socks5UdpSession {
     relay_addr: SocketAddr,
     /// 本地绑定地址
     local_addr: SocketAddr,
+    /// TCP 控制连接（保持打开以维持 UDP 会话）
+    _tcp_control: tokio::net::TcpStream,
 }
 
 impl Socks5UdpSession {
@@ -253,15 +255,13 @@ impl Socks5UdpSession {
         
         tracing::debug!("Local UDP socket bound to: {}", local_addr);
         
-        // 注意：TCP 连接需要保持打开，否则 UDP 会话会被服务器关闭
-        // 这里我们 leak TCP 连接，让它在后台保持
-        // 实际生产中应该用更好的方式管理
-        let _tcp = Box::leak(Box::new(tcp));
-        
+        // TCP 连接需要保持打开，否则 UDP 会话会被服务器关闭
+        // 将 TCP 连接存储在结构体中，当 Socks5UdpSession drop 时自动关闭
         Ok(Self {
             socket,
             relay_addr,
             local_addr,
+            _tcp_control: tcp,
         })
     }
     

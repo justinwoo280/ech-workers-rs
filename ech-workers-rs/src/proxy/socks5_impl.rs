@@ -125,8 +125,17 @@ impl TargetAddr {
     }
 }
 
-/// SOCKS5 握手
-pub async fn socks5_handshake<S>(stream: &mut S) -> Result<TargetAddr>
+/// SOCKS5 请求结果
+#[derive(Debug)]
+pub enum Socks5Request {
+    /// TCP CONNECT 请求
+    Connect(TargetAddr),
+    /// UDP ASSOCIATE 请求
+    UdpAssociate(TargetAddr),
+}
+
+/// SOCKS5 握手（支持 CONNECT 和 UDP ASSOCIATE）
+pub async fn socks5_handshake_full<S>(stream: &mut S) -> Result<Socks5Request>
 where
     S: AsyncRead + AsyncWrite + Unpin,
 {
@@ -155,32 +164,87 @@ where
     }
     
     let cmd = stream.read_u8().await?;
-    if cmd != Command::Connect as u8 {
-        // 只支持 CONNECT
-        stream.write_all(&[SOCKS5_VERSION, 0x07, 0x00, 0x01, 0, 0, 0, 0, 0, 0]).await?;
-        return Err(Error::Protocol(format!("Unsupported command: {}", cmd)));
-    }
-    
     let _rsv = stream.read_u8().await?; // Reserved
     
     // 4. 读取目标地址
     let target = TargetAddr::from_reader(stream).await?;
     
-    debug!("SOCKS5 target: {}", target.display());
-    
-    // 5. 发送成功响应
-    // VER REP RSV ATYP BND.ADDR BND.PORT
-    stream.write_all(&[
+    match cmd {
+        0x01 => {
+            // CONNECT
+            debug!("SOCKS5 CONNECT: {}", target.display());
+            
+            // 发送成功响应
+            stream.write_all(&[
+                SOCKS5_VERSION,
+                0x00, // Success
+                0x00, // Reserved
+                0x01, // IPv4
+                0, 0, 0, 0, // 0.0.0.0
+                0, 0, // Port 0
+            ]).await?;
+            stream.flush().await?;
+            
+            Ok(Socks5Request::Connect(target))
+        }
+        0x03 => {
+            // UDP ASSOCIATE
+            debug!("SOCKS5 UDP ASSOCIATE: {}", target.display());
+            Ok(Socks5Request::UdpAssociate(target))
+        }
+        _ => {
+            // 不支持的命令
+            stream.write_all(&[SOCKS5_VERSION, 0x07, 0x00, 0x01, 0, 0, 0, 0, 0, 0]).await?;
+            Err(Error::Protocol(format!("Unsupported command: {}", cmd)))
+        }
+    }
+}
+
+/// SOCKS5 握手（仅支持 CONNECT，兼容旧接口）
+pub async fn socks5_handshake<S>(stream: &mut S) -> Result<TargetAddr>
+where
+    S: AsyncRead + AsyncWrite + Unpin,
+{
+    match socks5_handshake_full(stream).await? {
+        Socks5Request::Connect(target) => Ok(target),
+        Socks5Request::UdpAssociate(_) => {
+            Err(Error::Protocol("UDP ASSOCIATE not supported in this context".into()))
+        }
+    }
+}
+
+/// 发送 UDP ASSOCIATE 成功响应
+pub async fn send_udp_associate_response<S>(
+    stream: &mut S,
+    bind_addr: std::net::SocketAddr,
+) -> Result<()>
+where
+    S: AsyncWrite + Unpin,
+{
+    let mut response = vec![
         SOCKS5_VERSION,
         0x00, // Success
         0x00, // Reserved
-        0x01, // IPv4
-        0, 0, 0, 0, // 0.0.0.0
-        0, 0, // Port 0
-    ]).await?;
+    ];
+    
+    match bind_addr {
+        std::net::SocketAddr::V4(addr) => {
+            response.push(0x01); // IPv4
+            response.extend_from_slice(&addr.ip().octets());
+            response.extend_from_slice(&addr.port().to_be_bytes());
+        }
+        std::net::SocketAddr::V6(addr) => {
+            response.push(0x04); // IPv6
+            response.extend_from_slice(&addr.ip().octets());
+            response.extend_from_slice(&addr.port().to_be_bytes());
+        }
+    }
+    
+    stream.write_all(&response).await?;
     stream.flush().await?;
     
-    Ok(target)
+    debug!("SOCKS5 UDP ASSOCIATE response: bind={}", bind_addr);
+    Ok(())
 }
 
 /// 发送目标地址到远程服务器

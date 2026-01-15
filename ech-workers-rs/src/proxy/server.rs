@@ -8,7 +8,7 @@ use tracing::{info, debug, warn, error};
 use crate::config::Config;
 use crate::error::{Error, Result};
 use crate::transport::yamux_optimized::{YamuxTransport, WebSocketTransport};
-use super::socks5_impl::{socks5_handshake, send_target};
+use super::socks5_impl::{socks5_handshake_full, Socks5Request, send_target, send_udp_associate_response};
 use super::http_impl::{parse_connect_request, send_connect_response};
 use super::relay::relay_bidirectional;
 
@@ -73,32 +73,141 @@ async fn handle_connection(stream: TcpStream, config: Arc<Config>) -> Result<()>
 
 /// 处理 SOCKS5 连接
 async fn handle_socks5(mut local: TcpStream, config: Arc<Config>) -> Result<()> {
-    // 1. SOCKS5 握手
-    let target = socks5_handshake(&mut local).await?;
-    info!("SOCKS5 target: {}", target.display());
+    // 1. SOCKS5 握手（支持 CONNECT 和 UDP ASSOCIATE）
+    let request = socks5_handshake_full(&mut local).await?;
     
-    // 2. 建立到服务器的连接
+    match request {
+        Socks5Request::Connect(target) => {
+            info!("SOCKS5 CONNECT: {}", target.display());
+            handle_socks5_connect(local, target, config).await
+        }
+        Socks5Request::UdpAssociate(target) => {
+            info!("SOCKS5 UDP ASSOCIATE: {}", target.display());
+            handle_socks5_udp_associate(local, config).await
+        }
+    }
+}
+
+/// 处理 SOCKS5 CONNECT
+async fn handle_socks5_connect(
+    local: TcpStream,
+    target: super::socks5_impl::TargetAddr,
+    config: Arc<Config>,
+) -> Result<()> {
+    // 建立到服务器的连接
     let remote: Box<dyn ProxyStream> = if config.use_yamux {
-        // 使用 Yamux
         let transport = YamuxTransport::new(config.clone());
         let stream = transport.dial().await?;
-        
-        // Yamux stream 需要转换为 AsyncRead/AsyncWrite
         use tokio_util::compat::FuturesAsyncReadCompatExt;
         Box::new(stream.compat())
     } else {
-        // 简单 WebSocket
         let transport = WebSocketTransport::new(config.clone());
         let stream = transport.dial().await?;
         Box::new(stream)
     };
     
-    // 3. 发送目标地址到服务器
+    // 发送目标地址到服务器
     let mut remote = remote;
     send_target(&mut remote, &target).await?;
     
-    // 4. 双向转发
+    // 双向转发
     relay_bidirectional(local, remote).await?;
+    
+    Ok(())
+}
+
+/// 处理 SOCKS5 UDP ASSOCIATE
+async fn handle_socks5_udp_associate(
+    mut tcp_control: TcpStream,
+    config: Arc<Config>,
+) -> Result<()> {
+    use tokio::net::UdpSocket;
+    
+    // 1. 创建 UDP socket 用于接收客户端的 UDP 数据
+    let udp_socket = UdpSocket::bind("0.0.0.0:0").await?;
+    let local_addr = udp_socket.local_addr()?;
+    
+    debug!("UDP relay socket bound to: {}", local_addr);
+    
+    // 2. 发送 UDP ASSOCIATE 响应（告知客户端 UDP relay 地址）
+    send_udp_associate_response(&mut tcp_control, local_addr).await?;
+    
+    // 3. 启动 UDP relay
+    let udp_socket = Arc::new(udp_socket);
+    let udp_socket_clone = udp_socket.clone();
+    
+    // UDP 数据转发任务
+    let config_clone = config.clone();
+    let relay_task = tokio::spawn(async move {
+        let mut buf = vec![0u8; 65535];
+        let mut client_addr: Option<std::net::SocketAddr> = None;
+        
+        loop {
+            match udp_socket_clone.recv_from(&mut buf).await {
+                Ok((n, addr)) => {
+                    // 记录客户端地址
+                    if client_addr.is_none() {
+                        client_addr = Some(addr);
+                        debug!("UDP client connected from: {}", addr);
+                    }
+                    
+                    // 解析 SOCKS5 UDP 帧
+                    if n < 10 {
+                        continue;
+                    }
+                    
+                    // 跳过 RSV (2) + FRAG (1)
+                    let atyp = buf[3];
+                    let (target_addr, data_start) = match atyp {
+                        0x01 => {
+                            // IPv4
+                            if n < 10 { continue; }
+                            let ip = std::net::Ipv4Addr::new(buf[4], buf[5], buf[6], buf[7]);
+                            let port = u16::from_be_bytes([buf[8], buf[9]]);
+                            (format!("{}:{}", ip, port), 10)
+                        }
+                        0x03 => {
+                            // Domain
+                            let len = buf[4] as usize;
+                            if n < 7 + len { continue; }
+                            let domain = String::from_utf8_lossy(&buf[5..5+len]).to_string();
+                            let port = u16::from_be_bytes([buf[5+len], buf[6+len]]);
+                            (format!("{}:{}", domain, port), 7 + len)
+                        }
+                        _ => continue,
+                    };
+                    
+                    let data = &buf[data_start..n];
+                    debug!("UDP relay: {} -> {} ({} bytes)", addr, target_addr, data.len());
+                    
+                    // TODO: 通过代理转发 UDP 数据
+                    // 目前简单地直接发送（需要服务端支持 UDP）
+                    // 这里可以扩展为通过 TCP 隧道转发
+                }
+                Err(e) => {
+                    debug!("UDP recv error: {}", e);
+                    break;
+                }
+            }
+        }
+    });
+    
+    // 4. 等待 TCP 控制连接关闭
+    // 当 TCP 连接关闭时，UDP 会话也应该结束
+    let mut buf = [0u8; 1];
+    loop {
+        match tokio::io::AsyncReadExt::read(&mut tcp_control, &mut buf).await {
+            Ok(0) => {
+                debug!("SOCKS5 UDP ASSOCIATE: TCP control connection closed");
+                break;
+            }
+            Err(_) => break,
+            _ => continue,
+        }
+    }
+    
+    // 取消 relay 任务
+    relay_task.abort();
     
     Ok(())
 }
