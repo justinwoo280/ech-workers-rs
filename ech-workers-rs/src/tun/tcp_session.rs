@@ -162,7 +162,7 @@ impl TcpSessionManager {
         src_port: u16,
         dst_port: u16,
         seq: u32,
-        ack: u32,
+        _ack: u32,
         flags: ReceivedTcpFlags,
         payload: &[u8],
         tun_writer: &TunWriter,

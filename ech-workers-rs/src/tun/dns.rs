@@ -35,6 +35,23 @@ impl From<u16> for DnsQueryType {
     }
 }
 
+impl DnsQueryType {
+    /// 转换为 u16
+    pub fn to_u16(&self) -> u16 {
+        match self {
+            DnsQueryType::A => 1,
+            DnsQueryType::AAAA => 28,
+            DnsQueryType::CNAME => 5,
+            DnsQueryType::MX => 15,
+            DnsQueryType::TXT => 16,
+            DnsQueryType::NS => 2,
+            DnsQueryType::SOA => 6,
+            DnsQueryType::PTR => 12,
+            DnsQueryType::Unknown(v) => *v,
+        }
+    }
+}
+
 /// 解析的 DNS 查询
 #[derive(Debug, Clone)]
 pub struct DnsQuery {
@@ -182,7 +199,7 @@ impl DnsHandler {
             response.extend(part.as_bytes());
         }
         response.push(0); // End of name
-        response.extend(&(query.qtype as u16).to_be_bytes());
+        response.extend(&query.qtype.to_u16().to_be_bytes());
         response.extend(&query.qclass.to_be_bytes());
         
         // Answer section
@@ -214,7 +231,7 @@ impl DnsHandler {
             response.extend(part.as_bytes());
         }
         response.push(0); // End of name
-        response.extend(&(query.qtype as u16).to_be_bytes());
+        response.extend(&query.qtype.to_u16().to_be_bytes());
         response.extend(&query.qclass.to_be_bytes());
         
         response

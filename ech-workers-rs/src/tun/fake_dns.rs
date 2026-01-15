@@ -129,7 +129,7 @@ impl FakeDnsPool {
             }
             
             domain_map.insert(domain.clone(), entry);
-            ip_map.insert(fake_ip, domain);
+            ip_map.insert(fake_ip, domain.clone());
         }
         
         tracing::debug!("FakeDNS: {} -> {}", domain, fake_ip);

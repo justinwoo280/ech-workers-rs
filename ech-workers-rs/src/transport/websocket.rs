@@ -57,7 +57,6 @@ where
         }
 
         // 读取新的 WebSocket 消息
-        use futures::stream::StreamExt;
         match futures::stream::StreamExt::poll_next_unpin(&mut self.inner, cx) {
             Poll::Ready(Some(Ok(msg))) => {
                 match msg {
@@ -98,8 +97,6 @@ where
         cx: &mut Context<'_>,
         buf: &[u8],
     ) -> Poll<io::Result<usize>> {
-        use futures::sink::SinkExt;
-        
         let msg = Message::Binary(buf.to_vec());
         match futures::sink::SinkExt::poll_ready_unpin(&mut self.inner, cx) {
             Poll::Ready(Ok(())) => {
@@ -114,7 +111,6 @@ where
     }
 
     fn poll_flush(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
-        use futures::sink::SinkExt;
         match futures::sink::SinkExt::poll_flush_unpin(&mut self.inner, cx) {
             Poll::Ready(Ok(())) => Poll::Ready(Ok(())),
             Poll::Ready(Err(e)) => Poll::Ready(Err(io::Error::new(io::ErrorKind::Other, e))),
@@ -123,7 +119,6 @@ where
     }
 
     fn poll_shutdown(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
-        use futures::sink::SinkExt;
         match futures::sink::SinkExt::poll_close_unpin(&mut self.inner, cx) {
             Poll::Ready(Ok(())) => Poll::Ready(Ok(())),
             Poll::Ready(Err(e)) => Poll::Ready(Err(io::Error::new(io::ErrorKind::Other, e))),
