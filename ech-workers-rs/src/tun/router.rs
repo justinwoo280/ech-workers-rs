@@ -6,6 +6,7 @@ use super::{TunConfig, TunDevice, NatTable};
 use super::nat::ConnectionState;
 use super::packet::{build_tcp_packet, build_udp_packet, TcpFlags};
 use super::tcp_session::{TcpSessionManager, SessionKey, TcpAction, ReceivedTcpFlags};
+use super::dns::DnsHandler;
 use crate::error::{Error, Result};
 use crate::transport::YamuxTransport;
 use crate::config::Config;
@@ -406,11 +407,11 @@ impl TunRouter {
         parsed: &SlicedPacket<'_>,
         src_ip: Ipv4Addr,
         dst_ip: Ipv4Addr,
-        _config: TunConfig,
+        config: TunConfig,
         nat_table: Arc<NatTable>,
         _udp_conns: Arc<RwLock<HashMap<u16, UdpProxyConnection>>>,
         _next_port: Arc<std::sync::atomic::AtomicU16>,
-        _tun_writer: TunWriter,
+        tun_writer: TunWriter,
     ) -> Result<()> {
         // 解析 UDP 头
         let udp = match &parsed.transport {
@@ -420,27 +421,90 @@ impl TunRouter {
         
         let src_port = udp.source_port();
         let dst_port = udp.destination_port();
+        let payload = udp.payload();
         let src = SocketAddr::V4(SocketAddrV4::new(src_ip, src_port));
         let dst = SocketAddr::V4(SocketAddrV4::new(dst_ip, dst_port));
         
-        let payload_len = if let Some(etherparse::TransportSlice::Udp(udp_slice)) = &parsed.transport {
-            udp_slice.payload().len()
-        } else {
-            0
-        };
-        tracing::debug!("UDP {} -> {} ({} bytes)", src, dst, payload_len);
-        
-        // DNS 查询特殊处理 (端口 53)
-        if dst_port == 53 {
-            tracing::debug!("DNS query intercepted");
-            // TODO: 通过 DoH 处理 DNS
-        }
+        tracing::debug!("UDP {} -> {} ({} bytes)", src, dst, payload.len());
         
         // 创建或更新 NAT 条目
         nat_table.lookup_or_create(src, dst, PROTO_UDP).await;
         
-        // UDP 代理逻辑...
-        // TODO: 实现 UDP 代理
+        // DNS 查询特殊处理 (端口 53)
+        if dst_port == 53 && !payload.is_empty() {
+            tracing::debug!("DNS query intercepted, forwarding via DoH");
+            
+            // 异步处理 DNS 查询
+            let doh_server = config.proxy_config.doh_server.clone();
+            let dns_payload = payload.to_vec();
+            let writer = tun_writer.clone();
+            
+            tokio::spawn(async move {
+                if let Err(e) = Self::handle_dns_query(
+                    src_ip, src_port, dst_ip, dst_port,
+                    &dns_payload, &doh_server, &writer,
+                ).await {
+                    tracing::debug!("DNS query failed: {}", e);
+                }
+            });
+            
+            return Ok(());
+        }
+        
+        // 其他 UDP 流量暂不处理
+        tracing::trace!("Non-DNS UDP packet ignored");
+        
+        Ok(())
+    }
+    
+    /// 处理 DNS 查询
+    async fn handle_dns_query(
+        src_ip: Ipv4Addr,
+        src_port: u16,
+        dst_ip: Ipv4Addr,
+        dst_port: u16,
+        dns_payload: &[u8],
+        doh_server: &str,
+        tun_writer: &TunWriter,
+    ) -> Result<()> {
+        // 解析 DNS 查询
+        let query = match DnsHandler::parse_query(dns_payload) {
+            Ok(q) => {
+                tracing::debug!("DNS query: {} (type={:?})", q.name, q.qtype);
+                q
+            }
+            Err(e) => {
+                tracing::debug!("Failed to parse DNS query: {}", e);
+                return Ok(());
+            }
+        };
+        
+        // 通过 DoH 查询
+        let handler = DnsHandler::new(doh_server);
+        let response_data = match handler.query_doh(dns_payload).await {
+            Ok(data) => {
+                tracing::debug!("DoH response received: {} bytes", data.len());
+                data
+            }
+            Err(e) => {
+                tracing::warn!("DoH query failed for {}: {}", query.name, e);
+                // 返回 NXDOMAIN
+                DnsHandler::build_nxdomain(&query)
+            }
+        };
+        
+        // 构造 UDP 响应包（源和目标交换）
+        let response_packet = build_udp_packet(
+            dst_ip,      // 源变成原来的目标（DNS 服务器）
+            src_ip,      // 目标变成原来的源（客户端）
+            dst_port,    // 源端口 (53)
+            src_port,    // 目标端口
+            &response_data,
+        );
+        
+        // 写回 TUN
+        tun_writer.write_packet(response_packet).await?;
+        tracing::debug!("DNS response sent for {}", query.name);
         
         Ok(())
     }
