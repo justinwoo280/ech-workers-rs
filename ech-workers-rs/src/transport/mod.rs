@@ -4,7 +4,6 @@
 
 pub mod tls;
 pub mod websocket;
-pub mod yamux;
 pub mod yamux_optimized;
 pub mod connection;
 
