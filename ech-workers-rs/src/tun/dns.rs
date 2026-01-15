@@ -8,14 +8,14 @@ use std::net::Ipv4Addr;
 /// DNS 查询类型
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DnsQueryType {
-    A = 1,
-    AAAA = 28,
-    CNAME = 5,
-    MX = 15,
-    TXT = 16,
-    NS = 2,
-    SOA = 6,
-    PTR = 12,
+    A,
+    AAAA,
+    CNAME,
+    MX,
+    TXT,
+    NS,
+    SOA,
+    PTR,
     Unknown(u16),
 }
 

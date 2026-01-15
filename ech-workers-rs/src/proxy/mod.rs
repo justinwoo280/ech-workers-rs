@@ -6,4 +6,3 @@ pub mod relay;
 pub mod server;
 
 pub use server::run_server;
-pub use socks5_impl::TargetAddr;

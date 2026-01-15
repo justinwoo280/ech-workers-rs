@@ -7,7 +7,6 @@
 /// 4. 后台任务管理会话
 
 use std::sync::Arc;
-use std::time::Duration;
 use tokio::sync::{mpsc, oneshot};
 use tracing::{info, debug, warn, error};
 use yamux::{Config as YamuxConfig, Connection, Mode};

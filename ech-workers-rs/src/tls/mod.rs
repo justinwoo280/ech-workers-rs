@@ -3,4 +3,4 @@
 mod ffi;
 mod tunnel;
 
-pub use tunnel::{TlsTunnel, TunnelConfig, ConnectionInfo};
+pub use tunnel::{TlsTunnel, TunnelConfig};

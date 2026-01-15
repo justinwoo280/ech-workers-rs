@@ -3,7 +3,7 @@
 //! 实现完整的 TCP 状态机，处理三次握手和数据传输
 
 use std::collections::HashMap;
-use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
+use std::net::{Ipv4Addr, SocketAddr};
 use std::sync::Arc;
 use tokio::sync::{mpsc, RwLock};
 

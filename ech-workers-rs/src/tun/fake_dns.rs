@@ -15,7 +15,6 @@ use std::time::{Duration, Instant};
 use tokio::sync::RwLock;
 
 use super::dns::{DnsHandler, DnsQuery, DnsQueryType};
-use crate::error::{Error, Result};
 
 /// FakeDNS IP 池范围
 /// 使用 198.18.0.0/15 (198.18.0.0 - 198.19.255.255)

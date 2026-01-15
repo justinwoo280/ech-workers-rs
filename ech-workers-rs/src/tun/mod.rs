@@ -22,9 +22,6 @@ pub use device::TunDevice;
 pub use router::TunRouter;
 pub use nat::NatTable;
 pub use route::RouteConfig;
-pub use tcp_session::{TcpSessionManager, TcpSession, SessionKey, TcpAction, ReceivedTcpFlags};
-pub use dns::DnsHandler;
-pub use fake_dns::FakeDnsPool;
 
 use crate::config::Config;
 use crate::error::Result;

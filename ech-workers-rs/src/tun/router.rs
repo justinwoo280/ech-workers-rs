@@ -4,7 +4,7 @@
 
 use super::{TunConfig, TunDevice, NatTable};
 use super::nat::ConnectionState;
-use super::packet::{build_tcp_packet, build_udp_packet, TcpFlags};
+use super::packet::build_udp_packet;
 use super::tcp_session::{TcpSessionManager, SessionKey, TcpAction, ReceivedTcpFlags};
 use super::dns::DnsHandler;
 use super::fake_dns::FakeDnsPool;

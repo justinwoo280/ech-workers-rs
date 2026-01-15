@@ -6,7 +6,7 @@
 /// 3. 错误处理
 
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
-use tracing::{debug, warn, trace};
+use tracing::{debug, trace};
 use std::net::{Ipv4Addr, Ipv6Addr};
 
 use crate::error::{Error, Result};

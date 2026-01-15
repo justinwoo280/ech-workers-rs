@@ -9,4 +9,4 @@ pub mod yamux_optimized;
 pub mod connection;
 
 // 导出优化版本
-pub use yamux_optimized::{YamuxTransport, WebSocketTransport};
+pub use yamux_optimized::YamuxTransport;
