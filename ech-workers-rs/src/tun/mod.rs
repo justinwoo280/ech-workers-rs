@@ -16,6 +16,7 @@ mod packet;
 mod route;
 mod tcp_session;
 mod dns;
+mod fake_dns;
 
 pub use device::TunDevice;
 pub use router::TunRouter;
@@ -23,6 +24,7 @@ pub use nat::NatTable;
 pub use route::RouteConfig;
 pub use tcp_session::{TcpSessionManager, TcpSession, SessionKey, TcpAction, ReceivedTcpFlags};
 pub use dns::DnsHandler;
+pub use fake_dns::FakeDnsPool;
 
 use crate::config::Config;
 use crate::error::Result;
@@ -44,6 +46,8 @@ pub struct TunConfig {
     pub dns: Vec<std::net::Ipv4Addr>,
     /// 代理配置
     pub proxy_config: Config,
+    /// 是否启用 FakeDNS
+    pub fake_dns: bool,
 }
 
 impl Default for TunConfig {
@@ -56,6 +60,7 @@ impl Default for TunConfig {
             mtu: 1500,
             dns: vec![std::net::Ipv4Addr::new(8, 8, 8, 8)],
             proxy_config: Config::default(),
+            fake_dns: true, // 默认启用 FakeDNS
         }
     }
 }

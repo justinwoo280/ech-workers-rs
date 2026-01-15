@@ -165,6 +165,10 @@ enum Commands {
         /// MTU 大小
         #[arg(long, default_value = "1500")]
         mtu: u16,
+        
+        /// 启用 FakeDNS 模式
+        #[arg(long, default_value = "true")]
+        fake_dns: bool,
     },
 }
 
@@ -328,6 +332,7 @@ async fn main() -> Result<()> {
             doh_server,
             dns,
             mtu,
+            fake_dns,
         } => {
             info!("🚀 ech-workers-rs TUN mode starting...");
             info!("   Device: {}", name);
@@ -365,7 +370,10 @@ async fn main() -> Result<()> {
                 mtu,
                 dns: vec![dns_addr],
                 proxy_config,
+                fake_dns,
             };
+            
+            info!("   FakeDNS: {}", fake_dns);
             
             // 解析服务器 IP（用于排除路由）
             let server_ip: Option<std::net::Ipv4Addr> = {

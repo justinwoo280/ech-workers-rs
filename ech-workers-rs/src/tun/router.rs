@@ -7,6 +7,7 @@ use super::nat::ConnectionState;
 use super::packet::{build_tcp_packet, build_udp_packet, TcpFlags};
 use super::tcp_session::{TcpSessionManager, SessionKey, TcpAction, ReceivedTcpFlags};
 use super::dns::DnsHandler;
+use super::fake_dns::FakeDnsPool;
 use crate::error::{Error, Result};
 use crate::transport::YamuxTransport;
 use crate::config::Config;
@@ -32,6 +33,8 @@ pub struct TunRouter {
     nat_table: Arc<NatTable>,
     /// TCP 会话管理器
     tcp_sessions: Arc<TcpSessionManager>,
+    /// FakeDNS 池
+    fake_dns: Arc<FakeDnsPool>,
     /// TCP 连接映射 (本地端口 -> 远程流)
     tcp_connections: Arc<RwLock<HashMap<u16, TcpProxyConnection>>>,
     /// UDP 连接映射
@@ -74,11 +77,13 @@ impl TunWriter {
 
 impl TunRouter {
     pub fn new(device: TunDevice, config: TunConfig) -> Self {
+        let fake_dns_enabled = config.fake_dns;
         Self {
             device,
             config,
             nat_table: Arc::new(NatTable::new()),
             tcp_sessions: Arc::new(TcpSessionManager::new()),
+            fake_dns: Arc::new(FakeDnsPool::new(fake_dns_enabled)),
             tcp_connections: Arc::new(RwLock::new(HashMap::new())),
             udp_connections: Arc::new(RwLock::new(HashMap::new())),
             next_local_port: Arc::new(std::sync::atomic::AtomicU16::new(10000)),
@@ -88,6 +93,7 @@ impl TunRouter {
     /// 运行路由器
     pub async fn run(&mut self) -> Result<()> {
         tracing::info!("TUN router starting...");
+        tracing::info!("   FakeDNS: {}", if self.fake_dns.is_enabled() { "enabled" } else { "disabled" });
         
         // 创建 TUN 写入通道
         let (tun_writer_tx, mut tun_writer_rx) = mpsc::channel::<Vec<u8>>(4096);
@@ -99,6 +105,15 @@ impl TunRouter {
             loop {
                 tokio::time::sleep(tokio::time::Duration::from_secs(30)).await;
                 nat_table.cleanup_expired().await;
+            }
+        });
+        
+        // 启动 FakeDNS 清理任务
+        let fake_dns = self.fake_dns.clone();
+        tokio::spawn(async move {
+            loop {
+                tokio::time::sleep(tokio::time::Duration::from_secs(60)).await;
+                fake_dns.cleanup_expired().await;
             }
         });
         
@@ -126,6 +141,7 @@ impl TunRouter {
                             let writer = tun_writer.clone();
                             
                             let tcp_sessions = self.tcp_sessions.clone();
+                            let fake_dns = self.fake_dns.clone();
                             
                             tokio::spawn(async move {
                                 if let Err(e) = Self::handle_packet(
@@ -133,6 +149,7 @@ impl TunRouter {
                                     config,
                                     nat_table,
                                     tcp_sessions,
+                                    fake_dns,
                                     tcp_conns,
                                     udp_conns,
                                     next_port,
@@ -167,6 +184,7 @@ impl TunRouter {
         config: TunConfig,
         nat_table: Arc<NatTable>,
         tcp_sessions: Arc<TcpSessionManager>,
+        fake_dns: Arc<FakeDnsPool>,
         tcp_conns: Arc<RwLock<HashMap<u16, TcpProxyConnection>>>,
         udp_conns: Arc<RwLock<HashMap<u16, UdpProxyConnection>>>,
         next_port: Arc<std::sync::atomic::AtomicU16>,
@@ -202,6 +220,7 @@ impl TunRouter {
                     config,
                     nat_table,
                     tcp_sessions,
+                    fake_dns,
                     tcp_conns,
                     next_port,
                     tun_writer,
@@ -215,6 +234,7 @@ impl TunRouter {
                     dst_ip,
                     config,
                     nat_table,
+                    fake_dns,
                     udp_conns,
                     next_port,
                     tun_writer,
@@ -237,6 +257,7 @@ impl TunRouter {
         config: TunConfig,
         nat_table: Arc<NatTable>,
         tcp_sessions: Arc<TcpSessionManager>,
+        fake_dns: Arc<FakeDnsPool>,
         _tcp_conns: Arc<RwLock<HashMap<u16, TcpProxyConnection>>>,
         _next_port: Arc<std::sync::atomic::AtomicU16>,
         tun_writer: TunWriter,
@@ -278,7 +299,19 @@ impl TunRouter {
         // 根据动作执行相应操作
         match action {
             TcpAction::ConnectionEstablished(key) => {
-                tracing::info!("TCP connection established: {:?}", key);
+                // 检查目标 IP 是否是 FakeDNS 的假 IP，如果是则查找真实域名
+                let target_host = if FakeDnsPool::is_fake_ip(dst_ip) {
+                    if let Some(domain) = fake_dns.lookup(dst_ip).await {
+                        tracing::info!("FakeDNS resolved: {} -> {}", dst_ip, domain);
+                        domain
+                    } else {
+                        dst_ip.to_string()
+                    }
+                } else {
+                    dst_ip.to_string()
+                };
+                
+                tracing::info!("TCP connection established: {:?} -> {}", key, target_host);
                 
                 // 创建 NAT 条目
                 let src = SocketAddr::V4(SocketAddrV4::new(src_ip, src_port));
@@ -296,8 +329,10 @@ impl TunRouter {
                 let nat = nat_table.clone();
                 
                 tokio::spawn(async move {
-                    if let Err(e) = Self::run_tcp_proxy_v2(
+                    if let Err(e) = Self::run_tcp_proxy_v3(
                         key,
+                        &target_host,
+                        dst_port,
                         proxy_config,
                         sessions,
                         nat,
@@ -401,6 +436,80 @@ impl TunRouter {
         Ok(())
     }
     
+    /// 运行 TCP 代理（v3 - 支持 FakeDNS 域名）
+    async fn run_tcp_proxy_v3(
+        key: SessionKey,
+        target_host: &str,
+        target_port: u16,
+        config: Config,
+        tcp_sessions: Arc<TcpSessionManager>,
+        nat_table: Arc<NatTable>,
+        mut rx: mpsc::Receiver<Vec<u8>>,
+        tun_writer: TunWriter,
+    ) -> Result<()> {
+        tracing::debug!("Starting TCP proxy v3: {:?} -> {}:{}", key, target_host, target_port);
+        
+        // 建立到远程服务器的连接
+        let config_arc = Arc::new(config);
+        let transport = YamuxTransport::new(config_arc);
+        
+        let mut stream = transport.dial().await?;
+        
+        // 发送目标地址（使用域名而非 IP，保留 SNI）
+        let target = format!("{}:{}\n", target_host, target_port);
+        stream.write_all(target.as_bytes()).await?;
+        
+        tracing::info!("TCP proxy v3 established: {}:{}", target_host, target_port);
+        
+        // 双向转发
+        let mut buf = vec![0u8; 32768];
+        
+        loop {
+            tokio::select! {
+                // 从 TUN 收到数据，发送到远程
+                Some(data) = rx.recv() => {
+                    if let Err(e) = stream.write_all(&data).await {
+                        tracing::debug!("Write to remote failed: {}", e);
+                        break;
+                    }
+                }
+                
+                // 从远程收到数据，通过会话管理器写回 TUN
+                result = stream.read(&mut buf) => {
+                    match result {
+                        Ok(0) => {
+                            tracing::debug!("Remote closed connection");
+                            break;
+                        }
+                        Ok(n) => {
+                            // 通过会话管理器发送数据（会正确处理序列号）
+                            if let Err(e) = tcp_sessions.send_data(&key, &buf[..n], &tun_writer).await {
+                                tracing::debug!("Send data via session failed: {}", e);
+                                break;
+                            }
+                            tracing::trace!("Sent {} bytes response to TUN via session", n);
+                        }
+                        Err(e) => {
+                            tracing::debug!("Read from remote failed: {}", e);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // 关闭连接
+        let _ = tcp_sessions.close_connection(&key, &tun_writer).await;
+        tcp_sessions.remove_session(&key).await;
+        
+        // 更新 NAT 状态
+        let src = SocketAddr::V4(SocketAddrV4::new(key.local_ip, key.local_port));
+        let dst = SocketAddr::V4(SocketAddrV4::new(key.remote_ip, key.remote_port));
+        nat_table.update_state(src, dst, PROTO_TCP, ConnectionState::Closed).await;
+        
+        Ok(())
+    }
+    
     /// 处理 UDP 包
     async fn handle_udp_packet(
         _packet: &[u8],
@@ -409,6 +518,7 @@ impl TunRouter {
         dst_ip: Ipv4Addr,
         config: TunConfig,
         nat_table: Arc<NatTable>,
+        fake_dns: Arc<FakeDnsPool>,
         _udp_conns: Arc<RwLock<HashMap<u16, UdpProxyConnection>>>,
         _next_port: Arc<std::sync::atomic::AtomicU16>,
         tun_writer: TunWriter,
@@ -432,9 +542,32 @@ impl TunRouter {
         
         // DNS 查询特殊处理 (端口 53)
         if dst_port == 53 && !payload.is_empty() {
-            tracing::debug!("DNS query intercepted, forwarding via DoH");
+            // 解析 DNS 查询
+            let query = match DnsHandler::parse_query(payload) {
+                Ok(q) => q,
+                Err(e) => {
+                    tracing::debug!("Failed to parse DNS query: {}", e);
+                    return Ok(());
+                }
+            };
             
-            // 异步处理 DNS 查询
+            // 如果启用了 FakeDNS，直接返回假 IP
+            if fake_dns.is_enabled() {
+                tracing::debug!("FakeDNS handling: {}", query.name);
+                
+                if let Some(response_data) = fake_dns.handle_query(&query).await {
+                    // 构造 UDP 响应包
+                    let response_packet = build_udp_packet(
+                        dst_ip, src_ip, dst_port, src_port,
+                        &response_data,
+                    );
+                    let _ = tun_writer.write_packet(response_packet).await;
+                    return Ok(());
+                }
+            }
+            
+            // 否则使用 DoH
+            tracing::debug!("DNS query via DoH: {}", query.name);
             let doh_server = config.proxy_config.doh_server.clone();
             let dns_payload = payload.to_vec();
             let writer = tun_writer.clone();
