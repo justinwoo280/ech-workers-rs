@@ -174,6 +174,29 @@ async fn open_stream_with_retry(
     }
 }
 
+/// 创建优化的 Yamux 配置
+fn create_optimized_yamux_config() -> YamuxConfig {
+    let mut config = YamuxConfig::default();
+    
+    // 增大接收窗口：256KB -> 2MB
+    // 高延迟网络下提升吞吐量
+    config.set_receive_window(2 * 1024 * 1024); // 2 MB
+    
+    // 增大最大缓冲区：1MB -> 4MB
+    // 允许更多数据缓冲，减少背压
+    config.set_max_buffer_size(4 * 1024 * 1024); // 4 MB
+    
+    // 增大分片发送大小：16KB -> 64KB
+    // 减少小包数量，提升效率
+    config.set_split_send_size(64 * 1024); // 64 KB
+    
+    // 最大并发流数量限制
+    // 防止资源耗尽
+    config.set_max_num_streams(256);
+    
+    config
+}
+
 /// 建立新的 Yamux session
 async fn establish_new_session(config: &Config) -> Result<YamuxConnection> {
     info!("🔧 Establishing new Yamux session...");
@@ -198,13 +221,13 @@ async fn establish_new_session(config: &Config) -> Result<YamuxConnection> {
     // 5. 转换为 futures::AsyncRead/AsyncWrite
     let compat_stream = ws_adapter.compat();
     
-    // 6. 创建 Yamux connection with KeepAlive
-    debug!("Creating Yamux session");
-    let yamux_config = YamuxConfig::default();
+    // 6. 创建 Yamux connection with 优化配置
+    debug!("Creating Yamux session with optimized config");
+    let yamux_config = create_optimized_yamux_config();
     
     let connection = Connection::new(compat_stream, yamux_config, Mode::Client);
 
-    info!("✅ Yamux session established");
+    info!("✅ Yamux session established (window=2MB, buffer=4MB, split=64KB)");
     Ok(connection)
 }
 
