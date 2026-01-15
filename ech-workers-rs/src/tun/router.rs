@@ -4,7 +4,8 @@
 
 use super::{TunConfig, TunDevice, NatTable};
 use super::nat::ConnectionState;
-use super::packet::{build_tcp_packet, TcpFlags};
+use super::packet::{build_tcp_packet, build_udp_packet, TcpFlags};
+use super::tcp_session::{TcpSessionManager, SessionKey, TcpAction, ReceivedTcpFlags};
 use crate::error::{Error, Result};
 use crate::transport::YamuxTransport;
 use crate::config::Config;
@@ -28,6 +29,8 @@ pub struct TunRouter {
     config: TunConfig,
     /// NAT 表
     nat_table: Arc<NatTable>,
+    /// TCP 会话管理器
+    tcp_sessions: Arc<TcpSessionManager>,
     /// TCP 连接映射 (本地端口 -> 远程流)
     tcp_connections: Arc<RwLock<HashMap<u16, TcpProxyConnection>>>,
     /// UDP 连接映射
@@ -74,6 +77,7 @@ impl TunRouter {
             device,
             config,
             nat_table: Arc::new(NatTable::new()),
+            tcp_sessions: Arc::new(TcpSessionManager::new()),
             tcp_connections: Arc::new(RwLock::new(HashMap::new())),
             udp_connections: Arc::new(RwLock::new(HashMap::new())),
             next_local_port: Arc::new(std::sync::atomic::AtomicU16::new(10000)),
@@ -120,11 +124,14 @@ impl TunRouter {
                             let next_port = self.next_local_port.clone();
                             let writer = tun_writer.clone();
                             
+                            let tcp_sessions = self.tcp_sessions.clone();
+                            
                             tokio::spawn(async move {
                                 if let Err(e) = Self::handle_packet(
                                     packet,
                                     config,
                                     nat_table,
+                                    tcp_sessions,
                                     tcp_conns,
                                     udp_conns,
                                     next_port,
@@ -158,6 +165,7 @@ impl TunRouter {
         packet: Vec<u8>,
         config: TunConfig,
         nat_table: Arc<NatTable>,
+        tcp_sessions: Arc<TcpSessionManager>,
         tcp_conns: Arc<RwLock<HashMap<u16, TcpProxyConnection>>>,
         udp_conns: Arc<RwLock<HashMap<u16, UdpProxyConnection>>>,
         next_port: Arc<std::sync::atomic::AtomicU16>,
@@ -192,6 +200,7 @@ impl TunRouter {
                     dst_ip,
                     config,
                     nat_table,
+                    tcp_sessions,
                     tcp_conns,
                     next_port,
                     tun_writer,
@@ -226,8 +235,9 @@ impl TunRouter {
         dst_ip: Ipv4Addr,
         config: TunConfig,
         nat_table: Arc<NatTable>,
-        tcp_conns: Arc<RwLock<HashMap<u16, TcpProxyConnection>>>,
-        next_port: Arc<std::sync::atomic::AtomicU16>,
+        tcp_sessions: Arc<TcpSessionManager>,
+        _tcp_conns: Arc<RwLock<HashMap<u16, TcpProxyConnection>>>,
+        _next_port: Arc<std::sync::atomic::AtomicU16>,
         tun_writer: TunWriter,
     ) -> Result<()> {
         // 解析 TCP 头
@@ -238,93 +248,96 @@ impl TunRouter {
         
         let src_port = tcp.source_port();
         let dst_port = tcp.destination_port();
-        let src = SocketAddr::V4(SocketAddrV4::new(src_ip, src_port));
-        let dst = SocketAddr::V4(SocketAddrV4::new(dst_ip, dst_port));
+        let seq = tcp.sequence_number();
+        let ack = tcp.acknowledgment_number();
         
-        tracing::debug!("TCP {} -> {} (flags: SYN={}, ACK={}, FIN={})", 
-            src, dst, tcp.syn(), tcp.ack(), tcp.fin());
+        // 构造标志位
+        let flags = ReceivedTcpFlags {
+            syn: tcp.syn(),
+            ack: tcp.ack(),
+            fin: tcp.fin(),
+            rst: tcp.rst(),
+            psh: tcp.psh(),
+        };
         
-        // 检查是否是新连接 (SYN)
-        if tcp.syn() && !tcp.ack() {
-            // 新的 TCP 连接
-            tracing::info!("New TCP connection: {} -> {}", src, dst);
-            
-            // 创建 NAT 条目
-            nat_table.lookup_or_create(src, dst, PROTO_TCP).await;
-            nat_table.update_state(src, dst, PROTO_TCP, ConnectionState::SynSent).await;
-            
-            // 启动代理连接
-            let local_port = next_port.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
-            
-            let (tx, mut rx) = mpsc::channel::<Vec<u8>>(1024);
-            
-            // 存储连接
-            {
-                let mut conns = tcp_conns.write().await;
-                conns.insert(local_port, TcpProxyConnection {
-                    src,
-                    dst,
-                    tx,
+        // 获取 payload
+        let payload = tcp.payload();
+        
+        tracing::debug!("TCP {}:{} -> {}:{} (SYN={}, ACK={}, FIN={}, RST={}, seq={}, ack={}, len={})", 
+            src_ip, src_port, dst_ip, dst_port, 
+            flags.syn, flags.ack, flags.fin, flags.rst,
+            seq, ack, payload.len());
+        
+        // 使用会话管理器处理
+        let action = tcp_sessions.handle_packet(
+            src_ip, dst_ip, src_port, dst_port,
+            seq, ack, flags, payload, &tun_writer,
+        ).await?;
+        
+        // 根据动作执行相应操作
+        match action {
+            TcpAction::ConnectionEstablished(key) => {
+                tracing::info!("TCP connection established: {:?}", key);
+                
+                // 创建 NAT 条目
+                let src = SocketAddr::V4(SocketAddrV4::new(src_ip, src_port));
+                let dst = SocketAddr::V4(SocketAddrV4::new(dst_ip, dst_port));
+                nat_table.lookup_or_create(src, dst, PROTO_TCP).await;
+                nat_table.update_state(src, dst, PROTO_TCP, ConnectionState::Established).await;
+                
+                // 启动代理任务
+                let (tx, rx) = mpsc::channel::<Vec<u8>>(1024);
+                tcp_sessions.register_data_channel(key, tx).await;
+                
+                let proxy_config = config.proxy_config.clone();
+                let sessions = tcp_sessions.clone();
+                let writer = tun_writer.clone();
+                let nat = nat_table.clone();
+                
+                tokio::spawn(async move {
+                    if let Err(e) = Self::run_tcp_proxy_v2(
+                        key,
+                        proxy_config,
+                        sessions,
+                        nat,
+                        rx,
+                        writer,
+                    ).await {
+                        tracing::error!("TCP proxy error for {:?}: {}", key, e);
+                    }
                 });
             }
             
-            // 启动代理任务
-            let proxy_config = config.proxy_config.clone();
-            let nat = nat_table.clone();
-            let writer = tun_writer.clone();
-            
-            tokio::spawn(async move {
-                if let Err(e) = Self::run_tcp_proxy(
-                    src,
-                    dst,
-                    proxy_config,
-                    nat,
-                    rx,
-                    writer,
-                ).await {
-                    tracing::error!("TCP proxy error for {} -> {}: {}", src, dst, e);
-                }
-            });
-        }
-        
-        // 获取 TCP payload
-        if let Some(etherparse::TransportSlice::Tcp(tcp_slice)) = &parsed.transport {
-            let payload = tcp_slice.payload();
-            if !payload.is_empty() {
-                // 查找对应的代理连接并发送数据
-                let conns = tcp_conns.read().await;
-                for (_, conn) in conns.iter() {
-                    if conn.src == src && conn.dst == dst {
-                        let _ = conn.tx.send(payload.to_vec()).await;
-                        break;
-                    }
+            TcpAction::DataReceived(key, data) => {
+                // 转发数据到代理
+                if let Some(tx) = tcp_sessions.get_data_channel(&key).await {
+                    let _ = tx.send(data).await;
                 }
             }
+            
+            TcpAction::ConnectionClosing(key) | TcpAction::ConnectionClosed(key) | TcpAction::ConnectionReset(key) => {
+                tracing::debug!("TCP connection closing/closed: {:?}", key);
+                let src = SocketAddr::V4(SocketAddrV4::new(key.local_ip, key.local_port));
+                let dst = SocketAddr::V4(SocketAddrV4::new(key.remote_ip, key.remote_port));
+                nat_table.update_state(src, dst, PROTO_TCP, ConnectionState::Closed).await;
+            }
+            
+            _ => {}
         }
         
         Ok(())
     }
     
-    /// 运行 TCP 代理
-    async fn run_tcp_proxy(
-        src: SocketAddr,
-        dst: SocketAddr,
+    /// 运行 TCP 代理（v2 - 使用会话管理器）
+    async fn run_tcp_proxy_v2(
+        key: SessionKey,
         config: Config,
+        tcp_sessions: Arc<TcpSessionManager>,
         nat_table: Arc<NatTable>,
         mut rx: mpsc::Receiver<Vec<u8>>,
         tun_writer: TunWriter,
     ) -> Result<()> {
-        tracing::debug!("Starting TCP proxy: {} -> {}", src, dst);
-        
-        // 提取 IP 和端口
-        let (src_ip, src_port) = match src {
-            SocketAddr::V4(v4) => (*v4.ip(), v4.port()),
-            _ => return Err(Error::Protocol("IPv6 not supported".into())),
-        };
-        let (dst_ip, dst_port) = match dst {
-            SocketAddr::V4(v4) => (*v4.ip(), v4.port()),
-            _ => return Err(Error::Protocol("IPv6 not supported".into())),
-        };
+        tracing::debug!("Starting TCP proxy v2: {:?}", key);
         
         // 建立到远程服务器的连接
         let config_arc = Arc::new(config);
@@ -333,16 +346,10 @@ impl TunRouter {
         let mut stream = transport.dial().await?;
         
         // 发送目标地址
-        let target = format!("{}:{}\n", dst_ip, dst_port);
+        let target = format!("{}:{}\n", key.remote_ip, key.remote_port);
         stream.write_all(target.as_bytes()).await?;
         
-        // 更新 NAT 状态
-        nat_table.update_state(src, dst, PROTO_TCP, ConnectionState::Established).await;
-        
-        tracing::info!("TCP proxy established: {} -> {}", src, dst);
-        
-        // TCP 序列号追踪（简化版本）
-        let mut recv_seq: u32 = 1;
+        tracing::info!("TCP proxy v2 established: {:?}", key);
         
         // 双向转发
         let mut buf = vec![0u8; 32768];
@@ -357,7 +364,7 @@ impl TunRouter {
                     }
                 }
                 
-                // 从远程收到数据，构造 IP 包写回 TUN
+                // 从远程收到数据，通过会话管理器写回 TUN
                 result = stream.read(&mut buf) => {
                     match result {
                         Ok(0) => {
@@ -365,27 +372,12 @@ impl TunRouter {
                             break;
                         }
                         Ok(n) => {
-                            // 构造响应 IP 包（源和目标交换）
-                            let response_packet = build_tcp_packet(
-                                dst_ip,      // 源变成原来的目标
-                                src_ip,      // 目标变成原来的源
-                                dst_port,
-                                src_port,
-                                recv_seq,
-                                0,           // ack (简化)
-                                TcpFlags::psh_ack(),
-                                65535,
-                                &buf[..n],
-                            );
-                            
-                            recv_seq = recv_seq.wrapping_add(n as u32);
-                            
-                            // 写回 TUN 设备
-                            if let Err(e) = tun_writer.write_packet(response_packet).await {
-                                tracing::debug!("TUN write failed: {}", e);
-                            } else {
-                                tracing::trace!("Wrote {} bytes response to TUN", n);
+                            // 通过会话管理器发送数据（会正确处理序列号）
+                            if let Err(e) = tcp_sessions.send_data(&key, &buf[..n], &tun_writer).await {
+                                tracing::debug!("Send data via session failed: {}", e);
+                                break;
                             }
+                            tracing::trace!("Sent {} bytes response to TUN via session", n);
                         }
                         Err(e) => {
                             tracing::debug!("Read from remote failed: {}", e);
@@ -396,7 +388,13 @@ impl TunRouter {
             }
         }
         
+        // 关闭连接
+        let _ = tcp_sessions.close_connection(&key, &tun_writer).await;
+        tcp_sessions.remove_session(&key).await;
+        
         // 更新 NAT 状态
+        let src = SocketAddr::V4(SocketAddrV4::new(key.local_ip, key.local_port));
+        let dst = SocketAddr::V4(SocketAddrV4::new(key.remote_ip, key.remote_port));
         nat_table.update_state(src, dst, PROTO_TCP, ConnectionState::Closed).await;
         
         Ok(())

@@ -14,11 +14,13 @@ mod nat;
 mod stack;
 mod packet;
 mod route;
+mod tcp_session;
 
 pub use device::TunDevice;
 pub use router::TunRouter;
 pub use nat::NatTable;
 pub use route::RouteConfig;
+pub use tcp_session::{TcpSessionManager, TcpSession, SessionKey, TcpAction, ReceivedTcpFlags};
 
 use crate::config::Config;
 use crate::error::Result;
