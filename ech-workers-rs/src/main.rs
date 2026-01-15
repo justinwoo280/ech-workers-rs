@@ -10,6 +10,7 @@ mod ech;
 mod utils;
 mod tls;
 mod tun;
+mod gui;
 
 use config::Config;
 use error::Result;
@@ -61,6 +62,9 @@ struct Args {
 
 #[derive(Subcommand, Debug)]
 enum Commands {
+    /// 启动 GUI 界面
+    Gui,
+    
     /// 测试 DoH 查询获取 ECH 配置
     TestDoh {
         /// 要查询的域名
@@ -241,6 +245,27 @@ async fn main() -> Result<()> {
     };
 
     match command {
+        Commands::Gui => {
+            info!("Starting GUI...");
+            
+            let options = eframe::NativeOptions {
+                viewport: egui::ViewportBuilder::default()
+                    .with_inner_size([1024.0, 768.0])
+                    .with_min_inner_size([800.0, 600.0])
+                    .with_icon(
+                        eframe::icon_data::from_png_bytes(&include_bytes!("../assets/icon.png")[..])
+                            .unwrap_or_default()
+                    ),
+                ..Default::default()
+            };
+            
+            return eframe::run_native(
+                "ECH Workers RS",
+                options,
+                Box::new(|cc| Ok(Box::new(gui::EchWorkersApp::new(cc)))),
+            ).map_err(|e| error::Error::Io(std::io::Error::new(std::io::ErrorKind::Other, e.to_string())));
+        }
+        
         Commands::TestDoh { domain, doh_server } => {
             info!("Testing DoH query for {}", domain);
             

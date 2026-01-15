@@ -78,8 +78,17 @@ rand = "0.8"
 dashmap = "5.5"
 lru = "0.12"
 
+# GUI
+eframe = "0.28"
+egui = "0.28"
+egui_extras = { version = "0.28", features = ["chrono"] }
+chrono = "0.4"
+toml = "0.8"
+directories = "5.0"
+
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = ["winsock2", "ws2def", "ws2ipdef", "iphlpapi"] }
+tray-icon = "0.14"
 
 [profile.release]
 opt-level = 3
