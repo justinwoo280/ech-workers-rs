@@ -178,12 +178,9 @@ async fn open_stream_with_retry(
 fn create_optimized_yamux_config() -> YamuxConfig {
     let mut config = YamuxConfig::default();
     
-    // 增大接收窗口：256KB -> 2MB
+    // 增大连接级别接收窗口：256KB -> 2MB
     // 高延迟网络下提升吞吐量
     config.set_max_connection_receive_window(Some(2 * 1024 * 1024)); // 2 MB
-    
-    // 增大流级别接收窗口
-    config.set_receive_window(Some(1024 * 1024)); // 1 MB per stream
     
     // 增大分片发送大小：16KB -> 64KB
     // 减少小包数量，提升效率
