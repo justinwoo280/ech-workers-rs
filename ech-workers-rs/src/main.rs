@@ -252,18 +252,19 @@ async fn main() -> Result<()> {
                 viewport: egui::ViewportBuilder::default()
                     .with_inner_size([1024.0, 768.0])
                     .with_min_inner_size([800.0, 600.0])
-                    .with_icon(
-                        eframe::icon_data::from_png_bytes(&include_bytes!("../assets/icon.png")[..])
-                            .unwrap_or_default()
-                    ),
+                    .with_title("ECH Workers RS"),
                 ..Default::default()
             };
             
-            return eframe::run_native(
+            if let Err(e) = eframe::run_native(
                 "ECH Workers RS",
                 options,
                 Box::new(|cc| Ok(Box::new(gui::EchWorkersApp::new(cc)))),
-            ).map_err(|e| error::Error::Io(std::io::Error::new(std::io::ErrorKind::Other, e.to_string())));
+            ) {
+                error!("GUI error: {}", e);
+                return Err(error::Error::Io(std::io::Error::new(std::io::ErrorKind::Other, e.to_string())));
+            }
+            return Ok(());
         }
         
         Commands::TestDoh { domain, doh_server } => {
