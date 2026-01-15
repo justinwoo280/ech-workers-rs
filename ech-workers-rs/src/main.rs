@@ -169,6 +169,10 @@ enum Commands {
         /// 启用 FakeDNS 模式
         #[arg(long, default_value = "true")]
         fake_dns: bool,
+        
+        /// 本地 SOCKS5 代理地址 (用于 UDP ASSOCIATE)
+        #[arg(long, default_value = "127.0.0.1:1080")]
+        socks5: String,
     },
 }
 
@@ -333,6 +337,7 @@ async fn main() -> Result<()> {
             dns,
             mtu,
             fake_dns,
+            socks5,
         } => {
             info!("🚀 ech-workers-rs TUN mode starting...");
             info!("   Device: {}", name);
@@ -371,9 +376,11 @@ async fn main() -> Result<()> {
                 dns: vec![dns_addr],
                 proxy_config,
                 fake_dns,
+                socks5_addr: Some(socks5.clone()),
             };
             
             info!("   FakeDNS: {}", fake_dns);
+            info!("   SOCKS5: {}", socks5);
             
             // 解析服务器 IP（用于排除路由）
             let server_ip: Option<std::net::Ipv4Addr> = {

@@ -18,6 +18,7 @@ mod tcp_session;
 mod dns;
 mod fake_dns;
 mod udp_session;
+mod socks5_udp;
 
 pub use device::TunDevice;
 pub use router::TunRouter;
@@ -46,6 +47,8 @@ pub struct TunConfig {
     pub proxy_config: Config,
     /// 是否启用 FakeDNS
     pub fake_dns: bool,
+    /// 本地 SOCKS5 代理地址 (用于 UDP ASSOCIATE)
+    pub socks5_addr: Option<String>,
 }
 
 impl Default for TunConfig {
@@ -58,7 +61,8 @@ impl Default for TunConfig {
             mtu: 1500,
             dns: vec![std::net::Ipv4Addr::new(8, 8, 8, 8)],
             proxy_config: Config::default(),
-            fake_dns: true, // 默认启用 FakeDNS
+            fake_dns: true,
+            socks5_addr: Some("127.0.0.1:1080".to_string()),
         }
     }
 }

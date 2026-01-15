@@ -1,20 +1,18 @@
 //! UDP 会话管理
 //! 
-//! 实现 UDP over TCP，通过 Yamux 隧道转发 UDP 流量
+//! 通过 SOCKS5 UDP ASSOCIATE 转发 UDP 流量
 
 use std::collections::HashMap;
-use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
+use std::net::Ipv4Addr;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tokio::sync::{mpsc, RwLock};
-use futures::{AsyncReadExt, AsyncWriteExt};
 
 use super::packet::build_udp_packet;
 use super::router::TunWriter;
 use super::fake_dns::FakeDnsPool;
-use crate::error::{Error, Result};
-use crate::transport::YamuxTransport;
-use crate::config::Config;
+use super::socks5_udp::{Socks5UdpSession, Socks5UdpFrame};
+use crate::error::Result;
 
 /// UDP 会话超时时间
 const UDP_SESSION_TIMEOUT: Duration = Duration::from_secs(60);
@@ -58,17 +56,17 @@ impl UdpSession {
 pub struct UdpSessionManager {
     /// 会话表
     sessions: Arc<RwLock<HashMap<UdpSessionKey, UdpSession>>>,
-    /// 代理配置
-    config: Config,
+    /// SOCKS5 代理地址
+    socks5_addr: Option<String>,
     /// FakeDNS 池
     fake_dns: Arc<FakeDnsPool>,
 }
 
 impl UdpSessionManager {
-    pub fn new(config: Config, fake_dns: Arc<FakeDnsPool>) -> Self {
+    pub fn new(socks5_addr: Option<String>, fake_dns: Arc<FakeDnsPool>) -> Self {
         Self {
             sessions: Arc::new(RwLock::new(HashMap::new())),
-            config,
+            socks5_addr,
             fake_dns,
         }
     }
@@ -143,19 +141,28 @@ impl UdpSessionManager {
         // 发送初始数据
         let _ = tx.send(initial_data.to_vec()).await;
         
+        // 检查是否配置了 SOCKS5 代理
+        let socks5_addr = match &self.socks5_addr {
+            Some(addr) => addr.clone(),
+            None => {
+                tracing::debug!("No SOCKS5 proxy configured, UDP packet dropped");
+                return Ok(());
+            }
+        };
+        
         // 启动代理任务
-        let config = self.config.clone();
         let sessions = self.sessions.clone();
+        let target_host = target_host.to_string();
         
         tokio::spawn(async move {
-            if let Err(e) = Self::run_udp_proxy(
+            if let Err(e) = Self::run_udp_proxy_socks5(
                 key,
                 &target_host,
-                config,
+                &socks5_addr,
                 rx,
                 tun_writer,
             ).await {
-                tracing::debug!("UDP proxy error for {:?}: {}", key, e);
+                tracing::debug!("UDP SOCKS5 proxy error for {:?}: {}", key, e);
             }
             
             // 清理会话
@@ -166,88 +173,61 @@ impl UdpSessionManager {
         Ok(())
     }
     
-    /// 运行 UDP 代理
-    async fn run_udp_proxy(
+    /// 运行 UDP 代理 (通过 SOCKS5 UDP ASSOCIATE)
+    async fn run_udp_proxy_socks5(
         key: UdpSessionKey,
         target_host: &str,
-        config: Config,
+        socks5_addr: &str,
         mut rx: mpsc::Receiver<Vec<u8>>,
         tun_writer: TunWriter,
     ) -> Result<()> {
-        // 建立 Yamux 连接
-        let config_arc = Arc::new(config);
-        let transport = YamuxTransport::new(config_arc);
-        let mut stream = transport.dial().await?;
+        // 建立 SOCKS5 UDP ASSOCIATE 会话
+        let session = Socks5UdpSession::connect(socks5_addr).await?;
         
-        // 发送 UDP 代理请求头
-        // 格式: "UDP:<host>:<port>\n"
-        let header = format!("UDP:{}:{}\n", target_host, key.remote_port);
-        stream.write_all(header.as_bytes()).await?;
+        tracing::info!("SOCKS5 UDP session established: {} -> {}:{}", 
+            session.local_addr(), target_host, key.remote_port);
         
-        tracing::debug!("UDP proxy established: {}:{}", target_host, key.remote_port);
+        // 判断目标是 IP 还是域名
+        let is_ip = target_host.parse::<Ipv4Addr>().is_ok();
         
         // 双向转发
         let mut buf = vec![0u8; 65535];
         
         loop {
             tokio::select! {
-                // 从本地收到数据，发送到远程
+                // 从本地收到数据，发送到 SOCKS5 代理
                 Some(data) = rx.recv() => {
-                    // 封装 UDP 数据帧
-                    // 格式: [长度 2 字节][数据]
-                    let len = data.len() as u16;
-                    stream.write_all(&len.to_be_bytes()).await?;
-                    stream.write_all(&data).await?;
-                    tracing::trace!("UDP sent {} bytes to remote", data.len());
+                    let frame = if is_ip {
+                        let ip: Ipv4Addr = target_host.parse().unwrap();
+                        Socks5UdpFrame::new_ipv4(ip, key.remote_port, data)
+                    } else {
+                        Socks5UdpFrame::new_domain(target_host, key.remote_port, data)
+                    };
+                    
+                    if let Err(e) = session.send(&frame).await {
+                        tracing::debug!("SOCKS5 UDP send error: {}", e);
+                        break;
+                    }
+                    tracing::trace!("UDP sent {} bytes via SOCKS5", frame.data.len());
                 }
                 
-                // 从远程收到数据，写回 TUN
-                result = stream.read(&mut buf[..2]) => {
+                // 从 SOCKS5 代理收到数据，写回 TUN
+                result = session.recv(&mut buf) => {
                     match result {
-                        Ok(0) => {
-                            tracing::debug!("UDP remote closed");
-                            break;
-                        }
-                        Ok(2) => {
-                            // 读取长度
-                            let len = u16::from_be_bytes([buf[0], buf[1]]) as usize;
-                            if len > buf.len() {
-                                tracing::warn!("UDP packet too large: {}", len);
-                                break;
-                            }
-                            
-                            // 读取数据
-                            let mut read = 0;
-                            while read < len {
-                                match stream.read(&mut buf[read..len]).await {
-                                    Ok(0) => break,
-                                    Ok(n) => read += n,
-                                    Err(e) => {
-                                        tracing::debug!("UDP read error: {}", e);
-                                        break;
-                                    }
-                                }
-                            }
-                            
-                            if read == len {
-                                // 构造 UDP 响应包写回 TUN
-                                let response_packet = build_udp_packet(
-                                    key.remote_ip,  // 源 = 远程
-                                    key.local_ip,   // 目标 = 本地
-                                    key.remote_port,
-                                    key.local_port,
-                                    &buf[..len],
-                                );
-                                let _ = tun_writer.write_packet(response_packet).await;
-                                tracing::trace!("UDP received {} bytes from remote", len);
-                            }
-                        }
-                        Ok(_) => {
-                            tracing::debug!("UDP incomplete length read");
-                            break;
+                        Ok((frame, _addr)) => {
+                            // 构造 UDP 响应包写回 TUN
+                            let response_packet = build_udp_packet(
+                                key.remote_ip,  // 源 = 远程
+                                key.local_ip,   // 目标 = 本地
+                                key.remote_port,
+                                key.local_port,
+                                &frame.data,
+                            );
+                            let _ = tun_writer.write_packet(response_packet).await;
+                            tracing::trace!("UDP received {} bytes via SOCKS5", frame.data.len());
                         }
                         Err(e) => {
-                            tracing::debug!("UDP read error: {}", e);
+                            tracing::debug!("SOCKS5 UDP recv error: {}", e);
                             break;
                         }
                     }

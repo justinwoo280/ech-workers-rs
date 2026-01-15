@@ -83,7 +83,7 @@ impl TunRouter {
         let fake_dns_enabled = config.fake_dns;
         let fake_dns = Arc::new(FakeDnsPool::new(fake_dns_enabled));
         let udp_sessions = Arc::new(UdpSessionManager::new(
-            config.proxy_config.clone(),
+            config.socks5_addr.clone(),
             fake_dns.clone(),
         ));
         Self {
