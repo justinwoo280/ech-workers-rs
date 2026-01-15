@@ -8,6 +8,7 @@ use super::packet::build_udp_packet;
 use super::tcp_session::{TcpSessionManager, SessionKey, TcpAction, ReceivedTcpFlags};
 use super::dns::DnsHandler;
 use super::fake_dns::FakeDnsPool;
+use super::udp_session::UdpSessionManager;
 use crate::error::{Error, Result};
 use crate::transport::YamuxTransport;
 use crate::config::Config;
@@ -35,6 +36,8 @@ pub struct TunRouter {
     tcp_sessions: Arc<TcpSessionManager>,
     /// FakeDNS 池
     fake_dns: Arc<FakeDnsPool>,
+    /// UDP 会话管理器
+    udp_sessions: Arc<UdpSessionManager>,
     /// TCP 连接映射 (本地端口 -> 远程流)
     tcp_connections: Arc<RwLock<HashMap<u16, TcpProxyConnection>>>,
     /// UDP 连接映射
@@ -78,12 +81,18 @@ impl TunWriter {
 impl TunRouter {
     pub fn new(device: TunDevice, config: TunConfig) -> Self {
         let fake_dns_enabled = config.fake_dns;
+        let fake_dns = Arc::new(FakeDnsPool::new(fake_dns_enabled));
+        let udp_sessions = Arc::new(UdpSessionManager::new(
+            config.proxy_config.clone(),
+            fake_dns.clone(),
+        ));
         Self {
             device,
             config,
             nat_table: Arc::new(NatTable::new()),
             tcp_sessions: Arc::new(TcpSessionManager::new()),
-            fake_dns: Arc::new(FakeDnsPool::new(fake_dns_enabled)),
+            fake_dns,
+            udp_sessions,
             tcp_connections: Arc::new(RwLock::new(HashMap::new())),
             udp_connections: Arc::new(RwLock::new(HashMap::new())),
             next_local_port: Arc::new(std::sync::atomic::AtomicU16::new(10000)),
@@ -117,6 +126,15 @@ impl TunRouter {
             }
         });
         
+        // 启动 UDP 会话清理任务
+        let udp_sessions = self.udp_sessions.clone();
+        tokio::spawn(async move {
+            loop {
+                tokio::time::sleep(tokio::time::Duration::from_secs(30)).await;
+                udp_sessions.cleanup_expired().await;
+            }
+        });
+        
         // 主循环：读取 TUN 设备上的 IP 包，同时处理写入请求
         let mut buf = vec![0u8; 65535];
         
@@ -142,6 +160,7 @@ impl TunRouter {
                             
                             let tcp_sessions = self.tcp_sessions.clone();
                             let fake_dns = self.fake_dns.clone();
+                            let udp_sessions = self.udp_sessions.clone();
                             
                             tokio::spawn(async move {
                                 if let Err(e) = Self::handle_packet(
@@ -150,6 +169,7 @@ impl TunRouter {
                                     nat_table,
                                     tcp_sessions,
                                     fake_dns,
+                                    udp_sessions,
                                     tcp_conns,
                                     udp_conns,
                                     next_port,
@@ -185,6 +205,7 @@ impl TunRouter {
         nat_table: Arc<NatTable>,
         tcp_sessions: Arc<TcpSessionManager>,
         fake_dns: Arc<FakeDnsPool>,
+        udp_sessions: Arc<UdpSessionManager>,
         tcp_conns: Arc<RwLock<HashMap<u16, TcpProxyConnection>>>,
         udp_conns: Arc<RwLock<HashMap<u16, UdpProxyConnection>>>,
         next_port: Arc<std::sync::atomic::AtomicU16>,
@@ -235,6 +256,7 @@ impl TunRouter {
                     config,
                     nat_table,
                     fake_dns,
+                    udp_sessions,
                     udp_conns,
                     next_port,
                     tun_writer,
@@ -519,6 +541,7 @@ impl TunRouter {
         config: TunConfig,
         nat_table: Arc<NatTable>,
         fake_dns: Arc<FakeDnsPool>,
+        udp_sessions: Arc<UdpSessionManager>,
         _udp_conns: Arc<RwLock<HashMap<u16, UdpProxyConnection>>>,
         _next_port: Arc<std::sync::atomic::AtomicU16>,
         tun_writer: TunWriter,
@@ -584,8 +607,13 @@ impl TunRouter {
             return Ok(());
         }
         
-        // 其他 UDP 流量暂不处理
-        tracing::trace!("Non-DNS UDP packet ignored");
+        // 其他 UDP 流量通过 UDP over TCP 代理
+        tracing::debug!("UDP proxy: {}:{} -> {}:{}", src_ip, src_port, dst_ip, dst_port);
+        
+        udp_sessions.handle_packet(
+            src_ip, src_port, dst_ip, dst_port,
+            payload, &tun_writer,
+        ).await?;
         
         Ok(())
     }

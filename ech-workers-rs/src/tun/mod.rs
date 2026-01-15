@@ -17,6 +17,7 @@ mod route;
 mod tcp_session;
 mod dns;
 mod fake_dns;
+mod udp_session;
 
 pub use device::TunDevice;
 pub use router::TunRouter;
