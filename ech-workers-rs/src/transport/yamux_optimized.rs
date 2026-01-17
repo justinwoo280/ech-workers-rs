@@ -23,6 +23,7 @@ type YamuxStream = yamux::Stream;
 type YamuxConnection = Connection<tokio_util::compat::Compat<WebSocketAdapter<TlsTunnel>>>;
 
 /// Yamux 会话管理器命令
+#[allow(dead_code)]
 enum SessionCommand {
     /// 请求打开新的 stream
     OpenStream(oneshot::Sender<Result<YamuxStream>>),

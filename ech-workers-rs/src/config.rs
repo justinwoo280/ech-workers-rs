@@ -1,5 +1,6 @@
 /// 全局配置
 #[derive(Debug, Clone, Default)]
+#[allow(dead_code)]
 pub struct Config {
     /// 本地监听地址
     pub listen_addr: String,

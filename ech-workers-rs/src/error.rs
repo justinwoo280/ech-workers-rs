@@ -43,9 +43,11 @@ pub enum Error {
     #[error("Configuration error: {0}")]
     Config(String),
 
+    #[allow(dead_code)]
     #[error("Connection closed")]
     ConnectionClosed,
 
+    #[allow(dead_code)]
     #[error("Timeout")]
     Timeout,
 

@@ -144,6 +144,7 @@ impl Socks5UdpFrame {
     }
     
     /// 获取源地址（用于响应）
+    #[allow(dead_code)]
     pub fn get_source_addr(&self) -> Option<(Ipv4Addr, u16)> {
         if self.atyp == ATYP_IPV4 && self.dst_addr.len() == 4 {
             let ip = Ipv4Addr::new(
@@ -287,6 +288,7 @@ impl Socks5UdpSession {
     }
     
     /// 获取 relay 地址
+    #[allow(dead_code)]
     pub fn relay_addr(&self) -> SocketAddr {
         self.relay_addr
     }

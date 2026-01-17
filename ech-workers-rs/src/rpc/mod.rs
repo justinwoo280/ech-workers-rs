@@ -1,11 +1,11 @@
 //! JSON-RPC interface for GUI communication via stdin/stdout
 
 use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Instant;
 
 use serde::{Deserialize, Serialize};
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::sync::{mpsc, RwLock};
 use tracing::{debug, error, info};
 
@@ -45,12 +45,6 @@ pub struct RpcError {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct StatusData {
-    pub status: String,
-    pub uptime_secs: u64,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StatsData {
     pub upload_bytes: u64,
     pub download_bytes: u64,
@@ -58,19 +52,11 @@ pub struct StatsData {
     pub total_connections: u64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct LogData {
-    pub level: String,
-    pub message: String,
-    pub timestamp: String,
-}
-
 /// 代理运行状态
 struct ProxyState {
     running: AtomicBool,
     start_time: RwLock<Option<Instant>>,
     shutdown_tx: RwLock<Option<tokio::sync::oneshot::Sender<()>>>,
-    stats: RwLock<StatsData>,
 }
 
 impl ProxyState {
@@ -79,12 +65,6 @@ impl ProxyState {
             running: AtomicBool::new(false),
             start_time: RwLock::new(None),
             shutdown_tx: RwLock::new(None),
-            stats: RwLock::new(StatsData {
-                upload_bytes: 0,
-                download_bytes: 0,
-                active_connections: 0,
-                total_connections: 0,
-            }),
         }
     }
 }
@@ -377,6 +357,7 @@ impl RpcServer {
         })
     }
 
+    #[allow(dead_code)]
     pub fn send_log(&self, level: &str, message: String) -> Result<()> {
         self.send_event(
             "log",
@@ -388,6 +369,7 @@ impl RpcServer {
         )
     }
 
+    #[allow(dead_code)]
     pub fn send_status(&self, status: &str, uptime_secs: u64) -> Result<()> {
         self.send_event(
             "status",
@@ -398,6 +380,7 @@ impl RpcServer {
         )
     }
 
+    #[allow(dead_code)]
     pub fn send_stats(&self, stats: StatsData) -> Result<()> {
         self.send_event("stats", serde_json::to_value(stats)?)
     }
