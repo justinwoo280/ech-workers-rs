@@ -1,8 +1,8 @@
 /// Transport 层 - L6
 /// 
-/// 这一层负责建立具体的连接（TLS + WebSocket + Yamux）
+/// 这一层负责建立具体的连接（WebSocket + Yamux）
+/// TLS 握手由 Zig 模块处理 (zig-tls-tunnel)
 
-pub mod tls;
 pub mod websocket;
 pub mod yamux_optimized;
 pub mod connection;

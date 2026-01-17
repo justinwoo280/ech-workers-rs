@@ -10,7 +10,6 @@ mod ech;
 mod utils;
 mod tls;
 mod tun;
-mod gui;
 mod rpc;
 
 use config::Config;
@@ -67,9 +66,6 @@ struct Args {
 
 #[derive(Subcommand, Debug)]
 enum Commands {
-    /// 启动 GUI 界面
-    Gui,
-    
     /// 测试 DoH 查询获取 ECH 配置
     TestDoh {
         /// 要查询的域名
@@ -255,41 +251,6 @@ async fn main() -> Result<()> {
     };
 
     match command {
-        Commands::Gui => {
-            info!("Starting GUI...");
-            println!("[DEBUG] Before eframe::run_native");
-            
-            let options = eframe::NativeOptions {
-                viewport: egui::ViewportBuilder::default()
-                    .with_inner_size([1024.0, 768.0])
-                    .with_min_inner_size([800.0, 600.0])
-                    .with_title("ECH Workers RS"),
-                ..Default::default()
-            };
-            
-            println!("[DEBUG] NativeOptions created");
-            
-            let result = eframe::run_native(
-                "ECH Workers RS",
-                options,
-                Box::new(|cc| {
-                    println!("[DEBUG] Creating EchWorkersApp...");
-                    Ok(Box::new(gui::EchWorkersApp::new(cc)))
-                }),
-            );
-            
-            println!("[DEBUG] eframe::run_native returned");
-            
-            if let Err(e) = result {
-                error!("GUI error: {}", e);
-                println!("[ERROR] GUI error: {}", e);
-                return Err(error::Error::Io(std::io::Error::new(std::io::ErrorKind::Other, e.to_string())));
-            }
-            
-            println!("[DEBUG] GUI exited normally");
-            return Ok(());
-        }
-        
         Commands::TestDoh { domain, doh_server } => {
             info!("Testing DoH query for {}", domain);
             

@@ -1,18 +1,10 @@
-# 备用配置 - 使用官方 rustls
-# 使用方法: cp Cargo.toml.fallback Cargo.toml
-
 [package]
 name = "ech-workers-rs"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.83"
 
-# 独立 workspace
 [workspace]
-
-# 方案 B: 使用官方 rustls (备用)
-# [patch.crates-io]
-# rustls = { path = "../rustls" }
 
 [dependencies]
 # 核心依赖
@@ -78,17 +70,11 @@ rand = "0.8"
 dashmap = "5.5"
 lru = "0.12"
 
-# GUI
-eframe = "0.28"
-egui = "0.28"
-egui_extras = { version = "0.28", features = ["chrono"] }
+# RPC (用于 Qt GUI 通信)
 chrono = "0.4"
-toml = "0.8"
-directories = "5.0"
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = ["winsock2", "ws2def", "ws2ipdef", "iphlpapi"] }
-tray-icon = "0.14"
 
 [profile.release]
 opt-level = 3
