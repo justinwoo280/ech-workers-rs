@@ -64,3 +64,15 @@ impl From<anyhow::Error> for Error {
         Error::Other(e.to_string())
     }
 }
+
+impl From<serde_json::Error> for Error {
+    fn from(e: serde_json::Error) -> Self {
+        Error::Other(e.to_string())
+    }
+}
+
+impl<T> From<tokio::sync::mpsc::error::SendError<T>> for Error {
+    fn from(e: tokio::sync::mpsc::error::SendError<T>) -> Self {
+        Error::Other(e.to_string())
+    }
+}

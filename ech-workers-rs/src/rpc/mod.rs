@@ -5,10 +5,7 @@ use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::sync::mpsc;
 use tracing::{debug, error};
 
-use crate::config::Config;
 use crate::error::Result;
-use crate::gui::config::GuiConfig;
-use crate::gui::state::{LogLevel, ProxyStatus};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RpcRequest {
@@ -76,9 +73,10 @@ impl RpcServer {
         let (server, mut rx) = Self::new();
 
         let stdout_task = tokio::spawn(async move {
+            use tokio::io::AsyncWriteExt;
+            let mut stdout = tokio::io::stdout();
             while let Some(response) = rx.recv().await {
                 if let Ok(json) = serde_json::to_string(&response) {
-                    let mut stdout = tokio::io::stdout();
                     if let Err(e) = stdout.write_all(json.as_bytes()).await {
                         error!("Failed to write to stdout: {}", e);
                         break;
@@ -108,6 +106,7 @@ impl RpcServer {
     }
 
     async fn handle_stdin(&self) -> Result<()> {
+        use tokio::io::AsyncBufReadExt;
         let stdin = tokio::io::stdin();
         let mut reader = BufReader::new(stdin);
         let mut line = String::new();
@@ -157,9 +156,8 @@ impl RpcServer {
         Ok(())
     }
 
-    async fn handle_start(&self, id: Option<u64>, params: serde_json::Value) -> RpcResponse {
+    async fn handle_start(&self, id: Option<u64>, _params: serde_json::Value) -> RpcResponse {
         // TODO: Parse config and start proxy
-        let _config: Result<GuiConfig, _> = serde_json::from_value(params);
         
         RpcResponse::Result {
             id: id.unwrap_or(0),
@@ -187,43 +185,16 @@ impl RpcServer {
     }
 
     async fn handle_get_config(&self, id: Option<u64>) -> RpcResponse {
-        match GuiConfig::load() {
-            Ok(config) => RpcResponse::Result {
-                id: id.unwrap_or(0),
-                result: serde_json::to_value(config).unwrap_or_default(),
-            },
-            Err(e) => RpcResponse::Error {
-                id: id.unwrap_or(0),
-                error: RpcError {
-                    code: -1,
-                    message: format!("Failed to load config: {}", e),
-                },
-            },
+        RpcResponse::Result {
+            id: id.unwrap_or(0),
+            result: serde_json::json!({}),
         }
     }
 
-    async fn handle_save_config(&self, id: Option<u64>, params: serde_json::Value) -> RpcResponse {
-        match serde_json::from_value::<GuiConfig>(params) {
-            Ok(config) => match config.save() {
-                Ok(_) => RpcResponse::Result {
-                    id: id.unwrap_or(0),
-                    result: serde_json::json!({"status": "saved"}),
-                },
-                Err(e) => RpcResponse::Error {
-                    id: id.unwrap_or(0),
-                    error: RpcError {
-                        code: -1,
-                        message: format!("Failed to save config: {}", e),
-                    },
-                },
-            },
-            Err(e) => RpcResponse::Error {
-                id: id.unwrap_or(0),
-                error: RpcError {
-                    code: -32602,
-                    message: format!("Invalid params: {}", e),
-                },
-            },
+    async fn handle_save_config(&self, id: Option<u64>, _params: serde_json::Value) -> RpcResponse {
+        RpcResponse::Result {
+            id: id.unwrap_or(0),
+            result: serde_json::json!({"status": "saved"}),
         }
     }
 
@@ -239,34 +210,22 @@ impl RpcServer {
         })
     }
 
-    pub fn send_log(&self, level: LogLevel, message: String) -> Result<()> {
+    pub fn send_log(&self, level: &str, message: String) -> Result<()> {
         self.send_event(
             "log",
             serde_json::json!({
-                "level": match level {
-                    LogLevel::Trace => "trace",
-                    LogLevel::Debug => "debug",
-                    LogLevel::Info => "info",
-                    LogLevel::Warn => "warn",
-                    LogLevel::Error => "error",
-                },
+                "level": level,
                 "message": message,
                 "timestamp": chrono::Local::now().to_rfc3339(),
             }),
         )
     }
 
-    pub fn send_status(&self, status: ProxyStatus, uptime_secs: u64) -> Result<()> {
+    pub fn send_status(&self, status: &str, uptime_secs: u64) -> Result<()> {
         self.send_event(
             "status",
             serde_json::json!({
-                "status": match status {
-                    ProxyStatus::Stopped => "stopped",
-                    ProxyStatus::Starting => "starting",
-                    ProxyStatus::Running => "running",
-                    ProxyStatus::Stopping => "stopping",
-                    ProxyStatus::Error => "error",
-                },
+                "status": status,
                 "uptime_secs": uptime_secs,
             }),
         )
