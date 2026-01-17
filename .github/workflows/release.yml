@@ -204,6 +204,18 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
+      
+      - name: Download WinTun (Windows x86_64 only)
+        if: matrix.target == 'x86_64-pc-windows-msvc'
+        shell: pwsh
+        run: |
+          $wintunVersion = "0.14.1"
+          $wintunUrl = "https://www.wintun.net/builds/wintun-$wintunVersion.zip"
+          Invoke-WebRequest -Uri $wintunUrl -OutFile wintun.zip
+          Expand-Archive -Path wintun.zip -DestinationPath wintun-temp
+          New-Item -ItemType Directory -Force -Path ech-workers-rs/target/${{ matrix.target }}/release
+          Copy-Item wintun-temp/wintun/bin/amd64/wintun.dll ech-workers-rs/target/${{ matrix.target }}/release/
+          Remove-Item wintun.zip, wintun-temp -Recurse -Force
 
       - name: Install cross-compilation tools (Linux ARM64)
         if: matrix.cross == true
@@ -219,8 +231,8 @@ jobs:
         if: matrix.cross != true
         working-directory: ech-workers-rs
         env:
-          RUSTFLAGS: "-C target-cpu=native"
-        run: cargo build --release --target ${{ matrix.target }}
+          RUSTFLAGS: "-C target-cpu=native -C opt-level=3 -C lto=fat -C strip=symbols"
+        run: cargo build --release --locked --target ${{ matrix.target }}
 
       - name: Build Rust (cross)
         if: matrix.cross == true
@@ -241,16 +253,72 @@ jobs:
         run: |
           mkdir -p dist
           cp ech-workers-rs/target/${{ matrix.target }}/release/${{ matrix.binary_name }} dist/${{ matrix.asset_name }}
+          if [ "${{ matrix.target }}" == "x86_64-pc-windows-msvc" ]; then
+            cp ech-workers-rs/target/${{ matrix.target }}/release/wintun.dll dist/ || echo "wintun.dll not found"
+          fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.asset_name }}
-          path: dist/${{ matrix.asset_name }}
+          path: dist/*
+
+  build-qt-gui:
+    name: Build Qt GUI (Windows x64)
+    needs: build-rust
+    runs-on: windows-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.7.0'
+          arch: 'win64_msvc2019_64'
+          modules: 'qtbase'
+      
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+      
+      - name: Setup Ninja
+        run: choco install ninja -y
+      
+      - name: Download Rust Backend
+        uses: actions/download-artifact@v4
+        with:
+          name: ech-workers-rs-windows-x86_64.exe
+          path: qt-gui/backend
+      
+      - name: Build Qt GUI
+        run: |
+          cd qt-gui
+          mkdir build
+          cd build
+          cmake .. -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS_RELEASE="/O2 /DNDEBUG /GL" -DCMAKE_EXE_LINKER_FLAGS_RELEASE="/LTCG /OPT:REF /OPT:ICF"
+          cmake --build . --config Release
+      
+      - name: Deploy Qt
+        run: |
+          cd qt-gui/build
+          windeployqt Release/ech-workers-gui.exe --release --no-compiler-runtime --no-translations
+          copy ..\backend\ech-workers-rs-windows-x86_64.exe Release\ech-workers-rs.exe
+          copy ..\backend\wintun.dll Release\ || echo "wintun.dll not found (expected)"
+      
+      - name: Create Package
+        run: |
+          cd qt-gui/build/Release
+          7z a ../../../ech-workers-gui-windows-x64.zip *
+      
+      - name: Upload GUI Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: ech-workers-gui-windows-x64
+          path: ech-workers-gui-windows-x64.zip
 
   release:
     name: Create Release
-    needs: build-rust
+    needs: [build-rust, build-qt-gui]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:
@@ -271,7 +339,9 @@ jobs:
             artifacts/ech-workers-rs-linux-x86_64/ech-workers-rs-linux-x86_64
             artifacts/ech-workers-rs-linux-arm64/ech-workers-rs-linux-arm64
             artifacts/ech-workers-rs-windows-x86_64.exe/ech-workers-rs-windows-x86_64.exe
+            artifacts/ech-workers-rs-windows-x86_64.exe/wintun.dll
             artifacts/ech-workers-rs-windows-arm64.exe/ech-workers-rs-windows-arm64.exe
+            artifacts/ech-workers-gui-windows-x64/ech-workers-gui-windows-x64.zip
           draft: false
           prerelease: false
           generate_release_notes: true
