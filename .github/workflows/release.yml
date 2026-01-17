@@ -61,6 +61,15 @@ jobs:
           path: ${{ matrix.zig_dir }}/vendor/boringssl/build
           key: boringssl-${{ matrix.target }}-${{ hashFiles(format('{0}/vendor/boringssl/**', matrix.zig_dir)) }}
 
+      - name: Cache Zig build
+        id: cache-zig
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ matrix.zig_dir }}/zig-out
+            ${{ matrix.zig_dir }}/zig-cache
+          key: zig-${{ matrix.target }}-${{ hashFiles(format('{0}/src/**', matrix.zig_dir), format('{0}/build.zig', matrix.zig_dir)) }}
+
       - name: Install dependencies (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -122,22 +131,22 @@ jobs:
           ninja
 
       - name: Build Zig TLS Tunnel (Linux native)
-        if: matrix.target == 'x86_64-linux'
+        if: steps.cache-zig.outputs.cache-hit != 'true' && matrix.target == 'x86_64-linux'
         working-directory: ${{ matrix.zig_dir }}
         run: zig build -Doptimize=ReleaseFast
 
       - name: Build Zig TLS Tunnel (Linux ARM64 cross)
-        if: matrix.target == 'aarch64-linux'
+        if: steps.cache-zig.outputs.cache-hit != 'true' && matrix.target == 'aarch64-linux'
         working-directory: ${{ matrix.zig_dir }}
         run: zig build -Doptimize=ReleaseFast -Dtarget=aarch64-linux-gnu
 
       - name: Build Zig TLS Tunnel (Windows native)
-        if: matrix.target == 'x86_64-windows'
+        if: steps.cache-zig.outputs.cache-hit != 'true' && matrix.target == 'x86_64-windows'
         working-directory: ${{ matrix.zig_dir }}
         run: zig build -Doptimize=ReleaseFast -Dtarget=x86_64-windows-msvc -Dlib-only=true
 
       - name: Build Zig TLS Tunnel (Windows ARM64)
-        if: matrix.target == 'aarch64-windows'
+        if: steps.cache-zig.outputs.cache-hit != 'true' && matrix.target == 'aarch64-windows'
         working-directory: ${{ matrix.zig_dir }}
         run: zig build -Doptimize=ReleaseFast -Dtarget=aarch64-windows-msvc -Dlib-only=true
 
@@ -204,6 +213,19 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ech-workers-rs/target/
+          key: cargo-${{ matrix.target }}-${{ hashFiles('ech-workers-rs/Cargo.lock') }}
+          restore-keys: |
+            cargo-${{ matrix.target }}-
       
       - name: Download WinTun (Windows x86_64 only)
         if: matrix.target == 'x86_64-pc-windows-msvc'

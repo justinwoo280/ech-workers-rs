@@ -36,7 +36,7 @@ SystemProxy::SystemProxy(QObject *parent)
 }
 
 SystemProxy::~SystemProxy() {
-    if (m_mode == SystemProxy) {
+    if (m_mode == System) {
         disableSystemProxy();
     }
 }
@@ -50,7 +50,7 @@ bool SystemProxy::enableSystemProxy(const QString &address, quint16 port) {
         return false;
     }
     
-    m_mode = SystemProxy;
+    m_mode = System;
     m_lastProxyAddress = address;
     m_lastProxyPort = port;
     
@@ -155,7 +155,7 @@ bool SystemProxy::setMode(ProxyMode mode, const QString &address, quint16 port) 
         case Direct:
             return disableSystemProxy();
         
-        case SystemProxy:
+        case System:
             if (address.isEmpty() || port == 0) {
                 if (m_lastProxyAddress.isEmpty()) {
                     emit errorOccurred("No proxy address specified");
