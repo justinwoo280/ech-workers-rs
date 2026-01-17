@@ -272,11 +272,11 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Setup Qt
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
           version: '6.7.0'
           arch: 'win64_msvc2019_64'
-          modules: 'qtbase'
+          cache: true
       
       - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1
@@ -299,16 +299,28 @@ jobs:
           cmake --build . --config Release
       
       - name: Deploy Qt
+        shell: pwsh
         run: |
           cd qt-gui/build
-          windeployqt Release/ech-workers-gui.exe --release --no-compiler-runtime --no-translations
-          copy ..\backend\ech-workers-rs-windows-x86_64.exe Release\ech-workers-rs.exe
-          copy ..\backend\wintun.dll Release\ || echo "wintun.dll not found (expected)"
+          # 查找编译产物
+          $exePath = Get-ChildItem -Recurse -Filter "ech-workers-gui.exe" | Select-Object -First 1 -ExpandProperty FullName
+          if (-not $exePath) { Write-Error "Cannot find ech-workers-gui.exe"; exit 1 }
+          $exeDir = Split-Path $exePath
+          # 部署 Qt 依赖
+          windeployqt $exePath --release --no-compiler-runtime --no-translations
+          # 复制后端
+          Copy-Item "..\backend\ech-workers-rs-windows-x86_64.exe" "$exeDir\ech-workers-rs.exe"
+          if (Test-Path "..\backend\wintun.dll") { Copy-Item "..\backend\wintun.dll" "$exeDir\" }
       
       - name: Create Package
+        shell: pwsh
         run: |
-          cd qt-gui/build/Release
-          7z a ../../../ech-workers-gui-windows-x64.zip *
+          cd qt-gui/build
+          # 查找包含 exe 的目录
+          $exePath = Get-ChildItem -Recurse -Filter "ech-workers-gui.exe" | Select-Object -First 1 -ExpandProperty FullName
+          $exeDir = Split-Path $exePath
+          cd $exeDir
+          7z a "$env:GITHUB_WORKSPACE/ech-workers-gui-windows-x64.zip" *
       
       - name: Upload GUI Package
         uses: actions/upload-artifact@v4
