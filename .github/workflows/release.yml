@@ -232,7 +232,7 @@ jobs:
         working-directory: ech-workers-rs
         env:
           RUSTFLAGS: "-C target-cpu=native -C opt-level=3 -C lto=fat -C strip=symbols"
-        run: cargo build --release --locked --target ${{ matrix.target }}
+        run: cargo build --release --target ${{ matrix.target }}
 
       - name: Build Rust (cross)
         if: matrix.cross == true
