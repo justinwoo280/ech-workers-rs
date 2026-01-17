@@ -77,19 +77,13 @@ void NodePanel::setupUi() {
     
     mainLayout->addWidget(nodesGroup);
     
-    // 节点信息和连接按钮
+    // 节点信息
     QGroupBox *actionGroup = new QGroupBox("当前选中节点");
     QVBoxLayout *actionLayout = new QVBoxLayout(actionGroup);
     
     m_selectedNodeInfo = new QLabel("未选择节点");
     m_selectedNodeInfo->setStyleSheet("QLabel { padding: 10px; background: #2b2b2b; border-radius: 5px; }");
     actionLayout->addWidget(m_selectedNodeInfo);
-    
-    m_connectButton = new QPushButton("🚀 连接到此节点");
-    m_connectButton->setEnabled(false);
-    m_connectButton->setStyleSheet("QPushButton { padding: 10px; font-size: 14px; font-weight: bold; }");
-    connect(m_connectButton, &QPushButton::clicked, this, &NodePanel::onConnectClicked);
-    actionLayout->addWidget(m_connectButton);
     
     mainLayout->addWidget(actionGroup);
     
@@ -137,7 +131,6 @@ void NodePanel::onNodeSelectionChanged() {
     m_editButton->setEnabled(hasSelection);
     m_removeButton->setEnabled(hasSelection);
     m_testButton->setEnabled(hasSelection);
-    m_connectButton->setEnabled(hasSelection);
     
     if (hasSelection) {
         QString id = m_nodeList->currentItem()->data(Qt::UserRole).toString();
@@ -154,7 +147,9 @@ void NodePanel::onNodeSelectionChanged() {
               node.useYamux ? "启用" : "禁用");
         
         m_selectedNodeInfo->setText(info);
+        m_nodeManager->setCurrentNode(id);
         emit nodeSelected(id);
+        emit currentNodeChanged(id);
     } else {
         m_selectedNodeInfo->setText("未选择节点");
     }
@@ -220,20 +215,6 @@ void NodePanel::onTestNodeClicked() {
     QMessageBox::information(this, "测速", "节点测速功能待实现");
 }
 
-void NodePanel::onConnectClicked() {
-    QListWidgetItem *item = m_nodeList->currentItem();
-    if (!item) return;
-    
-    QString id = item->data(Qt::UserRole).toString();
-    ProxyNode node = m_nodeManager->getNode(id);
-    
-    SystemProxy::ProxyMode mode = static_cast<SystemProxy::ProxyMode>(
-        m_modeCombo->currentData().toInt()
-    );
-    
-    m_nodeManager->setCurrentNode(id);
-    emit startRequested(node, mode);
-}
 
 void NodePanel::onModeChanged() {
     SystemProxy::ProxyMode mode = static_cast<SystemProxy::ProxyMode>(
@@ -254,4 +235,22 @@ void NodePanel::onModeChanged() {
     }
     
     m_currentModeLabel->setText("当前: " + modeText);
+}
+
+QString NodePanel::getCurrentNodeId() const {
+    QListWidgetItem *item = m_nodeList->currentItem();
+    if (!item) return QString();
+    return item->data(Qt::UserRole).toString();
+}
+
+ProxyNode NodePanel::getCurrentNode() const {
+    QString id = getCurrentNodeId();
+    if (id.isEmpty()) return ProxyNode();
+    return m_nodeManager->getNode(id);
+}
+
+SystemProxy::ProxyMode NodePanel::getCurrentMode() const {
+    return static_cast<SystemProxy::ProxyMode>(
+        m_modeCombo->currentData().toInt()
+    );
 }

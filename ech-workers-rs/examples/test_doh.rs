@@ -21,7 +21,7 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let domain = std::env::args().nth(1).unwrap_or_else(|| "cloudflare.com".to_string());
-    let doh_server = std::env::args().nth(2).unwrap_or_else(|| "https://cloudflare-dns.com/dns-query".to_string());
+    let doh_server = std::env::args().nth(2).unwrap_or_else(|| "223.5.5.5/dns-query".to_string());
 
     info!("Testing DoH query for {}", domain);
     info!("Using DoH server: {}", doh_server);

@@ -32,17 +32,22 @@ pub async fn query_ech_config(domain: &str, doh_server: &str) -> Result<Vec<u8>>
     let dns_base64 = URL_SAFE_NO_PAD.encode(&dns_query);
     
     // 3. 构建 DoH URL
-    let doh_url = if doh_server.starts_with("http") {
-        format!("{}?dns={}", doh_server, dns_base64)
+    let base_url = if doh_server.starts_with("http") {
+        doh_server.to_string()
     } else {
-        format!("https://{}?dns={}", doh_server, dns_base64)
+        format!("https://{}", doh_server)
     };
+    
+    // 处理 URL 末尾可能存在的 ? 或 &
+    let separator = if base_url.contains('?') { "&" } else { "?" };
+    let doh_url = format!("{}{}dns={}", base_url.trim_end_matches('?').trim_end_matches('&'), separator, dns_base64);
     
     debug!("DoH URL: {}", doh_url);
     
-    // 4. 发送 HTTP GET 请求
+    // 4. 发送 HTTP GET 请求（禁用代理，避免循环依赖）
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(10))
+        .no_proxy()  // 关键：DoH 请求不走代理
         .build()
         .map_err(|e| Error::Dns(e.to_string()))?;
     

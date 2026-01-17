@@ -52,7 +52,7 @@ async fn main() -> anyhow::Result<()> {
         token: token.clone(),
         use_ech: true,
         ech_domain: server.split(':').next().unwrap_or("example.com").to_string(),
-        doh_server: "https://cloudflare-dns.com/dns-query".to_string(),
+        doh_server: "223.5.5.5/dns-query".to_string(),
         use_yamux: true,
         randomize_fingerprint: false,
     });

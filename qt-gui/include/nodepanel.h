@@ -16,14 +16,18 @@ public:
 
 signals:
     void nodeSelected(const QString &id);
-    void startRequested(const ProxyNode &node, SystemProxy::ProxyMode mode);
+    void currentNodeChanged(const QString &id);
+
+public:
+    QString getCurrentNodeId() const;
+    ProxyNode getCurrentNode() const;
+    SystemProxy::ProxyMode getCurrentMode() const;
 
 private slots:
     void onAddNodeClicked();
     void onEditNodeClicked();
     void onRemoveNodeClicked();
     void onTestNodeClicked();
-    void onConnectClicked();
     void onModeChanged();
     void refreshNodeList();
     void onNodeSelectionChanged();
@@ -40,7 +44,6 @@ private:
     QPushButton *m_editButton;
     QPushButton *m_removeButton;
     QPushButton *m_testButton;
-    QPushButton *m_connectButton;
     
     QComboBox *m_modeCombo;
     QLabel *m_currentModeLabel;

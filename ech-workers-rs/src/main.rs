@@ -25,7 +25,7 @@ ech-workers-rs - 支持 ECH 的安全代理客户端
 
 功能特性:
   • TLS 1.3 + Encrypted Client Hello (ECH) 加密
-  • 模拟 Firefox 浏览器 TLS 指纹
+  • 模拟 Chrome 浏览器 TLS 指纹
   • 支持 SOCKS5 和 HTTP CONNECT 代理协议
   • Yamux 多路复用提升性能
   • DoH (DNS over HTTPS) 获取 ECH 配置
@@ -71,8 +71,8 @@ enum Commands {
         /// 要查询的域名
         domain: String,
         
-        /// DoH 服务器地址
-        #[arg(short, long, default_value = "https://cloudflare-dns.com/dns-query")]
+        /// DoH 服务器地址 (无需 https:// 前缀)
+        #[arg(short, long, default_value = "223.5.5.5/dns-query")]
         doh_server: String,
     },
     
@@ -85,8 +85,8 @@ enum Commands {
         #[arg(short, long, default_value_t = 443)]
         port: u16,
         
-        /// DoH 服务器地址
-        #[arg(short, long, default_value = "https://cloudflare-dns.com/dns-query")]
+        /// DoH 服务器地址 (无需 https:// 前缀)
+        #[arg(short, long, default_value = "223.5.5.5/dns-query")]
         doh_server: String,
     },
     
@@ -116,8 +116,8 @@ enum Commands {
         #[arg(long, default_value = "cloudflare-ech.com")]
         ech_domain: String,
 
-        /// DoH 服务器地址 (用于获取 ECH 配置)
-        #[arg(long, default_value = "dns.alidns.com/dns-query")]
+        /// DoH 服务器地址 (无需 https:// 前缀)
+        #[arg(short = 'd', long, default_value = "223.5.5.5/dns-query")]
         doh_server: String,
 
         /// 启用 Yamux 多路复用
@@ -159,8 +159,8 @@ enum Commands {
         #[arg(long, default_value = "cloudflare-ech.com")]
         ech_domain: String,
         
-        /// DoH 服务器地址
-        #[arg(long, default_value = "dns.alidns.com/dns-query")]
+        /// DoH 服务器地址 (无需 https:// 前缀)
+        #[arg(short = 'd', long, default_value = "223.5.5.5/dns-query")]
         doh_server: String,
         
         /// DNS 服务器
@@ -237,13 +237,14 @@ async fn main() -> Result<()> {
             println!("  ech-workers-rs connect cloudflare.com");
             println!();
             println!("代理参数说明:");
-            println!("  -l, --listen <地址>     本地监听地址 [默认: 127.0.0.1:1080]");
-            println!("  -f, --server <地址>     远程服务器地址 (必填)");
-            println!("  -t, --token <密钥>      认证密钥 (必填)");
-            println!("      --server-ip <IP>    服务器 IP (可选，绕过 DNS)");
-            println!("      --ech <bool>        启用 ECH [默认: true]");
-            println!("      --yamux <bool>      启用 Yamux 多路复用 [默认: true]");
-            println!("  -v, --verbose           启用详细日志");
+            println!("  -l, --listen <地址>       本地监听地址 [默认: 127.0.0.1:1080]");
+            println!("  -f, --server <地址>       远程服务器地址 (必填)");
+            println!("  -t, --token <密钥>        认证密钥 (必填)");
+            println!("  -d, --doh-server <地址>   DoH 服务器 [默认: 223.5.5.5/dns-query]");
+            println!("      --server-ip <IP>      服务器 IP (可选，绕过 DNS)");
+            println!("      --ech <bool>          启用 ECH [默认: true]");
+            println!("      --yamux <bool>        启用 Yamux 多路复用 [默认: true]");
+            println!("  -v, --verbose             启用详细日志");
             println!();
             println!("更多信息请运行: ech-workers-rs --help");
             return Ok(());
@@ -312,6 +313,7 @@ async fn main() -> Result<()> {
             info!("   Listen: {}", listen);
             info!("   Server: {}", server);
             info!("   ECH: {}", ech);
+            info!("   DoH: {}", doh_server);
             info!("   Yamux: {}", yamux);
             info!("   Fingerprint Randomization: {}", randomize_fingerprint);
 

@@ -45,6 +45,7 @@ private:
     QString formatUptime(quint64 seconds) const;
     QString statusToString(ProcessManager::ProxyStatus status) const;
     QColor statusColor(ProcessManager::ProxyStatus status) const;
+    void updateStartButtonState();
 
     std::unique_ptr<ProcessManager> m_processManager;
     std::unique_ptr<ConfigManager> m_configManager;

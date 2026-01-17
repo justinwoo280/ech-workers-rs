@@ -282,7 +282,7 @@ impl RpcServer {
                 .to_string(),
             doh_server: obj.get("doh_server")
                 .and_then(|v| v.as_str())
-                .unwrap_or("https://1.1.1.1/dns-query")
+                .unwrap_or("223.5.5.5/dns-query")
                 .to_string(),
             use_yamux: obj.get("use_yamux")
                 .and_then(|v| v.as_bool())

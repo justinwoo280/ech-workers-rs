@@ -73,7 +73,7 @@ QJsonObject ConfigManager::createDefaultConfig() const {
     QJsonObject ech;
     ech["enabled"] = true;
     ech["domain"] = "cloudflare-ech.com";
-    ech["doh_server"] = "https://1.1.1.1/dns-query";
+    ech["doh_server"] = "223.5.5.5/dns-query";
     config["ech"] = ech;
 
     QJsonObject advanced;

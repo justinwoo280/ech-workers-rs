@@ -31,7 +31,7 @@ ProxyNode ProxyNode::fromJson(const QJsonObject &json) {
     node.token = json["token"].toString();
     node.useEch = json["use_ech"].toBool(true);
     node.echDomain = json["ech_domain"].toString("cloudflare-ech.com");
-    node.dohServer = json["doh_server"].toString("https://1.1.1.1/dns-query");
+    node.dohServer = json["doh_server"].toString("223.5.5.5/dns-query");
     node.useYamux = json["use_yamux"].toBool(true);
     node.tlsProfile = json["tls_profile"].toString("Chrome");
     node.lastUsedTime = json["last_used_time"].toVariant().toLongLong();

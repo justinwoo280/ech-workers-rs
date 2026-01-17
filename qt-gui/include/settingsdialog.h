@@ -3,8 +3,6 @@
 #include <QDialog>
 #include <QLineEdit>
 #include <QCheckBox>
-#include <QComboBox>
-#include <QTabWidget>
 #include "configmanager.h"
 
 class SettingsDialog : public QDialog {
@@ -25,19 +23,11 @@ private:
     ConfigManager *m_configManager;
     QJsonObject m_config;
 
+    // 代理设置
     QLineEdit *m_listenAddrEdit;
-    QLineEdit *m_serverAddrEdit;
-    QLineEdit *m_tokenEdit;
     QCheckBox *m_enableTunCheck;
 
-    QCheckBox *m_echEnabledCheck;
-    QLineEdit *m_echDomainEdit;
-    QLineEdit *m_dohServerEdit;
-
-    QCheckBox *m_yamuxCheck;
-    QCheckBox *m_fingerprintCheck;
-    QComboBox *m_tlsProfileCombo;
-
+    // 应用设置
     QCheckBox *m_autoStartCheck;
     QCheckBox *m_startMinimizedCheck;
     QCheckBox *m_minimizeToTrayCheck;

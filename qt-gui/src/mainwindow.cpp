@@ -27,6 +27,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     setWindowTitle("ECH Workers RS");
     resize(1024, 768);
+    
+    // 初始化启动按钮状态（没有选中节点时禁用）
+    updateStartButtonState();
 }
 
 MainWindow::~MainWindow() {
@@ -64,16 +67,11 @@ void MainWindow::setupUi() {
     // 节点面板
     m_nodePanel = new NodePanel(m_nodeManager.get(), m_systemProxy.get(), this);
     m_tabWidget->addTab(m_nodePanel, "📡 节点");
-    connect(m_nodePanel, &NodePanel::startRequested, this, [this](const ProxyNode &node, SystemProxy::ProxyMode mode) {
-        Q_UNUSED(mode);
-        QJsonObject config;
-        config["server_addr"] = node.serverAddr;
-        config["token"] = node.token;
-        config["use_ech"] = node.useEch;
-        config["ech_domain"] = node.echDomain;
-        config["doh_server"] = node.dohServer;
-        config["use_yamux"] = node.useYamux;
-        m_processManager->start(config);
+    
+    // 节点选择变化时更新状态
+    connect(m_nodePanel, &NodePanel::currentNodeChanged, this, [this](const QString &id) {
+        Q_UNUSED(id);
+        updateStartButtonState();
     });
     
     createLogsPanel();
@@ -184,10 +182,45 @@ void MainWindow::onStartStopClicked() {
         }
         m_processManager->stop();
     } else {
-        QJsonObject config = m_configManager->loadConfig();
+        // 使用当前选中的节点
+        ProxyNode node = m_nodePanel->getCurrentNode();
+        if (node.serverAddr.isEmpty()) {
+            QMessageBox::warning(this, "警告", "请先在节点面板中选择一个节点");
+            return;
+        }
+        
+        // 从设置中获取监听地址
+        QJsonObject appConfig = m_configManager->loadConfig();
+        QString listenAddr = appConfig["basic"].toObject()["listen_addr"].toString();
+        if (listenAddr.isEmpty()) {
+            listenAddr = "127.0.0.1:1080";
+        }
+        
+        QJsonObject config;
+        config["listen_addr"] = listenAddr;
+        config["server_addr"] = node.serverAddr;
+        config["token"] = node.token;
+        config["use_ech"] = node.useEch;
+        config["ech_domain"] = node.echDomain;
+        config["doh_server"] = node.dohServer;
+        config["use_yamux"] = node.useYamux;
+        
         if (!m_processManager->start(config)) {
             QMessageBox::critical(this, "错误", "启动失败: " + m_processManager->lastError());
         }
+    }
+}
+
+void MainWindow::updateStartButtonState() {
+    ProxyNode node = m_nodePanel->getCurrentNode();
+    bool hasNode = !node.serverAddr.isEmpty();
+    bool isRunning = m_processManager->status() == ProcessManager::ProxyStatus::Running;
+    
+    m_startStopButton->setEnabled(hasNode || isRunning);
+    
+    if (!hasNode && !isRunning) {
+        m_startStopButton->setText("▶ 启动");
+        m_startStopButton->setToolTip("请先选择一个节点");
     }
 }
 

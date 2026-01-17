@@ -33,7 +33,7 @@ async fn main() -> Result<()> {
         .init();
 
     let host = std::env::args().nth(1).unwrap_or_else(|| "crypto.cloudflare.com".to_string());
-    let doh_server = std::env::args().nth(2).unwrap_or_else(|| "https://cloudflare-dns.com/dns-query".to_string());
+    let doh_server = std::env::args().nth(2).unwrap_or_else(|| "223.5.5.5/dns-query".to_string());
 
     info!("=== ECH End-to-End Test ===");
     info!("Host: {}", host);

@@ -57,7 +57,8 @@ void NodeDialog::setupUi() {
     m_echDomainEdit = new QLineEdit("cloudflare-ech.com");
     echLayout->addRow("ECH 域名:", m_echDomainEdit);
     
-    m_dohServerEdit = new QLineEdit("https://1.1.1.1/dns-query");
+    m_dohServerEdit = new QLineEdit("223.5.5.5/dns-query");
+    m_dohServerEdit->setPlaceholderText("无需 https:// 前缀");
     echLayout->addRow("DoH 服务器:", m_dohServerEdit);
     
     mainLayout->addWidget(echGroup);

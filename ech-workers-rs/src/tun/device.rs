@@ -84,49 +84,32 @@ impl TunDevice {
             tracing::warn!("netsh set address: {}", String::from_utf8_lossy(&output.stderr));
         }
         
-        // 配置 DNS - 使用 Cloudflare DoH
-        // Cloudflare DoH: 1.1.1.1 (https://cloudflare-dns.com/dns-query)
-        let cloudflare_dns = "1.1.1.1";
+        // 配置 DNS 服务器（作为 fallback）
+        // 注意：TUN 模式下，DNS 请求会被 TUN 设备捕获并由程序内部的 DoH 客户端处理
+        // 这里设置的 DNS 仅作为系统 fallback，实际 DNS 查询由 doh.rs 中的 DoH 客户端完成
+        let alidns_primary = "223.5.5.5";
+        let alidns_secondary = "223.6.6.6";
         
-        // 设置 DNS 服务器
+        // 设置主 DNS 服务器
         let _ = Command::new("netsh")
             .args([
                 "interface", "ip", "set", "dns",
                 &format!("name={}", config.name),
-                "static", cloudflare_dns
+                "static", alidns_primary
             ])
             .output();
         
-        // 尝试配置 DoH (Windows 11+)
-        // 先添加 DoH 服务器配置
-        let _ = Command::new("netsh")
-            .args([
-                "dns", "add", "encryption",
-                "server=1.1.1.1",
-                "dohtemplate=https://cloudflare-dns.com/dns-query",
-                "autoupgrade=yes"
-            ])
-            .output();
-        
-        // 添加备用 DoH (1.0.0.1)
+        // 添加备用 DNS 服务器
         let _ = Command::new("netsh")
             .args([
                 "interface", "ip", "add", "dns",
                 &format!("name={}", config.name),
-                "1.0.0.1", "index=2"
+                alidns_secondary, "index=2"
             ])
             .output();
         
-        let _ = Command::new("netsh")
-            .args([
-                "dns", "add", "encryption",
-                "server=1.0.0.1",
-                "dohtemplate=https://cloudflare-dns.com/dns-query",
-                "autoupgrade=yes"
-            ])
-            .output();
-        
-        tracing::info!("DNS configured: Cloudflare DoH (1.1.1.1, 1.0.0.1)");
+        tracing::info!("TUN DNS fallback configured: {} / {}", alidns_primary, alidns_secondary);
+        tracing::info!("Note: Actual DNS queries are handled by internal DoH client");
         
         Ok(())
     }

@@ -28,14 +28,38 @@ pub async fn run_server(config: Config) -> Result<()> {
     
     let config = Arc::new(config);
     
+    // 预先建立到服务器的连接（验证配置并建立 Yamux session）
+    let yamux_transport = if config.use_yamux {
+        info!("🔗 Pre-connecting to server...");
+        let transport = Arc::new(YamuxTransport::new(config.clone()));
+        
+        // 触发一次连接以验证服务器可达性和 ECH 配置
+        match transport.dial().await {
+            Ok(stream) => {
+                // 立即关闭这个 stream，只是为了验证连接
+                drop(stream);
+                info!("✅ Server connection verified");
+            }
+            Err(e) => {
+                error!("❌ Failed to connect to server: {}", e);
+                return Err(e);
+            }
+        }
+        
+        Some(transport)
+    } else {
+        None
+    };
+    
     loop {
         match listener.accept().await {
             Ok((stream, addr)) => {
                 debug!("📥 New connection from {}", addr);
                 let config = config.clone();
+                let yamux_transport = yamux_transport.clone();
                 
                 tokio::spawn(async move {
-                    if let Err(e) = handle_connection(stream, config).await {
+                    if let Err(e) = handle_connection(stream, config, yamux_transport).await {
                         error!("Connection error from {}: {}", addr, e);
                     }
                 });
@@ -48,7 +72,11 @@ pub async fn run_server(config: Config) -> Result<()> {
 }
 
 /// 处理单个连接
-async fn handle_connection(stream: TcpStream, config: Arc<Config>) -> Result<()> {
+async fn handle_connection(
+    stream: TcpStream,
+    config: Arc<Config>,
+    yamux_transport: Option<Arc<YamuxTransport>>,
+) -> Result<()> {
     // 检测协议类型（peek 第一个字节）
     let mut buf = [0u8; 1];
     stream.peek(&mut buf).await?;
@@ -57,12 +85,12 @@ async fn handle_connection(stream: TcpStream, config: Arc<Config>) -> Result<()>
         0x05 => {
             // SOCKS5
             debug!("Detected SOCKS5 protocol");
-            handle_socks5(stream, config).await
+            handle_socks5(stream, config, yamux_transport).await
         }
         b'C' | b'G' | b'P' | b'H' => {
             // HTTP (CONNECT, GET, POST, HEAD)
             debug!("Detected HTTP protocol");
-            handle_http(stream, config).await
+            handle_http(stream, config, yamux_transport).await
         }
         _ => {
             warn!("Unknown protocol, first byte: 0x{:02x}", buf[0]);
@@ -72,14 +100,18 @@ async fn handle_connection(stream: TcpStream, config: Arc<Config>) -> Result<()>
 }
 
 /// 处理 SOCKS5 连接
-async fn handle_socks5(mut local: TcpStream, config: Arc<Config>) -> Result<()> {
+async fn handle_socks5(
+    mut local: TcpStream,
+    config: Arc<Config>,
+    yamux_transport: Option<Arc<YamuxTransport>>,
+) -> Result<()> {
     // 1. SOCKS5 握手（支持 CONNECT 和 UDP ASSOCIATE）
     let request = socks5_handshake_full(&mut local).await?;
     
     match request {
         Socks5Request::Connect(target) => {
             info!("SOCKS5 CONNECT: {}", target.display());
-            handle_socks5_connect(local, target, config).await
+            handle_socks5_connect(local, target, config, yamux_transport).await
         }
         Socks5Request::UdpAssociate(target) => {
             info!("SOCKS5 UDP ASSOCIATE: {}", target.display());
@@ -93,9 +125,14 @@ async fn handle_socks5_connect(
     local: TcpStream,
     target: super::socks5_impl::TargetAddr,
     config: Arc<Config>,
+    yamux_transport: Option<Arc<YamuxTransport>>,
 ) -> Result<()> {
-    // 建立到服务器的连接
-    let remote: Box<dyn ProxyStream> = if config.use_yamux {
+    // 建立到服务器的连接（复用已有的 Yamux session）
+    let remote: Box<dyn ProxyStream> = if let Some(transport) = yamux_transport {
+        let stream = transport.dial().await?;
+        use tokio_util::compat::FuturesAsyncReadCompatExt;
+        Box::new(stream.compat())
+    } else if config.use_yamux {
         let transport = YamuxTransport::new(config.clone());
         let stream = transport.dial().await?;
         use tokio_util::compat::FuturesAsyncReadCompatExt;
@@ -213,13 +250,21 @@ async fn handle_socks5_udp_associate(
 }
 
 /// 处理 HTTP CONNECT
-async fn handle_http(mut local: TcpStream, config: Arc<Config>) -> Result<()> {
+async fn handle_http(
+    mut local: TcpStream,
+    config: Arc<Config>,
+    yamux_transport: Option<Arc<YamuxTransport>>,
+) -> Result<()> {
     // 1. 解析 CONNECT 请求
     let target = parse_connect_request(&mut local).await?;
     info!("HTTP CONNECT target: {}", target.display());
     
-    // 2. 建立到服务器的连接
-    let remote: Box<dyn ProxyStream> = if config.use_yamux {
+    // 2. 建立到服务器的连接（复用已有的 Yamux session）
+    let remote: Box<dyn ProxyStream> = if let Some(transport) = yamux_transport {
+        let stream = transport.dial().await?;
+        use tokio_util::compat::FuturesAsyncReadCompatExt;
+        Box::new(stream.compat())
+    } else if config.use_yamux {
         let transport = YamuxTransport::new(config.clone());
         let stream = transport.dial().await?;
         use tokio_util::compat::FuturesAsyncReadCompatExt;
