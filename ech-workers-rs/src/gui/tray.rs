@@ -40,7 +40,7 @@ impl TrayManager {
         tray_menu.append(&separator)?;
         tray_menu.append(&quit_item)?;
         
-        // 创建托盘图标（使用默认图标）
+        // 创建托盘图标
         let icon = Icon::from_rgba(vec![255u8; 32 * 32 * 4], 32, 32)?;
         
         let tray_icon = TrayIconBuilder::new()

@@ -20,6 +20,7 @@ set(SOURCES
     src/nodemanager.cpp
     src/systemproxy.cpp
     src/nodedialog.cpp
+    src/nodepanel.cpp
 )
 
 set(HEADERS
@@ -31,12 +32,14 @@ set(HEADERS
     include/nodemanager.h
     include/systemproxy.h
     include/nodedialog.h
+    include/nodepanel.h
 )
 
-set(UI_FILES
-    ui/mainwindow.ui
-    ui/settingsdialog.ui
-)
+# UI_FILES - 如果使用代码构建 UI 则可省略
+# set(UI_FILES
+#     ui/mainwindow.ui
+#     ui/settingsdialog.ui
+# )
 
 set(RESOURCES
     resources/resources.qrc
@@ -45,7 +48,6 @@ set(RESOURCES
 add_executable(${PROJECT_NAME}
     ${SOURCES}
     ${HEADERS}
-    ${UI_FILES}
     ${RESOURCES}
 )
 

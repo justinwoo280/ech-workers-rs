@@ -13,6 +13,9 @@ MainWindow::MainWindow(QWidget *parent)
     , m_processManager(std::make_unique<ProcessManager>(this))
     , m_configManager(std::make_unique<ConfigManager>())
     , m_trayManager(std::make_unique<TrayManager>(this))
+    , m_systemProxy(std::make_unique<SystemProxy>(this))
+    , m_nodeManager(std::make_unique<NodeManager>(this))
+    , m_nodePanel(nullptr)
 {
     setupUi();
     connectSignals();
@@ -56,6 +59,22 @@ void MainWindow::setupUi() {
 
     m_tabWidget = new QTabWidget();
     createDashboard();
+    
+    // 节点面板
+    m_nodePanel = new NodePanel(m_nodeManager.get(), m_systemProxy.get(), this);
+    m_tabWidget->addTab(m_nodePanel, "📡 节点");
+    connect(m_nodePanel, &NodePanel::startRequested, this, [this](const ProxyNode &node, SystemProxy::ProxyMode mode) {
+        Q_UNUSED(mode);
+        QJsonObject config;
+        config["server_addr"] = node.serverAddr;
+        config["token"] = node.token;
+        config["use_ech"] = node.useEch;
+        config["ech_domain"] = node.echDomain;
+        config["doh_server"] = node.dohServer;
+        config["use_yamux"] = node.useYamux;
+        m_processManager->start(config);
+    });
+    
     createLogsPanel();
 
     mainLayout->addWidget(m_tabWidget);
@@ -187,9 +206,9 @@ void MainWindow::onStatusChanged(ProcessManager::ProxyStatus status) {
     findChild<QLabel*>("statusValue")->setText(statusText);
 
     if (status == ProcessManager::ProxyStatus::Running) {
-        m_startStopButton->setText("⏹ 停止");
+        m_startStopButton->setText("停止");
     } else {
-        m_startStopButton->setText("▶ 启动");
+        m_startStopButton->setText("启动");
     }
 
     m_trayManager->updateStatus(status == ProcessManager::ProxyStatus::Running);

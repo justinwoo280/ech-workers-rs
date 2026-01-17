@@ -16,7 +16,7 @@ rust-version = "1.83"
 
 [dependencies]
 # 核心依赖
-tokio = { version = "1.35", features = ["rt-multi-thread", "net", "io-util", "macros", "sync"] }
+tokio = { version = "1.35", features = ["rt-multi-thread", "net", "io-util", "io-std", "macros", "sync"] }
 tokio-util = { version = "0.7", features = ["compat"] }
 rustls = { version = "0.23", features = ["aws-lc-rs"] }
 tokio-rustls = "0.25"

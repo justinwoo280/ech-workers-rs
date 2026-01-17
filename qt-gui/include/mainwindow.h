@@ -10,6 +10,9 @@
 #include "processmanager.h"
 #include "configmanager.h"
 #include "traymanager.h"
+#include "systemproxy.h"
+#include "nodemanager.h"
+#include "nodepanel.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -46,6 +49,9 @@ private:
     std::unique_ptr<ProcessManager> m_processManager;
     std::unique_ptr<ConfigManager> m_configManager;
     std::unique_ptr<TrayManager> m_trayManager;
+    std::unique_ptr<SystemProxy> m_systemProxy;
+    std::unique_ptr<NodeManager> m_nodeManager;
+    NodePanel *m_nodePanel;
 
     QTabWidget *m_tabWidget;
     QPushButton *m_startStopButton;
