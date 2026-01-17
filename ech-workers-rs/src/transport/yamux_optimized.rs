@@ -206,13 +206,15 @@ async fn establish_new_session(config: &Config) -> Result<YamuxConnection> {
     ).await?;
     
     // 2. 解析服务器地址
-    let (_host, _port, path) = parse_server_addr(&config.server_addr)?;
+    let (host, _port, path) = parse_server_addr(&config.server_addr)?;
     
     // 3. 构建 WebSocket URL
-    let ws_url = format!("ws://localhost{}", path);
+    // 注意：虽然是 ws:// 协议，但实际上是在已建立的 TLS 连接上发送
+    // Host header 必须是实际服务器主机名，这样服务器才能正确处理请求
+    let ws_url = format!("ws://{}{}", host, path);
     
     // 4. 在 TLS 连接上建立 WebSocket
-    debug!("Establishing WebSocket over TLS");
+    debug!("Establishing WebSocket over TLS to {}", ws_url);
     let ws_adapter = establish_websocket_over_tls(tls_tunnel, &ws_url, Some(&config.token)).await?;
     
     // 5. 转换为 futures::AsyncRead/AsyncWrite
@@ -248,11 +250,11 @@ impl WebSocketTransport {
         ).await?;
         
         // 2. 解析路径
-        let (_host, _port, path) = parse_server_addr(&self.config.server_addr)?;
-        let ws_url = format!("ws://localhost{}", path);
+        let (host, _port, path) = parse_server_addr(&self.config.server_addr)?;
+        let ws_url = format!("ws://{}{}", host, path);
         
         // 3. 在 TLS 上建立 WebSocket
-        debug!("Establishing WebSocket over TLS");
+        debug!("Establishing WebSocket over TLS to {}", ws_url);
         establish_websocket_over_tls(tls_tunnel, &ws_url, Some(&self.config.token)).await
     }
 }
