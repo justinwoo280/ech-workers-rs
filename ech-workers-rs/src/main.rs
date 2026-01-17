@@ -11,6 +11,7 @@ mod utils;
 mod tls;
 mod tun;
 mod gui;
+mod rpc;
 
 use config::Config;
 use error::Result;
@@ -58,6 +59,10 @@ struct Args {
     /// 启用详细日志输出
     #[arg(short, long, global = true)]
     verbose: bool,
+    
+    /// JSON-RPC 模式 (用于 GUI 通信)
+    #[arg(long, global = true)]
+    json_rpc: bool,
 }
 
 #[derive(Subcommand, Debug)]
@@ -183,6 +188,11 @@ enum Commands {
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Args::parse();
+
+    // JSON-RPC 模式优先处理
+    if args.json_rpc {
+        return rpc::RpcServer::run().await;
+    }
 
     // 初始化日志
     let log_level = if args.verbose {

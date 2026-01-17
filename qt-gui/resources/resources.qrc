@@ -1,0 +1,5 @@
+&lt;RCC&gt;
+    &lt;qresource prefix="/"&gt;
+        &lt;!-- Icons will be added here --&gt;
+    &lt;/qresource&gt;
+&lt;/RCC&gt;
