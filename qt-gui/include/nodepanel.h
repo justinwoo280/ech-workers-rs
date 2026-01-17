@@ -3,7 +3,7 @@
 #include <QWidget>
 #include <QListWidget>
 #include <QPushButton>
-<parameter name="QLabel">
+#include <QLabel>
 #include <QComboBox>
 #include "nodemanager.h"
 #include "systemproxy.h"

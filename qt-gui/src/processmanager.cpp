@@ -87,7 +87,7 @@ void ProcessManager::sendCommand(const QString &method, const QJsonObject &param
     }
 
     QJsonObject request;
-    request["id"] = ++m_requestId;
+    request["id"] = static_cast<qint64>(++m_requestId);
     request["method"] = method;
     request["params"] = params;
 

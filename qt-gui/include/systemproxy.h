@@ -9,7 +9,7 @@ class SystemProxy : public QObject {
 public:
     enum ProxyMode {
         Direct,       // 直连
-        SystemProxy,  // 系统代理
+        System,       // 系统代理
         TunMode       // TUN 全局模式
     };
 

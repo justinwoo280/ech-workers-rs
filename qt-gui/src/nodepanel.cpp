@@ -26,7 +26,7 @@ void NodePanel::setupUi() {
     QHBoxLayout *modeLayout = new QHBoxLayout(modeGroup);
     
     m_modeCombo = new QComboBox();
-    m_modeCombo->addItem("🌐 系统代理模式", static_cast<int>(SystemProxy::SystemProxy));
+    m_modeCombo->addItem("🌐 系统代理模式", static_cast<int>(SystemProxy::System));
     m_modeCombo->addItem("🚀 TUN 全局模式", static_cast<int>(SystemProxy::TunMode));
     m_modeCombo->addItem("🔌 直连模式", static_cast<int>(SystemProxy::Direct));
     connect(m_modeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
@@ -245,7 +245,7 @@ void NodePanel::onModeChanged() {
         case SystemProxy::Direct:
             modeText = "直连";
             break;
-        case SystemProxy::SystemProxy:
+        case SystemProxy::System:
             modeText = "系统代理";
             break;
         case SystemProxy::TunMode:
