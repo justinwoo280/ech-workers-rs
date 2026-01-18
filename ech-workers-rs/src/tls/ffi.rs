@@ -9,9 +9,13 @@ use std::os::raw::{c_char, c_int, c_uint, c_ushort};
 /// TLS tunnel configuration (C ABI compatible)
 #[repr(C)]
 pub struct TlsTunnelConfig {
-    pub host: *const c_char,
+    pub host: *const c_char,          // SNI 主机名
     pub port: c_ushort,
     pub _padding1: [u8; 6],
+    
+    // 连接目标（可选，用于绕过 DNS）
+    pub connect_host: *const c_char,  // 实际连接的主机，null 表示使用 host
+    pub _padding_connect: [u8; 8],
     
     pub ech_config: *const u8,
     pub ech_config_len: usize,

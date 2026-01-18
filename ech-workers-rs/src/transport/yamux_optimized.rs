@@ -196,11 +196,15 @@ fn create_optimized_yamux_config() -> YamuxConfig {
 
 /// 建立新的 Yamux session
 async fn establish_new_session(config: &Config) -> Result<YamuxConnection> {
-    info!("🔧 Establishing new Yamux session...");
+    info!("🚀 Starting proxy connection to {}", config.server_addr);
+    if let Some(ref ip) = config.server_ip {
+        info!("   └─ Using server_ip: {}", ip);
+    }
 
     // 1. 建立 ECH + TLS 连接
     let tls_tunnel = establish_ech_tls(
         &config.server_addr,
+        config.server_ip.as_deref(),
         &config.doh_server,
         config.use_ech,
     ).await?;
@@ -208,25 +212,26 @@ async fn establish_new_session(config: &Config) -> Result<YamuxConnection> {
     // 2. 解析服务器地址
     let (host, _port, path) = parse_server_addr(&config.server_addr)?;
     
-    // 3. 构建 WebSocket URL
-    // 注意：虽然是 ws:// 协议，但实际上是在已建立的 TLS 连接上发送
-    // Host header 必须是实际服务器主机名，这样服务器才能正确处理请求
-    let ws_url = format!("ws://{}{}", host, path);
+    // 3. 在 TLS 连接上建立 WebSocket
+    info!("🌐 [3/4] Establishing WebSocket (Host: {}, Path: {})", host, path);
+    let ws_adapter = establish_websocket_over_tls(tls_tunnel, &host, &path, Some(&config.token))
+        .await
+        .map_err(|e| {
+            tracing::error!("❌ WebSocket handshake failed: {:?}", e);
+            e
+        })?;
+    info!("✅ [3/4] WebSocket connection established");
     
-    // 4. 在 TLS 连接上建立 WebSocket
-    debug!("Establishing WebSocket over TLS to {}", ws_url);
-    let ws_adapter = establish_websocket_over_tls(tls_tunnel, &ws_url, Some(&config.token)).await?;
-    
-    // 5. 转换为 futures::AsyncRead/AsyncWrite
+    // 4. 转换为 futures::AsyncRead/AsyncWrite
     let compat_stream = ws_adapter.compat();
     
-    // 6. 创建 Yamux connection with 优化配置
-    debug!("Creating Yamux session with optimized config");
+    // 5. 创建 Yamux connection with 优化配置
+    info!("🔗 [4/4] Creating Yamux multiplexer...");
     let yamux_config = create_optimized_yamux_config();
-    
     let connection = Connection::new(compat_stream, yamux_config, Mode::Client);
 
-    info!("✅ Yamux session established (window=2MB, buffer=4MB, split=64KB)");
+    info!("✅ [4/4] Yamux session ready (window=2MB, buffer=4MB)");
+    info!("🎉 Proxy connection established successfully!");
     Ok(connection)
 }
 
@@ -242,19 +247,31 @@ impl WebSocketTransport {
 
     /// 建立 WebSocket 连接
     pub async fn dial(&self) -> Result<WebSocketAdapter<TlsTunnel>> {
+        info!("🚀 Starting WebSocket connection to {}", self.config.server_addr);
+        if let Some(ref ip) = self.config.server_ip {
+            info!("   └─ Using server_ip: {}", ip);
+        }
+        
         // 1. 建立 ECH + TLS 连接
         let tls_tunnel = establish_ech_tls(
             &self.config.server_addr,
+            self.config.server_ip.as_deref(),
             &self.config.doh_server,
             self.config.use_ech,
         ).await?;
         
         // 2. 解析路径
         let (host, _port, path) = parse_server_addr(&self.config.server_addr)?;
-        let ws_url = format!("ws://{}{}", host, path);
         
         // 3. 在 TLS 上建立 WebSocket
-        debug!("Establishing WebSocket over TLS to {}", ws_url);
-        establish_websocket_over_tls(tls_tunnel, &ws_url, Some(&self.config.token)).await
+        info!("🌐 [3/3] Establishing WebSocket (Host: {}, Path: {})", host, path);
+        let ws = establish_websocket_over_tls(tls_tunnel, &host, &path, Some(&self.config.token))
+            .await
+            .map_err(|e| {
+                tracing::error!("❌ WebSocket handshake failed: {:?}", e);
+                e
+            })?;
+        info!("🎉 WebSocket connection established successfully!");
+        Ok(ws)
     }
 }

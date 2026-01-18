@@ -14,8 +14,9 @@ use crate::error::{Error, Result};
 /// TLS tunnel configuration
 #[derive(Debug, Clone)]
 pub struct TunnelConfig {
-    pub host: String,
+    pub host: String,                    // SNI 主机名
     pub port: u16,
+    pub connect_host: Option<String>,    // 实际连接的主机（可选，用于绕过 DNS）
     pub ech_config: Option<Vec<u8>>,
     pub enforce_ech: bool,
     pub use_firefox_profile: bool,
@@ -28,6 +29,7 @@ impl Default for TunnelConfig {
         Self {
             host: String::new(),
             port: 443,
+            connect_host: None,
             ech_config: None,
             enforce_ech: true,
             use_firefox_profile: false, // 使用 BoringSSL 默认指纹 + GREASE
@@ -45,6 +47,13 @@ impl TunnelConfig {
             port,
             ..Default::default()
         }
+    }
+    
+    /// Set connect host (for bypassing DNS)
+    /// TCP connects to connect_host:port, but TLS SNI uses host
+    pub fn with_connect_host(mut self, connect_host: impl Into<String>) -> Self {
+        self.connect_host = Some(connect_host.into());
+        self
     }
     
     /// Set ECH configuration
@@ -83,15 +92,29 @@ impl TlsTunnel {
     
     /// Create a new TLS tunnel connection with full config
     pub fn connect(config: TunnelConfig) -> Result<Self> {
-        debug!("Connecting to {}:{}", config.host, config.port);
+        if let Some(ref connect_host) = config.connect_host {
+            debug!("Connecting to {} (SNI: {})", connect_host, config.host);
+        } else {
+            debug!("Connecting to {}:{}", config.host, config.port);
+        }
         
         let host_cstr = CString::new(config.host.clone())
             .map_err(|_| Error::InvalidConfig("Invalid host".into()))?;
+        
+        // connect_host: 实际连接的主机（可选）
+        let connect_host_cstr = config.connect_host.as_ref()
+            .map(|h| CString::new(h.clone()))
+            .transpose()
+            .map_err(|_| Error::InvalidConfig("Invalid connect_host".into()))?;
         
         let c_config = ffi::TlsTunnelConfig {
             host: host_cstr.as_ptr(),
             port: config.port,
             _padding1: [0; 6],
+            connect_host: connect_host_cstr.as_ref()
+                .map(|c| c.as_ptr())
+                .unwrap_or(std::ptr::null()),
+            _padding_connect: [0; 8],
             ech_config: config.ech_config.as_ref()
                 .map(|v| v.as_ptr())
                 .unwrap_or(std::ptr::null()),

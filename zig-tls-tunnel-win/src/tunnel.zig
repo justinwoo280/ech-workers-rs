@@ -9,8 +9,9 @@ pub const socket_t = ws2_32.SOCKET;
 const INVALID_SOCKET = ws2_32.INVALID_SOCKET;
 
 pub const TunnelConfig = struct {
-    host: []const u8,
+    host: []const u8,         // SNI 主机名
     port: u16,
+    connect_host: ?[]const u8 = null,  // 实际连接的主机（可选，用于绕过 DNS）
     ech_config: ?[]const u8 = null,
     
     // ECH enforcement: fail if ECH config provided but not accepted
@@ -72,9 +73,12 @@ pub const Tunnel = struct {
         }
 
         // 建立 TCP 连接
+        // 如果指定了 connect_host，连接到 connect_host；否则连接到 host
+        const tcp_host = config.connect_host orelse config.host;
+        std.log.info("TCP connecting to {s}:{d} (SNI: {s})", .{ tcp_host, config.port, config.host });
         self.socket = try connectTcp(
             allocator,
-            config.host,
+            tcp_host,
             config.port,
             config.connect_timeout_ms,
         );

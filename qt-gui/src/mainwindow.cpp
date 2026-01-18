@@ -305,8 +305,12 @@ void MainWindow::updateDashboard() {
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-    if (m_configManager->loadConfig()["app"].toObject()["close_to_tray"].toBool(true)) {
+    // 默认关闭时退出程序（除非用户明确启用了"关闭到托盘"）
+    if (m_configManager->loadConfig()["app"].toObject()["close_to_tray"].toBool(false)) {
         hide();
+        if (m_trayManager) {
+            m_trayManager->showMessage("ECH Workers RS", "程序已最小化到托盘");
+        }
         event->ignore();
     } else {
         // CRITICAL: 强制清理系统代理，防止用户网络断开
@@ -316,6 +320,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         
         m_processManager->stop();
         event->accept();
+        QApplication::quit();
     }
 }
 

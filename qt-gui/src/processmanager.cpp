@@ -60,12 +60,19 @@ void ProcessManager::stop() {
     updateStatus(ProxyStatus::Stopping);
     m_heartbeatTimer.stop();
 
-    sendCommand("stop");
-
+    // 发送停止命令
     if (m_process->state() == QProcess::Running) {
-        m_process->waitForFinished(3000);
-        if (m_process->state() == QProcess::Running) {
-            m_process->kill();
+        sendCommand("stop");
+        
+        // 等待进程正常退出
+        if (!m_process->waitForFinished(2000)) {
+            // 如果 2 秒内没有退出，先尝试正常终止
+            m_process->terminate();
+            if (!m_process->waitForFinished(1000)) {
+                // 如果仍未退出，强制结束
+                m_process->kill();
+                m_process->waitForFinished(500);
+            }
         }
     }
 

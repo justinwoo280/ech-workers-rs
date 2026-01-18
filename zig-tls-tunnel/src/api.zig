@@ -7,9 +7,14 @@ pub const profiles = @import("profiles.zig");
 /// TLS 隧道配置（C ABI 兼容）
 pub const TlsTunnelConfig = extern struct {
     // 服务器信息
-    host: [*:0]const u8,
+    host: [*:0]const u8,      // SNI 主机名
     port: u16,
     _padding1: [6]u8 = undefined,
+    
+    // 连接目标（可选，用于绕过 DNS）
+    // 如果设置，TCP 连接到 connect_host:port，但 TLS SNI 使用 host
+    connect_host: ?[*:0]const u8,
+    _padding_connect: [8]u8 = undefined,
 
     // ECH 配置（可选，Rust 侧通过 DoH 获取）
     ech_config: ?[*]const u8,
@@ -69,6 +74,7 @@ export fn tls_tunnel_create(
     const zig_config = tunnel.TunnelConfig{
         .host = std.mem.span(config.host),
         .port = config.port,
+        .connect_host = if (config.connect_host) |ptr| std.mem.span(ptr) else null,
         .ech_config = if (config.ech_config) |ptr|
             ptr[0..config.ech_config_len]
         else
