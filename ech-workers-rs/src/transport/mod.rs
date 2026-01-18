@@ -6,6 +6,8 @@
 pub mod websocket;
 pub mod yamux_optimized;
 pub mod connection;
+pub mod h2;
 
 // 导出优化版本
 pub use yamux_optimized::YamuxTransport;
+pub use h2::H2StreamAdapter;

@@ -11,16 +11,66 @@ use tokio::sync::{mpsc, oneshot};
 use tracing::{info, debug, warn, error};
 use yamux::{Config as YamuxConfig, Connection, Mode};
 use tokio_util::compat::TokioAsyncReadCompatExt;
+use std::pin::Pin;
+use std::task::{Context, Poll};
+use tokio::io::{AsyncRead, AsyncWrite};
 
 use crate::config::Config;
 use crate::error::{Error, Result};
 use crate::transport::websocket::{WebSocketAdapter, establish_websocket_over_tls};
+use crate::transport::h2::{H2StreamAdapter, establish_h2_websocket};
 use crate::transport::connection::establish_ech_tls;
 use crate::utils::parse_server_addr;
 use crate::tls::TlsTunnel;
 
 type YamuxStream = yamux::Stream;
-type YamuxConnection = Connection<tokio_util::compat::Compat<WebSocketAdapter<TlsTunnel>>>;
+type YamuxConnection = Connection<tokio_util::compat::Compat<StreamAdapter>>;
+
+/// 统一的流适配器，支持 HTTP/1.1 WebSocket 和 HTTP/2 WebSocket
+pub enum StreamAdapter {
+    H1(WebSocketAdapter<TlsTunnel>),
+    H2(H2StreamAdapter),
+}
+
+impl AsyncRead for StreamAdapter {
+    fn poll_read(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+        buf: &mut tokio::io::ReadBuf<'_>,
+    ) -> Poll<std::io::Result<()>> {
+        match self.get_mut() {
+            StreamAdapter::H1(s) => Pin::new(s).poll_read(cx, buf),
+            StreamAdapter::H2(s) => Pin::new(s).poll_read(cx, buf),
+        }
+    }
+}
+
+impl AsyncWrite for StreamAdapter {
+    fn poll_write(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+        buf: &[u8],
+    ) -> Poll<std::io::Result<usize>> {
+        match self.get_mut() {
+            StreamAdapter::H1(s) => Pin::new(s).poll_write(cx, buf),
+            StreamAdapter::H2(s) => Pin::new(s).poll_write(cx, buf),
+        }
+    }
+
+    fn poll_flush(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<std::io::Result<()>> {
+        match self.get_mut() {
+            StreamAdapter::H1(s) => Pin::new(s).poll_flush(cx),
+            StreamAdapter::H2(s) => Pin::new(s).poll_flush(cx),
+        }
+    }
+
+    fn poll_shutdown(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<std::io::Result<()>> {
+        match self.get_mut() {
+            StreamAdapter::H1(s) => Pin::new(s).poll_shutdown(cx),
+            StreamAdapter::H2(s) => Pin::new(s).poll_shutdown(cx),
+        }
+    }
+}
 
 /// Yamux 会话管理器命令
 #[allow(dead_code)]
@@ -212,18 +262,37 @@ async fn establish_new_session(config: &Config) -> Result<YamuxConnection> {
     // 2. 解析服务器地址
     let (host, _port, path) = parse_server_addr(&config.server_addr)?;
     
-    // 3. 在 TLS 连接上建立 WebSocket
+    // 获取协商的协议
+    let alpn = tls_tunnel.info().map(|i| i.alpn).unwrap_or_else(|_| "Unknown".into());
+    info!("Negotiated ALPN: {}", alpn);
+    
+    // 3. 根据 ALPN 选择 WebSocket 建立方式
     info!("🌐 [3/4] Establishing WebSocket (Host: {}, Path: {})", host, path);
-    let ws_adapter = establish_websocket_over_tls(tls_tunnel, &host, &path, Some(&config.token))
-        .await
-        .map_err(|e| {
-            tracing::error!("❌ WebSocket handshake failed: {:?}", e);
-            e
-        })?;
+    
+    let stream_adapter = if alpn == "h2" {
+        info!("   └─ Using HTTP/2 WebSocket (RFC 8441)");
+        let h2_adapter = establish_h2_websocket(tls_tunnel, &host, &path, Some(&config.token))
+            .await
+            .map_err(|e| {
+                error!("❌ HTTP/2 WebSocket handshake failed: {:?}", e);
+                e
+            })?;
+        StreamAdapter::H2(h2_adapter)
+    } else {
+        info!("   └─ Using HTTP/1.1 WebSocket");
+        let ws_adapter = establish_websocket_over_tls(tls_tunnel, &host, &path, Some(&config.token))
+            .await
+            .map_err(|e| {
+                error!("❌ WebSocket handshake failed: {:?}", e);
+                e
+            })?;
+        StreamAdapter::H1(ws_adapter)
+    };
+
     info!("✅ [3/4] WebSocket connection established");
     
     // 4. 转换为 futures::AsyncRead/AsyncWrite
-    let compat_stream = ws_adapter.compat();
+    let compat_stream = stream_adapter.compat();
     
     // 5. 创建 Yamux connection with 优化配置
     info!("🔗 [4/4] Creating Yamux multiplexer...");

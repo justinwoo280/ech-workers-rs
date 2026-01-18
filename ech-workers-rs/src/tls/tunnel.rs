@@ -162,6 +162,7 @@ impl TlsTunnel {
             used_ech: false,
             _padding: [0; 3],
             server_name: [0; 256],
+            alpn: [0; 64],
         };
         
         let error = unsafe {
@@ -172,10 +173,15 @@ impl TlsTunnel {
             return Err(Error::Tls(format!("Failed to get info: {:?}", error)));
         }
         
+        // Parse ALPN
+        let alpn_len = info.alpn.iter().position(|&c| c == 0).unwrap_or(info.alpn.len());
+        let alpn = String::from_utf8_lossy(&info.alpn[..alpn_len]).to_string();
+
         Ok(ConnectionInfo {
             protocol_version: info.protocol_version,
             cipher_suite: info.cipher_suite,
             used_ech: info.used_ech,
+            alpn,
         })
     }
     
@@ -336,6 +342,7 @@ pub struct ConnectionInfo {
     pub protocol_version: u16,
     pub cipher_suite: u16,
     pub used_ech: bool,
+    pub alpn: String,
 }
 
 impl ConnectionInfo {

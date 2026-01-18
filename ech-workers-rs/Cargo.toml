@@ -29,6 +29,8 @@ fast-socks5 = "0.9"
 # HTTP 解析
 httparse = "1.8"
 http = "1.0"
+h2 = "0.3"
+bytes = "1.5"
 
 # DNS-over-HTTPS
 hickory-resolver = { version = "0.24", features = ["dns-over-https-rustls"] }

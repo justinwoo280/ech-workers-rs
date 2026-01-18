@@ -37,6 +37,7 @@ pub struct TlsInfo {
     pub used_ech: bool,
     pub _padding: [u8; 3],
     pub server_name: [u8; 256],
+    pub alpn: [u8; 64],
 }
 
 /// TLS error codes
