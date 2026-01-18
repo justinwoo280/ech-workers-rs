@@ -81,6 +81,7 @@ impl TlsTunnel {
         let config = TunnelConfig {
             host: host.to_string(),
             port,
+            connect_host: None,
             ech_config: ech_config.map(|c| c.to_vec()),
             enforce_ech: ech_config.is_some(),
             use_firefox_profile: false, // 使用 BoringSSL 默认指纹

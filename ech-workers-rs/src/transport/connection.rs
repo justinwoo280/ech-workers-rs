@@ -2,7 +2,7 @@
 /// 
 /// DoH → ECH → Zig TLS → WebSocket → Yamux
 
-use tracing::{info, debug, warn, error};
+use tracing::{info, warn, error};
 use crate::error::{Error, Result};
 use crate::ech;
 use crate::tls::{TlsTunnel, TunnelConfig};
