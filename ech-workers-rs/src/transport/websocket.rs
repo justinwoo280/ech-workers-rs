@@ -4,12 +4,12 @@
 
 use tokio_tungstenite::WebSocketStream;
 use tungstenite::protocol::Message;
-use tungstenite::client::IntoClientRequest;
-use tracing::{debug, info};
+use tracing::{debug, info, error};
 use tokio::io::{AsyncRead, AsyncWrite};
 use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::io;
+use base64::Engine;
 
 use crate::error::{Error, Result};
 
@@ -136,7 +136,7 @@ where
 /// - `path`: 请求路径（如 "/" 或 "/ws"）
 /// - `token`: 认证 token（通过 Sec-WebSocket-Protocol 发送）
 pub async fn establish_websocket_over_tls<S>(
-    tls_stream: S,
+    mut tls_stream: S,
     host: &str,
     path: &str,
     token: Option<&str>,
@@ -144,47 +144,87 @@ pub async fn establish_websocket_over_tls<S>(
 where
     S: AsyncRead + AsyncWrite + Unpin,
 {
-    use tokio_tungstenite::client_async_with_config;
-    use tungstenite::protocol::WebSocketConfig;
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
     
     debug!("Establishing WebSocket connection to {} (path: {})", host, path);
 
-    // 使用 ws:// 而不是 wss://，因为 TLS 已经由 Zig tunnel 建立
-    // tungstenite 只需要在已有的 TLS 流上发送 HTTP 升级请求
-    let ws_url = format!("ws://{}{}", host, path);
+    // 手动构建 WebSocket 升级请求
+    // 生成随机的 Sec-WebSocket-Key
+    let random_bytes: [u8; 16] = rand::random();
+    let ws_key = base64::engine::general_purpose::STANDARD.encode(&random_bytes);
     
-    debug!("WebSocket request URL: {} (over existing TLS)", ws_url);
-    debug!("WebSocket Sec-WebSocket-Protocol: {:?}", token);
-
-    // WebSocket 配置
+    // 构建 HTTP 升级请求
+    let mut request = format!(
+        "GET {} HTTP/1.1\r\n\
+         Host: {}\r\n\
+         Upgrade: websocket\r\n\
+         Connection: Upgrade\r\n\
+         Sec-WebSocket-Key: {}\r\n\
+         Sec-WebSocket-Version: 13\r\n",
+        path, host, ws_key
+    );
+    
+    // 添加 token 作为子协议
+    if let Some(token) = token {
+        request.push_str(&format!("Sec-WebSocket-Protocol: {}\r\n", token));
+    }
+    request.push_str("\r\n");
+    
+    info!("📤 Sending WebSocket upgrade request:");
+    for line in request.lines().take(6) {
+        debug!("   > {}", line);
+    }
+    
+    // 发送请求
+    tls_stream.write_all(request.as_bytes()).await
+        .map_err(|e| Error::Io(e))?;
+    tls_stream.flush().await
+        .map_err(|e| Error::Io(e))?;
+    
+    // 读取响应头
+    let mut response_buf = vec![0u8; 4096];
+    let n = tls_stream.read(&mut response_buf).await
+        .map_err(|e| Error::Io(e))?;
+    
+    let response_data = &response_buf[..n];
+    
+    // 打印原始响应的前 200 字节用于调试
+    info!("📥 Received {} bytes from server", n);
+    if let Ok(text) = std::str::from_utf8(response_data) {
+        for line in text.lines().take(5) {
+            debug!("   < {}", line);
+        }
+    } else {
+        // 如果不是有效 UTF-8，打印十六进制
+        let hex: String = response_data.iter().take(64).map(|b| format!("{:02x} ", b)).collect();
+        error!("   < (binary) {}", hex);
+    }
+    
+    // 检查是否是有效的 HTTP 101 响应
+    let response_str = String::from_utf8_lossy(response_data);
+    if !response_str.starts_with("HTTP/1.1 101") {
+        error!("❌ Server did not return HTTP/1.1 101 Switching Protocols");
+        error!("   Response: {}", response_str.lines().next().unwrap_or("(empty)"));
+        return Err(Error::Protocol(format!(
+            "WebSocket upgrade failed: {}", 
+            response_str.lines().next().unwrap_or("(empty)")
+        )));
+    }
+    
+    info!("✅ WebSocket upgrade accepted");
+    
+    // 使用 tokio-tungstenite 包装已升级的连接
+    use tokio_tungstenite::WebSocketStream;
+    use tungstenite::protocol::{WebSocketConfig, Role};
+    
     let ws_config = WebSocketConfig {
         max_frame_size: Some(16 * 1024 * 1024),
         ..Default::default()
     };
-
-    // 使用 tungstenite 的 IntoClientRequest 自动构建请求
-    // 它会正确设置所有必需的 WebSocket headers
-    let mut request = ws_url.into_client_request()
-        .map_err(|e| Error::Protocol(format!("Failed to build request: {}", e)))?;
     
-    // 添加 token 作为子协议（服务端通过此认证）
-    if let Some(token) = token {
-        request.headers_mut().insert(
-            "Sec-WebSocket-Protocol",
-            token.parse().unwrap()
-        );
-    }
-
-    // WebSocket 握手
-    let (ws_stream, response) = client_async_with_config(request, tls_stream, Some(ws_config))
-        .await
-        .map_err(|e| {
-            tracing::error!("WebSocket handshake failed: {:?}", e);
-            Error::WebSocket(e)
-        })?;
+    let ws_stream = WebSocketStream::from_raw_socket(tls_stream, Role::Client, Some(ws_config)).await;
 
     info!("✅ WebSocket handshake successful");
-    debug!("WebSocket response status: {:?}", response.status());
 
     Ok(WebSocketAdapter::new(ws_stream))
 }
