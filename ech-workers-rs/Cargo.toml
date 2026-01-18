@@ -29,7 +29,7 @@ fast-socks5 = "0.9"
 # HTTP 解析
 httparse = "1.8"
 http = "1.0"
-h2 = "0.3"
+h2 = "0.4"
 bytes = "1.5"
 
 # DNS-over-HTTPS

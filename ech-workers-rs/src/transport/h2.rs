@@ -9,9 +9,10 @@ use std::io;
 use bytes::{Bytes, BytesMut, Buf};
 use h2::client::{SendRequest, Connection};
 use h2::{RecvStream, SendStream};
+use h2::ext::Protocol;
 use tokio::io::{AsyncRead, AsyncWrite};
 use tracing::{debug, info, error, warn};
-use http::Request;
+use http::{Request, HeaderValue};
 
 use crate::error::{Error, Result};
 use crate::tls::TlsTunnel;
@@ -156,53 +157,55 @@ pub async fn establish_h2_websocket(
 
     // 3. 构建 RFC 8441 请求
     // :method = CONNECT
-    // :protocol = websocket
+    // :protocol = websocket (通过 extension 传递)
     // :scheme = https
-    let mut builder = Request::builder()
+    let mut request = Request::builder()
         .method("CONNECT")
         .uri(format!("https://{}{}", host, path))
-        .header("host", host) // 虽然 h2 使用 :authority，但有些库可能需要 host
-        .header(":protocol", "websocket");
+        .body(())
+        .map_err(|e| Error::Config(format!("Invalid request: {}", e)))?;
+
+    // 设置 :protocol 伪头 (RFC 8441 Extended CONNECT)
+    request.extensions_mut().insert(Protocol::from_static("websocket"));
 
     // 添加 Token 到 Sec-WebSocket-Protocol
     if let Some(t) = token {
-        builder = builder.header("sec-websocket-protocol", t);
+        request.headers_mut().insert(
+            "sec-websocket-protocol",
+            HeaderValue::from_str(t).map_err(|e| Error::Config(format!("Invalid token: {}", e)))?
+        );
     }
     
     // 添加标准 WebSocket 头
-    builder = builder
-        .header("sec-websocket-version", "13")
-        .header("origin", format!("https://{}", host));
-
-    let request = builder.body(())
-        .map_err(|e| Error::Config(format!("Invalid request: {}", e)))?;
+    request.headers_mut().insert("sec-websocket-version", HeaderValue::from_static("13"));
+    request.headers_mut().insert(
+        "origin",
+        HeaderValue::from_str(&format!("https://{}", host))
+            .map_err(|e| Error::Config(format!("Invalid origin: {}", e)))?
+    );
 
     info!("📤 Sending HTTP/2 WebSocket CONNECT request...");
     
     // 4. 发送请求
-    let (response, stream) = client.send_request(request, false)
+    let (response_fut, send_stream) = client.send_request(request, false)
         .map_err(|e| Error::Protocol(format!("Failed to send request: {}", e)))?;
     
-    let (head, mut body) = response.await
-        .map_err(|e| Error::Protocol(format!("Failed to receive response: {}", e)))?
-        .into_parts();
+    // 5. 等待响应
+    let response = response_fut.await
+        .map_err(|e| Error::Protocol(format!("Failed to receive response: {}", e)))?;
     
-    debug!("📥 Received response status: {}", head.status);
+    debug!("📥 Received response status: {}", response.status());
     
-    // 5. 验证响应
-    if head.status != 200 {
-        error!("❌ Server rejected WebSocket upgrade: {}", head.status);
-        return Err(Error::Protocol(format!("Server returned status {}", head.status)));
+    // 6. 验证响应
+    if response.status() != 200 {
+        error!("❌ Server rejected WebSocket upgrade: {}", response.status());
+        return Err(Error::Protocol(format!("Server returned status {}", response.status())));
     }
     
     info!("✅ HTTP/2 WebSocket established successfully!");
     
-    // 6. 转换流
-    let (recv_stream, send_stream) = stream.split();
-    
-    // 注意：send_request 返回的是 SendStream<Bytes>，我们需要把它和 RecvStream 组合
-    // 但是 split() 给我们的是 SendStream 和 RecvStream
-    // 我们需要的是 send_stream 和 recv_stream
+    // 7. 提取接收流
+    let recv_stream = response.into_body();
     
     Ok(H2StreamAdapter::new(send_stream, recv_stream))
 }
