@@ -25,6 +25,7 @@ pub const TunnelInfo = struct {
     cipher_suite: u16,
     used_ech: bool,
     server_name: [256]u8,
+    alpn: [64]u8,
 };
 
 pub const Tunnel = struct {
@@ -166,6 +167,13 @@ pub const Tunnel = struct {
         @memset(&info.server_name, 0);
         const name_len = @min(self.config.host.len, 255);
         @memcpy(info.server_name[0..name_len], self.config.host[0..name_len]);
+
+        // ALPN
+        @memset(&info.alpn, 0);
+        if (ssl.getAlpnSelected(self.ssl_conn)) |alpn| {
+            const alpn_len = @min(alpn.len, 63);
+            @memcpy(info.alpn[0..alpn_len], alpn[0..alpn_len]);
+        }
 
         return info;
     }

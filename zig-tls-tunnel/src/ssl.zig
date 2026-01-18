@@ -110,6 +110,7 @@ pub const TLSEXT_cert_compression_zstd: u16 = 3;
 // ALPN
 extern "c" fn SSL_set_alpn_protos(ssl: *SSL, protos: [*]const u8, protos_len: c_uint) c_int;
 extern "c" fn SSL_CTX_set_alpn_protos(ctx: *SSL_CTX, protos: [*]const u8, protos_len: c_uint) c_int;
+extern "c" fn SSL_get0_alpn_selected(ssl: *const SSL, out: *[*]const u8, out_len: *c_uint) void;
 
 // Cipher List (SSL connection level)
 extern "c" fn SSL_set_cipher_list(ssl: *SSL, str: [*:0]const u8) c_int;
@@ -324,6 +325,17 @@ pub fn setAlpnProtosCtx(ctx: *SSL_CTX, protos: []const u8) !void {
     if (SSL_CTX_set_alpn_protos(ctx, protos.ptr, @intCast(protos.len)) != 0) {
         return error.SetAlpnFailed;
     }
+}
+
+/// Get negotiated ALPN protocol
+pub fn getAlpnSelected(ssl: *const SSL) ?[]const u8 {
+    var out: [*]const u8 = undefined;
+    var out_len: c_uint = 0;
+    
+    SSL_get0_alpn_selected(ssl, &out, &out_len);
+    
+    if (out_len == 0) return null;
+    return out[0..out_len];
 }
 
 // ========== Chrome Fingerprint Functions ==========

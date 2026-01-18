@@ -40,6 +40,7 @@ pub const TlsInfo = extern struct {
     used_ech: bool,
     _padding: [3]u8 = undefined,
     server_name: [256]u8,
+    alpn: [64]u8,
 };
 
 /// 错误码
@@ -180,6 +181,7 @@ export fn tls_tunnel_get_info(
     out_info.cipher_suite = info.cipher_suite;
     out_info.used_ech = info.used_ech;
     @memcpy(&out_info.server_name, &info.server_name);
+    @memcpy(&out_info.alpn, &info.alpn);
 
     return TlsError.Success;
 }
