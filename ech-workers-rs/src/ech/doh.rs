@@ -26,10 +26,12 @@ pub async fn query_ech_config(domain: &str, doh_server: &str) -> Result<Vec<u8>>
     
     // 1. 构建 DNS 查询
     let dns_query = build_dns_query(domain, TYPE_HTTPS);
+    debug!("DNS query built: {} bytes", dns_query.len());
     
     // 2. Base64 编码（URL-safe, no padding）
     use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
     let dns_base64 = URL_SAFE_NO_PAD.encode(&dns_query);
+    debug!("DNS query encoded: {} chars", dns_base64.len());
     
     // 3. 构建 DoH URL
     let base_url = if doh_server.starts_with("http") {
@@ -45,18 +47,22 @@ pub async fn query_ech_config(domain: &str, doh_server: &str) -> Result<Vec<u8>>
     debug!("DoH URL: {}", doh_url);
     
     // 4. 发送 HTTP GET 请求（禁用代理，避免循环依赖）
+    debug!("Building reqwest client...");
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(10))
         .no_proxy()  // 关键：DoH 请求不走代理
         .build()
         .map_err(|e| Error::Dns(e.to_string()))?;
     
+    debug!("Sending DoH request...");
     let response = client
         .get(&doh_url)
         .header("Accept", "application/dns-message")
         .send()
         .await
         .map_err(|e| Error::Dns(format!("DoH request failed: {}", e)))?;
+    
+    debug!("DoH response status: {}", response.status());
     
     if !response.status().is_success() {
         return Err(Error::Dns(format!(
